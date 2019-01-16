@@ -6,19 +6,17 @@ const mongoose = require('mongoose');
 
 
 
-
-
 // SCHEMA DEFINITION
 //
 const userSchema = mongoose.Schema({
   username: {type: String, required: true, unique: true, trim: true},
   hashedPassword: {type: String, required: true},
-  email: {type: String, unique: true, trim: true, default: ""}
+  email: {type: String, unique: true, trim: true, default: ""},
+  cocktails: [{type: mongoose.Schema.Types.ObjectId, ref: "Cocktail"}],
+  //suggestions: [{type: mongoose.Schema.Types.ObjectId, ref: "Suggestion"} ]
   //createdAt
   //updatedAt
 }, {timestamps: true});
-
-
 
 
 
@@ -27,8 +25,6 @@ const userSchema = mongoose.Schema({
 userSchema.statics.hashPassword = function(password) {
   return bcrypt.hash(password, 11);
 };
-
-
 
 
 
@@ -50,30 +46,11 @@ userSchema.methods.privateInfo = function() {
   }
 }
 
-//TEMP, DEV: Unsecure
-userSchema.methods.devInfo = function() {
-  return {
-    username: this.username,
-    hashedPassword: this.hashedPassword,
-    email: this.email,
-    createdAt: this.createdAt,
-    updatedAt: this.updatedAt
-  };
-};
-
-userSchema.methods.passwordIsCorrect = function(providedPassword) {
-  return bcrypt.compare(providedPassword, this.password);
-};
-
-
-
 
 
 // MODEL DECLARATION
 //
 const User = mongoose.model('user', userSchema);
-
-
 
 
 

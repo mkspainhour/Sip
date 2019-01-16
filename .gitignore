@@ -1,8 +1,4 @@
-# npm dependencies directory
 node_modules/
-
-# npm cache directory
 .npm
-
-# dotenv environment variables
 .env
+tasks.todo

@@ -47,14 +47,14 @@ app.all("*", (req, res)=> {
 let server;
 const {PORT, DATABASE_URL} = require("./config");
 
-function startServer() {
+function startServer(url = DATABASE_URL) {
   return new Promise( (resolve, reject)=> {
-    mongoose.connect(DATABASE_URL, {useMongoClient: true}, (err)=> {
+    mongoose.connect(url, {useMongoClient: true}, (err)=> {
       if(err) {
         return reject(err);
       }
       server = app.listen(PORT, ()=> {
-        console.log(`Your app is listening on port ${PORT}`);
+        //console.log(`Your app is listening on port ${PORT}`);
         resolve();
       })
       .on("error", (err)=> {
