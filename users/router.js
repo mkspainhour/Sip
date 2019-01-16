@@ -4,7 +4,7 @@ const express = require("express");
 const mongoose = require("mongoose");
   mongoose.Promise = global.Promise;
 const router = express.Router();
-const {User} = require("./models");
+const { User } = require("./models");
 
 
 

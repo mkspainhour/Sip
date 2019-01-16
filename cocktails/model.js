@@ -13,8 +13,8 @@ const cocktailSchema = mongoose.Schema({
   ingredients: {
     type: [{
       name: {type: String, required: true, trim: true},
-      measurementUnit: {type: String, required: true, lowercase: true, default: "part"},
-      amount: {type: String, required: true},
+      measurementUnit: {type: String, required: true, trim: true, lowercase: true},
+      amount: {type: String, required: true, trim: true},
       abv: {type: Number, min: 0, max: 100}
     }],
     required: true,
@@ -34,17 +34,17 @@ const cocktailSchema = mongoose.Schema({
 
 // STATIC MODEL METHOD
 //
-cocktailSchema.statics.staticMethod = function() {
-  return true;
-};
+// cocktailSchema.statics.staticMethod = function() {
+//   return true;
+// };
 
 
 
 // MODEL INSTANCE METHODS
 //
-cocktailSchema.methods.instanceMethod = function() {
-  return true;
-};
+// cocktailSchema.methods.instanceMethod = function() {
+//   return true;
+// };
 
 
 

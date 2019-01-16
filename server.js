@@ -49,7 +49,7 @@ const {PORT, DATABASE_URL} = require("./config");
 
 function startServer(url = DATABASE_URL) {
   return new Promise( (resolve, reject)=> {
-    mongoose.connect(url, {useMongoClient: true}, (err)=> {
+    mongoose.connect(url, {useNewUrlParser: true}, (err)=> {
       if(err) {
         return reject(err);
       }
