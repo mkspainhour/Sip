@@ -6,7 +6,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node server.js",
-    "test": "mocha --exit"
+    "test": "mocha '*/*.tests.js' --recursive --exit"
   },
   "repository": {},
   "author": "Marshall Spainhour",

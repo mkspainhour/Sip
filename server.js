@@ -4,14 +4,14 @@ const express = require("express");
 const morgan = require("morgan");
 const mongoose = require("mongoose");
   mongoose.Promise = global.Promise;
-//const passport = require("passport");
+const passport = require("passport");
 
 
 
 // EXPRESS APP INSTANTIATION & SERVER-WIDE MIDDLEWARE
 //
 const app = express();
-app.use( morgan("dev") );
+TEMP: app.use( morgan("dev") );
 app.use( express.json() );
 app.use( function (req, res, next) {
   res.set({
@@ -27,6 +27,9 @@ app.use( function (req, res, next) {
 
 // ROUTES
 //
+const {router: cocktailsRouter} = require("./cocktails");
+app.use("/api/cocktails/", cocktailsRouter);
+
 const {router: usersRouter} = require("./users");
 app.use("/api/users/", usersRouter);
 
@@ -36,7 +39,8 @@ app.use("/api/users/", usersRouter);
 //
 app.all("*", (req, res)=> {
   return res.status(404).json({
-    message: "Nothing to do here."
+    errorType: "NoSuchDestination",
+    message: "I don't think you know where you're going."
   });
 });
 

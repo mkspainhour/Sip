@@ -12,20 +12,13 @@ const cocktailSchema = mongoose.Schema({
   creator: {type: mongoose.Schema.Types.ObjectId, ref: "User", required: true},
   ingredients: {
     type: [{
+      amount: {type: Number, required: true},
+      measurementUnit: {type: String, required: true, trim: true},
       name: {type: String, required: true, trim: true},
-      measurementUnit: {type: String, required: true, trim: true, lowercase: true},
-      amount: {type: String, required: true, trim: true},
       abv: {type: Number, min: 0, max: 100}
     }],
-    required: true,
-    default: {
-      name: "Water",
-      measurementUnit: "part",
-      amount: 1,
-      abv: 0
-    }
+    required: true
   }
-  //suggestions: [{type: mongoose.Schema.Types.ObjectId, ref: "Suggestion"}]
   //createdAt
   //updatedAt
 }, {timestamps: true});
@@ -50,7 +43,7 @@ const cocktailSchema = mongoose.Schema({
 
 // MODEL DECLARATION
 //
-const Cocktail = mongoose.model('cocktail', cocktailSchema);
+const Cocktail = mongoose.model('Cocktail', cocktailSchema);
 
 
 
