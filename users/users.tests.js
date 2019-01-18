@@ -97,10 +97,10 @@ describe("\n===== Users Endpoint =====\n", function() {
         expect(res.body.user).to.be.an("object");
         expect(res.body.message).to.equal("OK");
         expect(res.body.user.username).to.equal(preexistingUser.username);
-        expect(res.body.user.cocktailRecipes).to.be.an("array");
       });
 
     });
+    
   })
 
   describe("POST /api/users", function() {
@@ -358,5 +358,6 @@ describe("\n===== Users Endpoint =====\n", function() {
         expect(passwordHashedCorrectly).to.equal(true);
       })
     });
+
   });
 });

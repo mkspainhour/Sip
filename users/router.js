@@ -38,7 +38,6 @@ router.get("/:username", (req, res)=> {
   }
 
   User.findOne({username: providedUsername})
-  .populate("cocktails")
   .then( (user)=> {
     if (user) {
       return res.status(200).json({

@@ -10,7 +10,6 @@ const userSchema = mongoose.Schema({
   username: {type: String, required: true, unique: true, trim: true},
   hashedPassword: {type: String, required: true},
   email: {type: String, unique: true, trim: true, default: ""},
-  cocktails: [{type: mongoose.Schema.Types.ObjectId, ref: "Cocktail"}],
   //createdAt
   //updatedAt
 }, {timestamps: true});
@@ -26,7 +25,6 @@ userSchema.statics.hashPassword = function(password) {
 userSchema.methods.serialize = function() {
   return {
     username: this.username,
-    cocktailRecipes: this.cocktails,
     registrationDate: this.createdAt,
   };
 };

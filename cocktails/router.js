@@ -66,7 +66,7 @@ router.post("/", (req, res)=> {
     //#region REQUIRED FIELDS
     let requiredFields = ["name", "creator", "ingredients"];
     for (let field of requiredFields) {
-      if ( !req.body.hasOwnProperty(field) ) {
+      if ( !req.body.hasOwnProperty(field) || req.body[field] == "") {
         return res.status(422).json({
           errorType: "MissingField",
           message: `Request is missing the '${field}' field.`,
@@ -78,7 +78,7 @@ router.post("/", (req, res)=> {
     //#region DATA TYPES
     let stringFields = ["name"];
     for(let field of stringFields) {
-      if(typeof req.body[field] != "string" ) {
+      if(typeof req.body[field] != "string") {
         return res.status(422).json({
           errorType: "IncorrectDataType",
           message: `${field} field must be a string.`,
@@ -115,25 +115,6 @@ router.post("/", (req, res)=> {
           errorType: "StringNotTrimmed",
           message: `'${field}' field can not begin or end with whitespace.`,
         });
-      }
-    }
-    //#endregion
-
-    //#region FIELD SIZING
-    let sizedFields = [
-      {
-        name:"name",
-        minLength: 1,
-      }
-    ];
-    for(let field of sizedFields) {
-      if (req.body.hasOwnProperty(field.name) && field.hasOwnProperty("minLength")) {
-        if (req.body[field.name].trim().length < field.minLength) {
-          return res.status(422).json({
-            errorType: "InvalidFieldSize",
-            message: `${field.name} does not meet its minimum length.`
-          });
-        }
       }
     }
     //#endregion
@@ -203,7 +184,7 @@ router.post("/", (req, res)=> {
     //#endregion
 
     //#region FIELD SIZING
-    sizedFields = [
+    const sizedFields = [
       {
         name:"name",
         minLength: 1,
