@@ -4,113 +4,136 @@ const express = require("express");
 const mongoose = require("mongoose");
   mongoose.Promise = global.Promise;
 const router = express.Router();
+
 const { User } = require("./models");
 
 
 
-// ENDPOINTS
-//
-//TEMP: Development tool. Get info on all users.
+//Returns statistics on the entire userbase
 router.get("/", (req, res)=> {
   User.find({})
   .then( (userList)=> {
-    res.json({
-      userCount: userList.length,
-      userList: userList.map( (user)=> user.publicInfo() ),
+    return res.status(200).json({
+      message: "OK",
+      userCount: userList.length
     });
   })
   .catch( (err)=> {
-    res.sendStatus(500);
+    res.status(500).json({
+      errorType: "InternalServerError",
+      message: "Internal server error."
+    });
   });
 });
 
-//Register a new user
+//Returns the public-safe information of the provided user
+router.get("/:username", (req, res)=> {
+  const providedUsername = req.params.username;
+
+  if (providedUsername.trim().length != providedUsername.length) {
+    return res.status(422).json({
+      errorType: "StringNotTrimmed",
+      message: `Username route parameter '${providedUsername}' begins or ends with whitespace characters.`
+    });
+  }
+
+  User.findOne({username: providedUsername})
+  .populate("cocktails")
+  .then( (user)=> {
+    if (user) {
+      return res.status(200).json({
+        message: "OK",
+        user: user.serialize()
+      });
+    }
+    res.status(404).json({
+      errorType: "NoSuchUser",
+      message: "No user exists with that username."
+    });
+  })
+  .catch( (err)=> {
+    res.status(500).json({
+      errorType: "InternalServerError",
+      message: "Internal server error."
+    });
+  });
+});
+
+//Creates a user and returns the new account information
 router.post("/", (req, res)=> {
-
-  //#region REQUIRED FIELDS VALIDATION
+  //#region REQUIRED FIELDS
   const requiredFields = ["username", "password"];
-
   for (let field of requiredFields) {
-    if (req.body.hasOwnProperty(field) == false) {
-      console.error(`× Required field '${field}' is missing.`);
+    if ( !req.body.hasOwnProperty(field) ) {
       return res.status(422).json({
-        status: 422,
         errorType: "MissingField",
         message: `Request is missing the ${field} field.`,
       });
     }
   };
-
-  console.log("✓ All required fields present.");
   //#endregion
-
-  //#region REQUIRED STRING TYPES VALIDATION
+  //#region DATA TYPES
   const stringFields = ["username", "password", "email"];
-
   for(let field of stringFields) {
 	  if(req.body.hasOwnProperty(field) && typeof req.body[field] != "string" ) {
-      console.error(`× ${field} field data type must be a string.`);
       return res.status(422).json({
-        status: 422,
         errorType: "IncorrectDataType",
         message: `${field} field must be a string.`,
       });
     }
   }
-
-  console.log("✓ Required types: strings verified.");
   //#endregion
-
+  //#region STRINGS ARE TRIMMED
+  const trimmedFields = ["username", "email"];
+  for(let field of trimmedFields) {
+    if(req.body.hasOwnProperty(field) && req.body[field].trim().length < req.body[field].length) {
+      return res.status(422).json({
+        errorType: "StringNotTrimmed",
+        message: `${field} field can not begin or end with whitespace.`
+      });
+    }
+  }
+  //#endregion
   //#region FIELD SIZING VALIDATION
   const sizedFields = [
     {
       name:"username",
-      minLength: 1
-      //maxLength
+      minLength: 1,
+      maxLength: 32 //Anything longer than this is odd to account for in a UI
     },
     {
       name:"password",
       minLength: 10,
-      maxLength: 72 //bcryptjs truncation upper-bound
+      maxLength: 72 //bcryptjs input truncation upper-bound
     }
   ];
-
   for(let field of sizedFields) {
-    //Minimum size checks
-    if (req.body.hasOwnProperty(field.name) && field.hasOwnProperty("minLength")) {
+    //Minimum size check
+    if (field.hasOwnProperty("minLength") && req.body.hasOwnProperty(field.name)) {
       if (req.body[field.name].trim().length < field.minLength) {
-        console.error(`× Field ${field.name} is too short.`);
         return res.status(422).json({
-          code: 422,
           errorType: "InvalidFieldSize",
           message: `${field.name} does not meet its minimum length.`
         });
       }
     }
-    //Maximum length checks
-    if (req.body.hasOwnProperty(field.name) && field.hasOwnProperty("maxLength")) {
+    //Maximum length check
+    if (field.hasOwnProperty("maxLength") && req.body.hasOwnProperty(field.name)) {
       if (req.body[field.name].trim().length > field.maxLength) {
-        console.error(`× Field ${field.name} is too long.`);
         return res.status(422).json({
-          code: 422,
           errorType: "InvalidFieldSize",
           message: `${field.name} exceeds its maximum length.`
         });
       }
     }
   }
-
-  console.log("✓ Present fields meet their sizing requirements.");
   //#endregion
-
-  //#region ENSURE UNIQUE FIELDS ARE UNIQUE
+  //#region UNIQUE FIELDS
   let {username, email, password} = req.body;
-
   let usernameIsUnique = new Promise( (resolve, reject)=> {
     User.findOne({username})
     .then( (user)=> {
       if (user) {
-        console.error("× Username is taken.");
         return reject({
           code: 422,
           errorType: "CredentialNotUnique",
@@ -120,12 +143,10 @@ router.post("/", (req, res)=> {
       resolve();
     });
   });
-
   let emailIsUnique = new Promise( (resolve, reject)=> {
     User.findOne({email})
     .then( (user)=> {
       if (user) {
-        console.error("× Email address is already in use.");
         return reject({
           code: 422,
           errorType: "CredentialNotUnique",
@@ -135,14 +156,11 @@ router.post("/", (req, res)=> {
       resolve();
     });
   });
-
   Promise.all([usernameIsUnique, emailIsUnique])
   .then ( ()=> {
-    console.log("✓ Unique fields are verified to be unique.");
     return User.hashPassword(password);
   })
   .then( (hashedPassword)=> {
-    console.log("✓ Password hashed without error.");
     return User.create({
       username,
       hashedPassword,
@@ -150,23 +168,29 @@ router.post("/", (req, res)=> {
     });
   })
   .then( (newUser)=> {
-    console.log("✓ User created!")
-    res.status(201).json( newUser );
+    return res.status(201).json({
+      message: "New user successfully created!",
+      newUser: newUser
+    });
   })
   .catch ( (err)=> {
     if (err.hasOwnProperty("errorType") && err.errorType == "CredentialNotUnique") {
-      return res.status( err.code ).json( err );
+      return res.status(err.code).json({
+        errorType: err.errorType,
+        message: err.message,
+        errObject: err
+      });
     }
-    return res.sendStatus(500);
+    return res.status(500).json({
+      errorType: "InternalServerError",
+      message: "Internal server error."
+    });
   });
   //#endregion
-
 });
 
 
 
-// EXPORTS
-//
 module.exports = {
   router
 };
