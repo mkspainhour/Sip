@@ -22,7 +22,24 @@ const { Cocktail } = require("../cocktails");
 //
 const preexistingCocktail = {
   name: "testCocktailRecipe",
-  creator: mongoose.Types.ObjectId()
+  creator: mongoose.Types.ObjectId(),
+  ingredients: [
+    {
+      amount: 1.5,
+      measurementUnit: "part",
+      name: "Gin, dry"
+    },
+    {
+      amount: 1,
+      measurementUnit: "part",
+      name: "Campari"
+    },
+    {
+      amount: 1,
+      measurementUnit: "part",
+      name: "Sweet (Red) Vermouth"
+    }
+  ]
 }
 
 
@@ -110,57 +127,147 @@ describe("\n====== Cocktails Endpoint ======\n", function() {
         expect(res.body).to.be.an("object");
         expect(res.body).to.have.property("cocktailRecipe");
         expect(res.body.cocktailRecipe.name).to.equal(preexistingCocktail.name);
+        //expect(res.body.cocktailRecipe.name).to.equal(preexistingCocktail.name);
       });
     });
 
   });
 
-  // describe("POST /api/cocktails", function() {
+  describe("POST /api/cocktails", function() {
 
-  //BOOKMARK
+    it("Rejects a request if the 'name' field is missing or empty", function() {
+      return chai.request(app).post("/api/cocktails")
+      .send({
+        creator: mongoose.Types.ObjectId(),
+        ingredients: [{name:"water",measurementUnit:"part",amount:1,abv:0}]
+      })
+      .then( function(res) {
+        expect(res).to.have.status(422);
+        expect(res).to.be.json;
+        expect(res.body).to.be.an("object");
 
-  /*
-  422 if 'name' field is missing or empty
-  422 if 'creator' field is missing
-  422 if 'ingredients' field is missing
+        expect(res.body).to.have.property("errorType");
+        expect(res.body.errorType).to.equal("MissingField")
+      });
+    });
 
-  422 if 'name' is not a string
-  422 if 'creator' is not a valid ObjectId
-  422 if 'ingredients' is not an Array
+    it("Rejects a request if the 'creator' field is missing", function() {
+      return chai.request(app).post("/api/cocktails")
+      .send({
+        name: "theCoolInterntPerson",
+        //creator: mongoose.Types.ObjectId(),
+        ingredients: [{name:"water",measurementUnit:"part",amount:1,abv:0}]
+      })
+      .then( function(res) {
+        expect(res).to.have.status(422);
+        expect(res).to.be.json;
+        expect(res.body).to.be.an("object");
 
-  422 if 'name' is not trimmed of whitespace
+        expect(res.body).to.have.property("errorType");
+        expect(res.body.errorType).to.equal("MissingField")
+      });
+    });
 
-  422 if an ingredient is missing the 'name' field or it is empty
-  422 if an ingredient is missing the 'measurementUnit' field or it is empty
-  422 if an ingredient is missing the 'amount' field
+    it("Rejects a request if the 'ingredients' field is missing", function() {
+      return chai.request(app).post("/api/cocktails")
+      .send({
+        name: "theCoolInterntPerson",
+        creator: mongoose.Types.ObjectId(),
+        //ingredients: [{name:"water",measurementUnit:"part",amount:1,abv:0}]
+      })
+      .then( function(res) {
+        expect(res).to.have.status(422);
+        expect(res).to.be.json;
+        expect(res.body).to.be.an("object");
 
-  422 if an ingredient 'name' field is not a String
-  422 if an ingredient 'measurementUnit' field is not a String
-  422 if an ingredient 'amount' is not a Number
-  422 if an ingredient has an 'abv' field, a it is not a Number
+        expect(res.body).to.have.property("errorType");
+        expect(res.body.errorType).to.equal("MissingField")
+      });
+    });
 
-  422 if an ingredient 'name' is not trimmed
-  422 if an ingredient 'measurementUnit' is not trimmed
-  422 if an ingredient 'amount' is less than 0
-  422 if an ingredient 'abv' is above 100 or less than 0
+    it("Rejects a request if the 'name' field is not a String", function() {
+      return chai.request(app).post("/api/cocktails")
+      .send({
+        name: 32,
+        creator: mongoose.Types.ObjectId(),
+        ingredients: [{name:"water",measurementUnit:"part",amount:1,abv:0}]
+      })
+      .then( function(res) {
+        expect(res).to.have.status(422);
+        expect(res).to.be.json;
+        expect(res.body).to.be.an("object");
 
-  Otherwise, create a new user with a 201, and return the new account info
+        expect(res.body).to.have.property("errorType");
+        expect(res.body.errorType).to.equal("IncorrectDataType")
+      });
+    });
 
-  */
+    it("Rejects a request if the 'creator' field is not a valid ObjectId String", function() {
+      return chai.request(app).post("/api/cocktails")
+      .send({
+        name: "Super Cool Drinkeroony",
+        creator: "notAnObjectIdAtAll",
+        ingredients: [{name:"water",measurementUnit:"part",amount:1,abv:0}]
+      })
+      .then( function(res) {
+        expect(res).to.have.status(422);
+        expect(res).to.be.json;
+        expect(res.body).to.be.an("object");
 
-  //   it("...", function() {
-  //     return chai.request(app).post("/api/cocktails")
-  //     .send({
-  //       //TODO
-  //     })
-  //     .then( function(res) {
-  //       expect(res).to.have.status("");
-  //       expect(res).to.be.json;
-  //       expect(res.body).to.be.an("object");
-  //       //Assertions...
-  //     });
-  //   });
+        expect(res.body).to.have.property("errorType");
+        expect(res.body.errorType).to.equal("IncorrectDataType")
+      });
+    });
 
-  // });
+    it("Rejects a request if the 'ingredients' field is not a valid Array", function() {
+      return chai.request(app).post("/api/cocktails")
+      .send({
+        name: "Super Cool Drinkeroony",
+        creator: mongoose.Types.ObjectId(),
+        ingredients: "cherryblossom"
+      })
+      .then( function(res) {
+        expect(res).to.have.status(422);
+        expect(res).to.be.json;
+        expect(res.body).to.be.an("object");
 
+        expect(res.body).to.have.property("errorType");
+        expect(res.body.errorType).to.equal("IncorrectDataType")
+      });
+    });
+
+    it("Rejects a request if the 'name' field begins or ends with whitespace", function() {
+      return chai.request(app).post("/api/cocktails")
+      .send({
+        name: "  _ Super Cool Drinkeroony      ",
+        creator: mongoose.Types.ObjectId(),
+        ingredients: [{name:"water",measurementUnit:"part",amount:1,abv:0}]
+      })
+      .then( function(res) {
+        expect(res).to.have.status(422);
+        expect(res).to.be.json;
+        expect(res.body).to.be.an("object");
+
+        expect(res.body).to.have.property("errorType");
+        expect(res.body.errorType).to.equal("StringNotTrimmed")
+      });
+    });
+
+    //BOOKMARK:
+    // 422 if an ingredient is missing the 'name' field or it is empty
+    // 422 if an ingredient is missing the 'measurementUnit' field or it is empty
+    // 422 if an ingredient is missing the 'amount' field
+
+    // 422 if an ingredient 'name' field is not a String
+    // 422 if an ingredient 'measurementUnit' field is not a String
+    // 422 if an ingredient 'amount' is not a Number
+    // 422 if an ingredient has an 'abv' field, a it is not a Number
+
+    // 422 if an ingredient 'name' is not trimmed
+    // 422 if an ingredient 'measurementUnit' is not trimmed
+    // 422 if an ingredient 'amount' is less than 0
+    // 422 if an ingredient 'abv' is above 100 or less than 0
+
+    // Otherwise, create a new user with a 201, and return the new account info
+  })
 });
