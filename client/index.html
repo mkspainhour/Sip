@@ -1,5 +1,4 @@
 <!DOCTYPE HTML>
-
 <html lang="en-US">
 <head>
 	<meta charset="UTF-8">
@@ -16,6 +15,7 @@
 		crossorigin="anonymous" />
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Eczar|Work+Sans">
 	<link rel="stylesheet" href="css/resets.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
 	<link rel="stylesheet" href="css/global.css">
 
 	<!--FAVICONS-->
@@ -24,41 +24,66 @@
 </head>
 
 
-
-<html>
-	<body>
-		<main role="main">
+<body>
+	<main role="main">
 
 
 
-			<header role="banner">
-				<h1></h1>
-				<nav role="navigation"></nav>
-			</header>
+		<header role="banner">
+			<div id="header-left-wrapper">
+				<div id="wrapper-logo">
+					<h2 id="logo" class="typo-heading-small typo-color-orange3">Sip</h2>
+				</div>
+			</div>
+			<div id="header-right-wrapper">
+				<button id="button-signIn" type="button" class="button-hollow typo-color-orange4" style="display: none;">Sign In</button>
+				<button id="button-registerInstead" type="button" class="button-hollow typo-color-orange4" style="display: none;">Register Instead</button>
+				<button id="button-signOut" type="button" class="button-hollow typo-color-orange4" style="display: none;">Sign Out</button>
+			</div>
+		</header>
+
+		<section id="view-landing" class="view" role="region" style="display: none;">
+			<h1 id="landing-heading" class="typo-heading-large typo-color-orange3 typo-center">Cool, hip people use Sip to save and share their cocktail recipes.</h1>
+			<p id="landing-instruction" class="typo-body typo-center">Register to get started, or sign in above to continue where you left off. </p>
+			<button id="button-register" type="button" class="button-filled typo-color-dark">Register</button>
+		</section>
+
+		<section id="view-signIn" class="view" role="region" style="display: none;">
+			<p id="signIn-instructions" class="typo-body typo-center">Sign in by entering your account credentials in the fields below.</p>
+
+			<form id="form-signIn" action="#" role="form">
+				<!--Username Field-->
+				<div class="wrapper-input">
+					<label for="input-signIn-username" class="typo-body-small">Username</label>
+					<input id="input-signIn-username" type="text" autocomplete="username" title="Enter your account username." aria-label="account username" required>
+				</div>
+
+				<!--Password Field-->
+				<div class="wrapper-input">
+					<label for="input-signIn-password" class="typo-body-small">Password</label>
+					<input id="input-signIn-password" type="password" autocomplete="password" title="Enter your account password." aria-label="account password" required>
+				</div>
+
+				<!--Sign In Sumbit Button-->
+				<button id="button-signIn-submit" type="button" class="button-filled typo-color-dark" disabled>Sign In</button>
+			</form>
+		</section>
+
+		<section id="view-user-home" class="view" role="region" style="display: none;">
+			<p>You're signed in!</p>
+		</section>
 
 
 
-			<section role="region">
-				<header></header>
-				<h2>client.html loaded!</h2>
+	</main>
 
-				<!--Initially hidden to later verify that stylesheets were loaded correctly-->
-				<h2 id="globalCssLoadTester" style="display: none;">global.css loaded!</h2>
-				<h2 id="resetsCssLoadTester" style="display: none;">resets.css loaded!</h2>
+	<!--#region SCRIPTS-->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"
+		integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+		crossorigin="anonymous"></script>
+	<script src="js/ui.js"></script>
+	<script src="js/client.js"></script>
+   <!--#endregion-->
 
-				<p>click-touch that button</p>
-				<button id="nice-button" type="button">nice</button>
-			</section>
-
-
-
-		</main>
-
-		<!--SCRIPTS-->
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"
-			integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
-			crossorigin="anonymous"></script>
-		<script src="js/client.js"></script>
-
-	</body>
+</body>
 </html>

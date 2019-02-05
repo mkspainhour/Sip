@@ -15,14 +15,13 @@ const { app, startServer, stopServer } = require("../server");
 const { User } = require("../api/users");
 //#endregion
 let preexistingUser = {
-  sessionJwt: User.makeJwtFor("seedUsername"),
   username: "seedUsername",
   hashedPassword: bcrypt.hashSync("seedPassword", 12),
   email: "seedEmail@domain.tld"
 }
 
 
-describe("User Tests", function() {
+describe("\n====User API====\n", function() {
   //#region HOOKS
   //Before first test
   before("Starting server...", function() {
@@ -76,7 +75,7 @@ describe("User Tests", function() {
     it("Fail state: username field is not a String", function() {
       const testData = {
         username: 36,
-        hashedPassword: bcrypt.hashSync("testPassword", 12),
+        password: "testPassword",
         email: "localPart@domain.tld"
       };
       const sessionJwt = User.makeJwtFor(preexistingUser.username);
@@ -97,7 +96,7 @@ describe("User Tests", function() {
     it("Fail state: username field begins or ends in whitespace characters", function() {
       const testData = {
         username: " testUsername ",
-        hashedPassword: bcrypt.hashSync("testPassword", 12),
+        password: "testPassword",
         email: "localPart@domain.tld"
       };
       const sessionJwt = User.makeJwtFor(preexistingUser.username);
@@ -115,10 +114,10 @@ describe("User Tests", function() {
       });
     });
 
-    it("Fail state: hashedPassword field is missing or empty", function() {
+    it("Fail state: password field is missing or empty", function() {
       const testData = {
         username: "testUsername",
-        //hashedPassword: "",
+        //password: "",
         email: "localPart@domain.tld"
       };
       const sessionJwt = User.makeJwtFor(preexistingUser.username);
@@ -136,10 +135,10 @@ describe("User Tests", function() {
       });
     });
 
-    it("Fail state: hashedPassword field is not a String", function() {
+    it("Fail state: password field is not a String", function() {
       const testData = {
         username: "testUsername",
-        hashedPassword: 6,
+        password: 6,
         email: "localPart@domain.tld"
       };
       const sessionJwt = User.makeJwtFor(preexistingUser.username);
@@ -157,10 +156,10 @@ describe("User Tests", function() {
       });
     });
 
-    it("Fail state: hashedPassword field begins or ends in whitespace characters", function() {
+    it("Fail state: password field begins or ends in whitespace characters", function() {
       const testData = {
         username: "testUsername",
-        hashedPassword: " " + bcrypt.hashSync("testPassword", 12) + " ",
+        password: " " + "testPassword" + " ",
         email: "localPart@domain.tld"
       };
       const sessionJwt = User.makeJwtFor(preexistingUser.username);
@@ -181,7 +180,7 @@ describe("User Tests", function() {
     it("Fail state: email field is present, but empty", function() {
       const testData = {
         username: "testUsername",
-        hashedPassword: bcrypt.hashSync("testPassword", 12),
+        password: "testPassword",
         email: ""
       };
       const sessionJwt = User.makeJwtFor(preexistingUser.username);
@@ -202,7 +201,7 @@ describe("User Tests", function() {
     it("Fail state: email field is present, but not a String", function() {
       const testData = {
         username: "testUsername",
-        hashedPassword: bcrypt.hashSync("testPassword", 12),
+        password: "testPassword",
         email: 9
       };
       const sessionJwt = User.makeJwtFor(preexistingUser.username);
@@ -223,7 +222,7 @@ describe("User Tests", function() {
     it("Fail state: email field is present, but begins or ends in whitespace characters", function() {
       const testData = {
         username: "testUsername",
-        hashedPassword: bcrypt.hashSync("testPassword", 12),
+        password: "testPassword",
         email: " localPart@domain.tld "
       };
       const sessionJwt = User.makeJwtFor(preexistingUser.username);
@@ -246,7 +245,7 @@ describe("User Tests", function() {
       .post("/api/user/create")
       .send({
         username: preexistingUser.username,
-        hashedPassword: bcrypt.hashSync("uniquePassword", 12),
+        password: "uniquePassword",
         email: "localPart@domain.tld"
       })
       .then(function(res) {
@@ -260,7 +259,7 @@ describe("User Tests", function() {
       .post("/api/user/create")
       .send({
         username: "uniqueUsername",
-        hashedPassword: bcrypt.hashSync("uniquePassword", 12),
+        password: "uniquePassword",
         email: preexistingUser.email
       })
       .then(function(res) {
@@ -272,7 +271,7 @@ describe("User Tests", function() {
     it("Success state: a new user is created", function() {
       const testData = {
         username: "testUsername",
-        hashedPassword: bcrypt.hashSync("testPassword", 12),
+        password: "testPassword",
         email: "localPart@domain.tld"
       };
 
@@ -288,7 +287,8 @@ describe("User Tests", function() {
         User.findOne({username: testData.username})
         .then( (locatedUser)=> {
           expect(locatedUser).to.have.property("username", testData.username);
-          expect(locatedUser).to.have.property("hashedPassword", testData.hashedPassword);
+          expect(locatedUser).to.have.property("hashedPassword");
+          expect(bcrypt.compareSync(testData.password, locatedUser.hashedPassword)).to.be.true;
           expect(locatedUser).to.have.property("email", testData.email);
         })
       });

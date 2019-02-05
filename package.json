@@ -8,7 +8,10 @@
     "start": "node server.js",
     "test": "mocha --exit"
   },
-  "repository": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mkspainhour/sip.git"
+  },
   "author": "Marshall Spainhour",
   "license": "ISC",
   "dependencies": {
@@ -16,6 +19,7 @@
     "cookie-parser": "^1.4.3",
     "express": "^4.16.4",
     "jsonwebtoken": "^8.4.0",
+    "moment": "^2.24.0",
     "mongoose": "^5.4.4",
     "morgan": "^1.9.1"
   },

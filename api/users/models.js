@@ -30,7 +30,6 @@ userSchema.statics.makeJwtFor = function(username) {
 userSchema.methods.serialize = function() {
   return {
     username: this.username,
-    createdAt: this.createdAt,
   }
 }
 

@@ -8,7 +8,9 @@ const mongoose = require("mongoose");
   mongoose.set("useCreateIndex", true); //TEMP: Avoids dperecation warnings.
   const ObjectId = mongoose.Types.ObjectId;
 const cookieParser = require("cookie-parser");
-//#endregion
+
+const {User} = require("./api/users");
+const {Cocktail} = require("./api/cocktails");
 
 //Express App Instantiation & Server-wide Middleware
 const app = express();
@@ -26,8 +28,6 @@ app.use(function(req, res, next) {
 });
 app.use(express.static( "client", {maxAge: "1d"} ));
 
-
-
 //API Routes
 const {router: cocktailsRouter} = require("./api/cocktails");
 app.use("/api/cocktail", cocktailsRouter);
@@ -37,29 +37,36 @@ app.use("/api/user", usersRouter);
 
 const {router: authRouter} = require("./api/auth");
 app.use("/api/auth", authRouter);
+//#endregion
 
 
 
 //Fetch all of a user's public-facing information
 app.get("/user/:username", (req,res)=> {
-  requestedUsername = req.params.username;
+  const requestedUsername = req.params.username;
 
   if(requestedUsername.length != requestedUsername.trim().length) {
     return res.status(422).json({
       errorType: "UntrimmedString",
-      message: "The 'username' route parameter may not begin or end in whitespace."
+      message: "The 'username' route parameter must not begin or end in whitespace."
     });
   }
 
+  let returnUser; //Acts as a container for building the return data
   User.findOne({username: requestedUsername})
-  .then((requestedUsername)=> {
-    if(requestedUsername) {
-      return res.status(200).json(requestedUsername);
+  .then((user)=> {
+    if(user) {
+      returnUser = user.serialize(); //username, createdAt
+      return Cocktail.find({creator: user.username})
     }
     return res.status(404).json({
       errorType: "NoSuchUser",
       message: "No user found with the requested 'username'."
     })
+  })
+  .then((cocktails)=> {
+    returnUser.createdCocktails = cocktails.map((cocktail => cocktail.serialize()));
+    return res.status(200).json(returnUser);
   })
   .catch((err)=> {
     console.error(err);
@@ -68,7 +75,7 @@ app.get("/user/:username", (req,res)=> {
 
 //Fetch a cocktail recipe
 app.get("/cocktail/:id", (req,res)=> {
-  requestedId = req.params.id;
+  const requestedId = req.params.id;
 
   if(!ObjectId.isValid(requestedId)) {
     return res.status(422).json({
@@ -80,7 +87,7 @@ app.get("/cocktail/:id", (req,res)=> {
   Cocktail.findOne({_id: requestedId})
   .then((requestedCocktail)=> {
     if(requestedCocktail) {
-      return res.status(200).json(requestedCocktail);
+      return res.status(200).json(requestedCocktail.serialize());
     }
     return res.status(404).json({
       errorType: "NoSuchCocktail",
@@ -148,8 +155,6 @@ if (require.main === module) {
   });
 }
 //#endregion
-
-
 
 module.exports = {
   app,

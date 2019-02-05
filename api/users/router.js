@@ -3,14 +3,11 @@
 const router = require("express").Router();
 const mongoose = require("mongoose");
   mongoose.Promise = global.Promise;
-  const ObjectId = mongoose.Types.ObjectId;
 const jwt = require("jsonwebtoken");
-
-const faker = require("faker");
+const bcrypt = require("bcryptjs");
 
 const { JWT_SECRET } = require("../../config");
 const { User } = require("./models");
-const { Cocktail } = require("../cocktails");
 //#endregion
 
 
@@ -42,7 +39,7 @@ const authorize = function(req, res, next) {
 
 router.post("/create", (req, res)=> {
   //Required fields must be present and not empty
-  for(let requiredField of ["username", "hashedPassword"]) {
+  for(let requiredField of ["username", "password"]) {
     if (!req.body.hasOwnProperty(requiredField) || req.body[requiredField]=="") {
       return res.status(422).json({
         errorType: "MissingField",
@@ -60,7 +57,7 @@ router.post("/create", (req, res)=> {
   }
 
   //The username, hashedPassword, and email fields are Strings
-  for(let stringField of ["username", "hashedPassword", "email"]) {
+  for(let stringField of ["username", "password", "email"]) {
     if(req.body.hasOwnProperty(stringField) && typeof req.body[stringField] != "string") {
       return res.status(422).json({
         errorType: "UnexpectedDataType",
@@ -70,7 +67,7 @@ router.post("/create", (req, res)=> {
   }
 
   //The username and email fields are trimmed
-  for(let field of ["username", "hashedPassword", "email"]) {
+  for(let field of ["username", "password", "email"]) {
     if(req.body.hasOwnProperty(field) && req.body[field].trim().length != req.body[field].length) {
       return res.status(422).json({
         errorType: "UntrimmedString",
@@ -111,13 +108,13 @@ router.post("/create", (req, res)=> {
   .then( ()=> {
     return User.create({
       username: req.body.username,
-      hashedPassword: req.body.hashedPassword,
+      hashedPassword: bcrypt.hashSync(req.body.password, 12),
       email: req.body.email,
     });
   })
   .then( (newUser)=> {
     let sessionJwt = User.makeJwtFor(newUser.username);
-    res.cookie("session", sessionJwt, {httpOnly: true, maxAge: (2)*24*60*60*1000});
+    res.cookie("session", sessionJwt, {maxAge: (2)*24*60*60*1000});
 
     return res.status(201).json({
       message: "User account successfully created.",

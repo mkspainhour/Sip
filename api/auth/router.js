@@ -4,6 +4,7 @@ const router = require("express").Router();
 const mongoose = require("mongoose");
   mongoose.Promise = global.Promise;
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
 
 const { JWT_SECRET } = require("../../config");
 const { User } = require("../users");
@@ -46,7 +47,7 @@ router.post("/sign-in", (req, res)=> {
   }
 
   //Required fields must be present and not empty
-  for(let requiredField of ["username", "hashedPassword"]) {
+  for(let requiredField of ["username", "password"]) {
     if (!req.body.hasOwnProperty(requiredField) || req.body[requiredField]=="") {
       return res.status(422).json({
         errorType: "MissingField",
@@ -56,7 +57,7 @@ router.post("/sign-in", (req, res)=> {
   }
 
   //The username and hashedPassword fields are Strings
-  for(let stringField of ["username", "hashedPassword"]) {
+  for(let stringField of ["username", "password"]) {
     if(req.body.hasOwnProperty(stringField) && typeof req.body[stringField] != "string") {
       return res.status(422).json({
         errorType: "UnexpectedDataType",
@@ -66,7 +67,7 @@ router.post("/sign-in", (req, res)=> {
   }
 
   //The username field is trimmed
-  for(let trimmedField of ["username", "hashedPassword"]) {
+  for(let trimmedField of ["username", "password"]) {
     if(req.body[trimmedField].trim().length != req.body[trimmedField].length) {
       return res.status(422).json({
         errorType: "UntrimmedString",
@@ -77,17 +78,17 @@ router.post("/sign-in", (req, res)=> {
 
   return User.findOne({
     username: req.body.username,
-    hashedPassword: req.body.hashedPassword
   })
   .then( (locatedUser)=> {
     if(locatedUser) {
-      res.cookie("session", User.makeJwtFor(req.body.username), {
-        httpOnly: true,
-        expires: new Date( Date.now() + (1)*24*60*60*1000 ) //1 day from now, in milliseconds
-      });
-      return res.status(200).json({
-        message: `${req.body.username} signed in.`
-      });
+      if(bcrypt.compareSync(req.body.password, locatedUser.hashedPassword)) {
+        res.cookie("session", User.makeJwtFor(req.body.username), {
+          expires: new Date( Date.now() + (1)*24*60*60*1000 ) //1 day from now, in milliseconds
+        });
+        return res.status(200).json({
+          message: `${req.body.username} signed in.`
+        });
+      }
     }
     //The username and hashedPassword provided point to no user
     return res.status(404).json({

@@ -1,16 +1,10 @@
 "use strict";
 
-//Entry Point
-$(function entryPoint(){
-   let clickCounter = 0;
-   let $button_nice = $("#nice-button");
+const flags = {
+   sessionActive: document.cookie.indexOf("session") != -1
+}
 
-   $button_nice.on("click", function(event) {
-      clickCounter++;
-      console.log(`Click counter at: ${clickCounter}`);
-      if(clickCounter > 1) {
-         return $button_nice.html(`Clicked ${clickCounter} times.`);
-      }
-      $button_nice.html("Clicked 1 time.");
-   });
+//Entry Point
+$(function entryPoint() {
+   flags.sessionActive ? ui.activeSessionSetup() : ui.defaultSetup();
 });

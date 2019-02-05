@@ -20,7 +20,7 @@ let preexistingUser = {
 
 
 
-describe("\n====Auth Endpoint====\n", function() {
+describe("\n====Auth API====\n", function() {
   //#region HOOKS
   before("Starting server...", function() {
     return startServer(TEST_DATABASE_URL);
@@ -50,7 +50,7 @@ describe("\n====Auth Endpoint====\n", function() {
       .set("Cookie", `session=${sessionJwt}`)
       .send({
         username: preexistingUser.username,
-        hashedPassword: preexistingUser.hashedPassword
+        password: "seedPassword"
       })
       .then(function(res) {
         expect(res).to.have.status(400).and.to.be.json;
@@ -63,7 +63,7 @@ describe("\n====Auth Endpoint====\n", function() {
       .post("/api/auth/sign-in")
       .send({
         username: "",
-        hashedPassword: preexistingUser.hashedPassword
+        password: "seedPassword"
       })
       .then(function(res) {
         expect(res).to.have.status(422).and.to.be.json;
@@ -76,7 +76,7 @@ describe("\n====Auth Endpoint====\n", function() {
       .post("/api/auth/sign-in")
       .send({
         username: 16,
-        hashedPassword: preexistingUser.hashedPassword
+        password: "seedPassword"
       })
       .then(function(res) {
         expect(res).to.have.status(422).and.to.be.json;
@@ -89,7 +89,7 @@ describe("\n====Auth Endpoint====\n", function() {
       .post("/api/auth/sign-in")
       .send({
         username: " " + preexistingUser.username + " ",
-        hashedPassword: preexistingUser.hashedPassword
+        password: "seedPassword"
       })
       .then(function(res) {
         expect(res).to.have.status(422).and.to.be.json;
@@ -97,12 +97,12 @@ describe("\n====Auth Endpoint====\n", function() {
       });
     });
 
-    it("Fail state: 'hashedPassword' field is missing or empty", function() {
+    it("Fail state: 'password' field is missing or empty", function() {
       return chai.request(app)
       .post("/api/auth/sign-in")
       .send({
         username: preexistingUser.username,
-        hashedPassword: ""
+        password: ""
       })
       .then(function(res) {
         expect(res).to.have.status(422).and.to.be.json;
@@ -110,12 +110,12 @@ describe("\n====Auth Endpoint====\n", function() {
       });
     });
 
-    it("Fail state: 'hashedPassword' field is not a string", function() {
+    it("Fail state: 'password' field is not a string", function() {
       return chai.request(app)
       .post("/api/auth/sign-in")
       .send({
         username: preexistingUser.username,
-        hashedPassword: 4
+        password: 4
       })
       .then(function(res) {
         expect(res).to.have.status(422).and.to.be.json;
@@ -123,12 +123,12 @@ describe("\n====Auth Endpoint====\n", function() {
       });
     });
 
-    it("Fail state: 'hashedPassword' field begins or ends in whitespace", function() {
+    it("Fail state: 'password' field begins or ends in whitespace", function() {
       return chai.request(app)
       .post("/api/auth/sign-in")
       .send({
         username: preexistingUser.username,
-        hashedPassword: " " + preexistingUser.hashedPassword + " "
+        password: " " + "seedPassword" + " "
       })
       .then(function(res) {
         expect(res).to.have.status(422).and.to.be.json;
@@ -136,12 +136,12 @@ describe("\n====Auth Endpoint====\n", function() {
       });
     });
 
-    it("Fail state: 'username' and 'hashedPassword' do not belong to an existing user", function() {
+    it("Fail state: 'username' and 'password' do not belong to an existing user", function() {
       return chai.request(app)
       .post("/api/auth/sign-in")
       .send({
         username: "mailboxSwordPelican",
-        hashedPassword: "sixteenhorsesinthekitchen"
+        password: "sixteenhorsesinthekitchen"
       })
       .then(function(res) {
         expect(res).to.have.status(404).and.to.be.json;
@@ -154,7 +154,7 @@ describe("\n====Auth Endpoint====\n", function() {
       .post("/api/auth/sign-in")
       .send({
         username: preexistingUser.username,
-        hashedPassword: preexistingUser.hashedPassword
+        password: "seedPassword"
       })
       .then(function(res) {
         expect(res).to.have.status(200);

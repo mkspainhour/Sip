@@ -16,19 +16,20 @@ const {User} = require("../api/users");
 const {Cocktail} = require("../api/cocktails");
 //#endregion
 let preexistingUser = {
-  sessionJwt: User.makeJwtFor("seedUsername"),
+  //id
   username: "seedUsername",
   hashedPassword: bcrypt.hashSync("seedPassword", 12),
   email: "seedEmail@domain.tld"
 }
 const preexistingCocktail = {
-   name: "Database Seeding Negroni",
-   creator: "admin",
-   ingredients: [
+	//id
+  name: "Seed Negroni",
+  creator: "seedUsername",
+  ingredients: [
      {
        amount: 3,
        measurementUnit: "part",
-       name: "Gin, dry"
+       name: "Gin"
      },
      {
        amount: 2,
@@ -38,13 +39,13 @@ const preexistingCocktail = {
      {
        amount: 2,
        measurementUnit: "part",
-       name: "Sweet (Red) Vermouth"
+       name: "Red Vermouth"
      }
    ]
  }
 
 
-describe("User Tests", function() {
+describe("====Core Route Tests====", function() {
   //#region HOOKS
   //Before first test
   before("Starting server...", function() {
@@ -69,7 +70,7 @@ describe("User Tests", function() {
     //Clear any test-added documents from the collection before moving on.
     return User.deleteMany({})
     .then(()=> {
-      Cocktail.deleteMany({});
+      return Cocktail.deleteMany({});
     });
   })
 
@@ -79,28 +80,56 @@ describe("User Tests", function() {
   });
   //#endregion
 
-  describe("POST /user/create", function() {
+  describe("GET /user/:username", function() {
 
-   it("Fail state: username field is missing or empty", function() {
-   const testData = {
-      //username = "",
-      hashedPassword: bcrypt.hashSync("testPassword", 12),
-      email: "localPart@domain.tld"
-   };
-   const sessionJwt = User.makeJwtFor(preexistingUser.username);
+    it("Fail state: username field begins or ends in whitepsace", function() {
+      return chai.request(app)
+      .get(`/user/ ${preexistingUser.username} `)
+      .then( (res)=> {
+        expect(res).to.have.status(422).and.to.be.json;
+        expect(res.body).to.be.an("object");
+        expect(res.body).to.have.property("errorType").and.to.equal("UntrimmedString");
+      });
+    });
 
-   return chai.request(app)
-   .post(`/api/user/create`)
-   .set("Cookie", `session=${sessionJwt}`)
-   .send(testData)
-   .then( (res)=> {
-      expect(res).to.have.status(422);
-      expect(res).to.be.json;
-      expect(res.body).to.be.an("object");
-      expect(res.body).to.have.property("errorType", "MissingField");
-      expect(res.body).to.have.property("message").and.to.be.a("string");
-   });
-   });
+    it("Success: the requested user's public-facing information is fetched and returned", function() {
+      return chai.request(app)
+      .get(`/user/${preexistingUser.username}`)
+      .then( (res)=> {
+        //console.log("\nuser:", res.body, "\n");
+        expect(res).to.have.status(200).and.to.be.json;
+        expect(res.body).to.be.an("object");
+        expect(res.body).to.have.property("username").that.equals(preexistingUser.username);
+				expect(res.body).to.have.property("createdCocktails").that.is.an("array");
+      });
+    });
+
+	});
+
+	describe("GET /cocktail/:username", function() {
+
+    it("Fail state: 'id' route parameter is an invalid ObjectId", function() {
+      return chai.request(app)
+      .get(`/cocktail/${preexistingCocktail.id+"GARBAGEdata"}`)
+      .then( (res)=> {
+        expect(res).to.have.status(422).and.to.be.json;
+        expect(res.body).to.be.an("object");
+        expect(res.body).to.have.property("errorType").and.to.equal("InvalidObjectId");
+      });
+		});
+
+		it("Success: the requested cocktail recipe is fetched and returned", function() {
+      return chai.request(app)
+      .get(`/cocktail/${preexistingCocktail.id}`)
+      .then( (res)=> {
+        //console.log("\ncocktail:", res.body, "\n");
+        expect(res).to.have.status(200).and.to.be.json;
+				expect(res.body).to.be.an("object");
+				expect(res.body).to.have.property("id").that.equals(preexistingCocktail.id.toString());
+				expect(res.body).to.have.property("creator").that.equals(preexistingUser.username);
+				expect(res.body).to.have.property("ingredients").that.is.an("array");
+      });
+    });
 
   });
 

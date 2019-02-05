@@ -37,7 +37,7 @@ const preexistingCocktail = {
 
 
 
-describe("\n====cocktail Endpoint====\n", function() {
+describe("\n====Cocktail API====\n", function() {
   //#region HOOKS
   // Each hook function needs to either return a promise or invoke a `done()` callback.
   before("Starting server...",function() {
