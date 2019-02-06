@@ -1,4 +1,3 @@
-
 html {
   --font-sans: "Work Sans", sans-serif;
   --font-serif: "Eczar", serif;
@@ -16,13 +15,6 @@ html:not(.user-navigates-with-keyboard) textarea:focus {
   outline: none;
 }
 
-button:focus,
-input:focus,
-select:focus,
-textarea:focus {
-
-}
-
 body {
   background-color: var(--color-dark);
 
@@ -30,6 +22,8 @@ body {
   font-size: 15px;
   color: var(--color-orange2);
 }
+
+
 
 
 
@@ -50,7 +44,8 @@ header {
   padding: 1em;
 
   background-color: var(--color-dark);
-  border-bottom: 1px solid #54585C;
+  box-shadow: 0 3px 6px 0 rgba(0,0,0,0.16);
+  /* border-bottom: 1px solid #54585C; */
 }
 
   #header-left-wrapper {
@@ -74,6 +69,8 @@ header {
   #header-right-wrapper > *:not(:first-child) {
     margin-left: 0.5em;
   }
+
+
 
 
 
@@ -104,11 +101,12 @@ header {
     margin-bottom: 3em;
   }
 
-  #form-signIn {
-    display: flex;
-    flex-flow: column nowrap;
-    justify-content: flex-start;
+#view-register {}
+
+  #register-instructions {
+    margin-bottom: 3em;
   }
+
 
 
 
@@ -173,29 +171,24 @@ header {
 }
 
 
+
+
+
+form {
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: flex-start;
+}
+  form > *:not(:last-child) {
+    margin-bottom: 1em;
+  }
+
 form button {
   margin-top: 1em;
 }
 
-#form-signIn > *:not(:last-child) {
-  margin-bottom: 1em;
-}
-
 label {
   margin-bottom: 0.267em;
-}
-
-input {
-  background: rgba(255, 251, 247, 0.09);
-  border: none;
-  border-radius: 6px;
-  box-shadow: inset 0 1px 2px 0 rgba(60,63,66,0.20), inset 0 1px 3px 0 rgba(0,0,0,0.10);
-
-  color: var(--color-orange1);
-  line-height: 1;
-
-  min-height: 40px;
-  padding: 1em;
 }
 
 .wrapper-input {
@@ -203,11 +196,28 @@ input {
   flex-flow: column nowrap;
 }
 
+  input {
+    background: rgba(255, 251, 247, 0.09);
+    border: none;
+    border-radius: 6px;
+    box-shadow: inset 0 1px 2px 0 rgba(60,63,66,0.20), inset 0 1px 3px 0 rgba(60,63,66,0.10);
+
+    color: var(--color-orange2);
+
+    line-height: 1;
+
+    min-height: 40px;
+    padding: 1em;
+  }
+
+
+
 
 
 .button-hollow {
   background-color: transparent;
   border: 1px solid var(--color-orange4);
+  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.2), 0 1px 3px 0 rgba(60,63,66,0.1);
   border-radius: 6px;
   padding: 6px 8px 6px 8px;
 
@@ -231,9 +241,11 @@ input {
 
 
 
+
+
 .button-filled {
   background: var(--color-orange4);
-  box-shadow: 0 2.5px 0 0 #B3784F;
+  box-shadow: 0 2.5px 0 0 #CC895A;
   border: none;
   border-radius: 6px;
 
@@ -257,8 +269,6 @@ input {
   box-shadow: 0 0.5px 0 0 #B3784F;
 }
 .button-filled:disabled {
-  background-color: #FFDDC4;
-  box-shadow: 0 2.5px 0 0 #B39B89;
-  color: #B5A092;
   cursor: not-allowed;
+  opacity: 0.38;
 }

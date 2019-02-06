@@ -1,35 +1,42 @@
 const ui = {
    //#region jQuery Pointers
       $header: $("header"),
+         $headerButton_signIn: $("#button-signIn"),
+         $headerButton_signInInstead: $("#button-signInInstead"),
+         $headerButton_registerInstead: $("#button-registerInstead"),
+         $headerButton_signOut: $("#button-signOut"),
 
       $view_landing: $("#view-landing"),
          $button_register: $("#button-register"),
-         $button_signIn: $("#button-signIn"),
 
       $view_signIn: $("#view-signIn"),
-         $button_registerInstead: $("#button-registerInstead"),
          $text_signInInstructions: $("#signIn-instructions"),
          $input_signInUsername: $("#input-signIn-username"),
          $input_signInPassword: $("#input-signIn-password"),
          $button_signInSubmit: $("#button-signIn-submit"),
 
-      $view_userHome: $("#view-user-home"),
-         $button_signOut: $("#button-signOut"),
+      $view_register: $("#view-register"),
+         $text_registerInstructions: $("#register-instructions"),
+         $input_registerUsername: $("#input-register-username"),
+         $input_registerEmail: $("#input-register-email"),
+         $input_registerPassword: $("#input-register-password"),
+         $input_registerConfirmPassword: $("#input-register-confirmPassword"),
+         $button_registerSubmit: $("#button-register-submit"),
+
+      $view_userHome: $("#view-userHome"),
    //#endregion
 
    //#region UI State Information
-      $activeView: null,
+      $currentView: null,
    //#endregion
 
    //#region Functions
       defaultSetup: function() {
-         this.$activeView = this.$view_landing;
          this.configureEventListeners();
          this.showLandingView();
       },
 
       activeSessionSetup: function() {
-         this.$activeView = this.$view_landing;
          this.configureEventListeners();
          this.showUserView();
       },
@@ -52,8 +59,22 @@ const ui = {
          });
 
          //Header, Sign In Button
-         this.$button_signIn.on("click", function(e) {
-            ui.moveToView(ui.$view_signIn, "right", ui.$button_registerInstead);
+         this.$headerButton_signIn.on("click", function(e) {
+            ui.moveToView(ui.$view_signIn, "fadeInRight", ui.$headerButton_registerInstead);
+         });
+
+         ui.$button_register.on("click", function(e) {
+            ui.moveToView(ui.$view_register, "fadeInRight", ui.$headerButton_signInInstead);
+         });
+
+         ui.$headerButton_registerInstead.on("click", function(e) {
+            ui.clearSignInForm();
+            ui.moveToView(ui.$view_register, "fadeInRight", ui.$headerButton_signInInstead);
+         });
+
+         ui.$headerButton_signInInstead.on("click", function(e) {
+            ui.clearRegistrationForm();
+            ui.moveToView(ui.$view_signIn, "fadeInLeft", ui.$headerButton_registerInstead);
          });
 
          $("#form-signIn input").on("input", function(e) {
@@ -66,55 +87,73 @@ const ui = {
             ui.signIn(enteredUsername, enteredPassword);
          });
 
-         this.$button_signOut.on("click", function(e) {
+         $("#form-register input").on("input", function(e) {
+            ui.validateRegistrationInputs();
+         });
+
+         this.$button_registerSubmit.on("click", function(e) {
+            let enteredUsername = ui.$input_registerUsername.val();
+            let enteredPassword = ui.$input_registerPassword.val();
+            let enteredEmail = ui.$input_registerEmail.val();
+            ui.register(enteredUsername, enteredPassword, enteredEmail);
+         });
+
+         this.$headerButton_signOut.on("click", function(e) {
             ui.signOut();
          });
       },
 
       showLandingView: function() {
-         this.$view_landing.fadeIn(800);
-         this.$button_signIn.css("transition", "none");
-         this.$button_signIn.fadeIn(800, function() {
-            ui.$button_signIn.css("transition", "");
-         });
+         ui.moveToView(ui.$view_landing, "fadeIn", ui.$headerButton_signIn);
       },
 
       showUserView: function() {
-         this.$view_userHome.fadeIn(800);
-         this.$button_signOut.css("transition", "none");
-         this.$button_signOut.fadeIn(800, function() {
-            ui.$button_signOut.css("transition", "");
-         });
+         ui.moveToView(ui.$view_userHome, "fadeIn", ui.$headerButton_signOut);
       },
 
-      moveToView: function($targetView, revealSide, $targetViewHeaderButton) {
-         //#region revealSide validation
-         let hideAnimation, showAnimation;
-         if (revealSide == "right") {
+      moveToView: function($view, showAnimation, $headerButtons = null) {
+         let hideAnimation;
+         if (showAnimation == "fadeInRight") {
             hideAnimation = "fadeOutLeft";
-            showAnimation = "fadeInRight";
          }
-         else if(revealSide == "left") {
+         else if (showAnimation == "fadeInLeft") {
             hideAnimation = "fadeOutRight";
-            showAnimation = "fadeInLeft";
+         }
+         else if (showAnimation == "fadeIn") {
+            hideAnimation = null;
          }
          else {
-            throw Error(`moveToSignInView(): revealSide must either equal "left" or "right".`);
+            throw Error(`moveToView(): showAnimation must either equal "fadeInRight", "fadeInLeft", or "fadeIn".`);
          }
-         //#endregion
 
-         $("#header-right-wrapper *").delay(200).fadeOut(400);
-         this.hideWithAnimation(this.$activeView, hideAnimation)
-         .then(()=> {
-            this.showWithAnimation($targetView, showAnimation);
-            $targetViewHeaderButton.css("transition", "none");
-            $targetViewHeaderButton.css("pointer-events", "none");
-            $targetViewHeaderButton.delay(400).fadeIn(400, function() {
-               $targetViewHeaderButton.css("transition", "");
-               $targetViewHeaderButton.css("pointer-events", "");
+         //Hide all present header buttons
+         $("#header-right-wrapper *").delay(150).fadeOut(400);
+
+         let showViewAndButtons = function($view, showAnimation, $headerButtons) {
+            ui.showWithAnimation($view, showAnimation);
+            if ($headerButtons) {
+               //'transition' is disabled to prevent interaction with animate.css '.view' transitions.
+               $headerButtons.css("transition", "none");
+               //'pointer-events' is disabled to prevent erroneous clicks that confuse execution.
+               $headerButtons.css("pointer-events", "none");
+               $headerButtons.delay(200).fadeIn(500, function() {
+                  //settings are restored after the animations end
+                  $headerButtons.css("transition", "");
+                  $headerButtons.css("pointer-events", "");
+               });
+            }
+         };
+         if (ui.$currentView && hideAnimation) {
+            this.hideWithAnimation(ui.$currentView, hideAnimation)
+            .then(()=> {
+               showViewAndButtons($view, showAnimation, $headerButtons);
             });
-            this.$activeView = $targetView;
-         });
+         }
+         else {
+            showViewAndButtons($view, showAnimation, $headerButtons);
+         }
+         //sets UI state variable for reference elsewhere
+         this.$currentView = $view;
       },
 
       validateSignInInputs: function() {
@@ -129,12 +168,64 @@ const ui = {
          }
       },
 
+      clearSignInForm: function() {
+         ui.$input_signInUsername.val("");
+         ui.$input_signInPassword.val("");
+      },
+
+      validateRegistrationInputs: function() {
+         let enteredUsername = this.$input_registerUsername.val();
+         let enteredPassword = this.$input_registerPassword.val();
+         let enteredPasswordConfirmation = this.$input_registerConfirmPassword.val();
+
+         if(enteredUsername.length < 1) {
+            this.disableRegisterSubmitButton();
+            ui.$text_registerInstructions.text("Please enter your desired username.");
+         }
+         else if(enteredUsername.trim().length != enteredUsername.length) {
+            this.disableRegisterSubmitButton();
+            ui.$text_registerInstructions.text("Your username cannot begin or end with whitespace characters.");
+         }
+         else if(enteredPassword.length < 10) {
+            this.disableRegisterSubmitButton();
+            ui.$text_registerInstructions.text("Your password must be at least 10 characters long.");
+         }
+         else if(enteredPassword.length >= 10 && enteredPasswordConfirmation.length == 0) {
+            this.disableRegisterSubmitButton();
+            ui.$text_registerInstructions.text("Please confirm your password by entering it a second time.");
+         }
+         else if(enteredPassword != enteredPasswordConfirmation) {
+            this.disableRegisterSubmitButton();
+            ui.$text_registerInstructions.text("Your password and password confirmation do not match.");
+         }
+         else {
+            this.enableRegisterSubmitButton();
+            ui.$text_registerInstructions.text("Looks good! Click the register button below to continue.");
+         }
+      },
+
+      clearRegistrationForm: function() {
+         ui.$text_registerInstructions.text("Please enter your desired username.");
+         ui.$input_registerUsername.val("");
+         ui.$input_registerEmail.val("");
+         ui.$input_registerPassword.val("");
+         ui.$input_registerConfirmPassword.val("");
+      },
+
       disableSignInSubmitButton: function() {
          this.$button_signInSubmit.prop("disabled", true);
       },
 
       enableSignInSubmitButton: function() {
          this.$button_signInSubmit.prop("disabled", false);
+      },
+
+      disableRegisterSubmitButton: function() {
+         this.$button_registerSubmit.prop("disabled", true);
+      },
+
+      enableRegisterSubmitButton: function() {
+         this.$button_registerSubmit.prop("disabled", false);
       },
 
       //POST /api/auth/sign-in
@@ -150,7 +241,7 @@ const ui = {
             dataType: "json"
          })
          .then(()=> {
-            this.moveToView(this.$view_userHome, "right", this.$button_signOut);
+            ui.moveToView(ui.$view_userHome, "fadeInRight", ui.$headerButton_signOut);
          })
          .catch((returnData)=> {
             const errorStatus = returnData.status;
@@ -169,13 +260,54 @@ const ui = {
          })
          .then((returnData)=> {
             console.log(returnData);
-            this.moveToView(this.$view_landing, "left", this.$button_signIn);
+            this.moveToView(ui.$view_landing, "fadeInLeft", ui.$headerButton_signIn);
          })
          .catch((returnData)=> {
             const errorStatus = returnData.status;
             const responseData = returnData.responseJSON;
             //TODO
             console.error("ERROR:", errorStatus, responseData);
+         });
+      },
+
+      //POST /api/user/create
+      register: function(username, password, email = "") {
+         let requestData = {
+            username,
+            password
+         }
+
+         if(email) {
+            requestData.email = email;
+         }
+
+         console.log(requestData);
+
+         $.ajax({
+            method: "POST",
+            url: "/api/user/create",
+            contentType: "application/json",
+            data: JSON.stringify(requestData),
+            dataType: "json"
+         })
+         .then((returnData)=> {
+            console.log(returnData);
+            this.moveToView(ui.$view_userHome, "fadeInRight", ui.$headerButton_signOut);
+         })
+         .catch((returnData)=> {
+            const errorStatus = returnData.status;
+            const errorType = returnData.responseJSON.errorType;
+            const responseData = returnData.responseJSON;
+
+            console.error(`ERROR: ${errorType}`);
+            if (errorType == "CredentialNotUnique") {
+               ui.$text_registerInstructions.text("Unfortunately, that username is already in use.");
+               ui.$input_registerUsername.val("");
+               ui.disableRegisterSubmitButton();
+            }
+            else {
+               console.error(`Server response: ${responseData}`);
+            }
          });
       },
 

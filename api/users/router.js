@@ -38,6 +38,7 @@ const authorize = function(req, res, next) {
 
 
 router.post("/create", (req, res)=> {
+  console.log(req.body);
   //Required fields must be present and not empty
   for(let requiredField of ["username", "password"]) {
     if (!req.body.hasOwnProperty(requiredField) || req.body[requiredField]=="") {
