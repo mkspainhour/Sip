@@ -39,25 +39,25 @@ const preexistingCocktail = {
 
 describe("\n====Cocktail API====\n", function() {
   //#region HOOKS
-  // Each hook function needs to either return a promise or invoke a `done()` callback.
-  before("Starting server...",function() {
-    return startServer(TEST_DATABASE_URL);
-  });
-
-  beforeEach("Seeding collection with test document", function() {
-    return Cocktail.create( preexistingCocktail )
-    .then( (cocktailRecipe)=> {
-      preexistingCocktail._id = cocktailRecipe._id
+    // Each hook function needs to either return a promise or invoke a `done()` callback.
+    before("Starting server...",function() {
+      return startServer(TEST_DATABASE_URL);
     });
-  })
 
-  afterEach("Clearing test-added documents...", function() {
-    return mongoose.connection.dropCollection("cocktails");
-  })
+    beforeEach("Seeding collection with test document", function() {
+      return Cocktail.create( preexistingCocktail )
+      .then( (cocktailRecipe)=> {
+        preexistingCocktail._id = cocktailRecipe._id
+      });
+    })
 
-  after("Stopping server...", function() {
-    return stopServer();
-  });
+    afterEach("Clearing test-added documents...", function() {
+      return mongoose.connection.dropCollection("cocktails");
+    })
+
+    after("Stopping server...", function() {
+      return stopServer();
+    });
   //#endregion
 
   describe("POST /api/cocktail/create 🔒", function() {
@@ -67,7 +67,7 @@ describe("\n====Cocktail API====\n", function() {
       .post("/api/cocktail/create")
       .then( function(res) {
         expect(res).to.have.status(401);
-        expect(res.body).to.have.property("errorType").and.to.equal("Unauthorized");
+        expect(res.body).to.have.property("errorType").and.to.equal("NoActiveSession");
       })
     });
 
@@ -128,6 +128,7 @@ describe("\n====Cocktail API====\n", function() {
         ingredients: [{name:"water",measurementUnit:"part",amount:1,abv:0}]
       })
       .then( function(res) {
+        console.log(res.body);
         expect(res).to.have.status(422).and.to.be.json;
         expect(res.body).to.be.an("object");
         expect(res.body).to.have.property("errorType").and.to.equal("StringNotTrimmed");
@@ -162,6 +163,7 @@ describe("\n====Cocktail API====\n", function() {
         ingredients: 12
       })
       .then( function(res) {
+        console.log("ingredients not valid array", res.body);
         expect(res).to.have.status(422).and.to.be.json;
         expect(res.body).to.be.an("object");
         expect(res.body).to.have.property("errorType").to.be.a("string").and.to.equal("IncorrectDataType");
@@ -577,7 +579,7 @@ describe("\n====Cocktail API====\n", function() {
       .put("/api/cocktail/update")
       .then( function(res) {
         expect(res).to.have.status(401);
-        expect(res.body).to.have.property("errorType").and.to.equal("Unauthorized");
+        expect(res.body).to.have.property("errorType").and.to.equal("NoActiveSession");
       })
     });
 
@@ -731,8 +733,6 @@ describe("\n====Cocktail API====\n", function() {
       })
       .then( function(res) {
         expect(res).to.have.status(404).and.to.be.json;
-        expect(res.body).to.be.an("object");
-        expect(res.body).to.have.property("errorType").and.to.equal("NoSuchCocktail");
       });
     });
 
@@ -780,7 +780,7 @@ describe("\n====Cocktail API====\n", function() {
       .delete("/api/cocktail/delete")
       .then( function(res) {
         expect(res).to.have.status(401);
-        expect(res.body).to.have.property("errorType").and.to.equal("Unauthorized");
+        expect(res.body).to.have.property("errorType").and.to.equal("NoActiveSession");
       })
     });
 
@@ -839,7 +839,7 @@ describe("\n====Cocktail API====\n", function() {
         targetId: preexistingCocktail._id
       })
       .then( function(res) {
-        expect(res).to.have.status(422).and.to.be.json;
+        expect(res).to.have.status(404).and.to.be.json;
         expect(res.body).to.be.an("object");
         expect(res.body).to.have.property("errorType").and.to.equal("NoSuchCocktail");
       });

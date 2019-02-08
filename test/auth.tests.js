@@ -44,17 +44,17 @@ describe("\n====Auth API====\n", function() {
   describe("POST /api/auth/sign-in", function() {
 
     it("Fail state: a 'session' cookie is already active", function() {
-      const sessionJwt = User.makeJwtFor(preexistingUser.username);
+      const session = User.makeJwtFor(preexistingUser.username);
       return chai.request(app)
       .post("/api/auth/sign-in")
-      .set("Cookie", `session=${sessionJwt}`)
+      .set("Cookie", `session=${session}`)
       .send({
         username: preexistingUser.username,
         password: "seedPassword"
       })
       .then(function(res) {
         expect(res).to.have.status(400).and.to.be.json;
-        expect(res.body.errorType).to.equal("SessionAlreadyActive");
+        expect(res.body).to.have.property("errorType").and.to.equal("SessionAlreadyActive");
       });
     });
 
@@ -67,7 +67,7 @@ describe("\n====Auth API====\n", function() {
       })
       .then(function(res) {
         expect(res).to.have.status(422).and.to.be.json;
-        expect(res.body.errorType).to.equal("MissingField");
+        expect(res.body).to.have.property("errorType").and.to.equal("MissingField");
       });
     });
 
@@ -80,7 +80,7 @@ describe("\n====Auth API====\n", function() {
       })
       .then(function(res) {
         expect(res).to.have.status(422).and.to.be.json;
-        expect(res.body.errorType).to.equal("UnexpectedDataType");
+        expect(res.body).to.have.property("errorType").and.to.equal("UnexpectedDataType");
       });
     });
 
@@ -93,7 +93,7 @@ describe("\n====Auth API====\n", function() {
       })
       .then(function(res) {
         expect(res).to.have.status(422).and.to.be.json;
-        expect(res.body.errorType).to.equal("UntrimmedString");
+        expect(res.body).to.have.property("errorType").and.to.equal("UntrimmedString");
       });
     });
 
@@ -106,7 +106,7 @@ describe("\n====Auth API====\n", function() {
       })
       .then(function(res) {
         expect(res).to.have.status(422).and.to.be.json;
-        expect(res.body.errorType).to.equal("MissingField");
+        expect(res.body).to.have.property("errorType").and.to.equal("MissingField");
       });
     });
 
@@ -119,7 +119,7 @@ describe("\n====Auth API====\n", function() {
       })
       .then(function(res) {
         expect(res).to.have.status(422).and.to.be.json;
-        expect(res.body.errorType).to.equal("UnexpectedDataType");
+        expect(res.body).to.have.property("errorType").and.to.equal("UnexpectedDataType");
       });
     });
 
@@ -132,7 +132,7 @@ describe("\n====Auth API====\n", function() {
       })
       .then(function(res) {
         expect(res).to.have.status(422).and.to.be.json;
-        expect(res.body.errorType).to.equal("UntrimmedString");
+        expect(res.body).to.have.property("errorType").and.to.equal("UntrimmedString");
       });
     });
 
@@ -145,7 +145,7 @@ describe("\n====Auth API====\n", function() {
       })
       .then(function(res) {
         expect(res).to.have.status(404).and.to.be.json;
-        expect(res.body.errorType).to.equal("NoSuchUser");
+        expect(res.body).to.have.property("errorType").and.to.equal("NoSuchUser");
       });
     });
 
@@ -157,8 +157,9 @@ describe("\n====Auth API====\n", function() {
         password: "seedPassword"
       })
       .then(function(res) {
-        expect(res).to.have.status(200);
+        expect(res).to.have.status(204);
         expect(res).to.have.cookie("session");
+        expect(res).to.have.cookie("user");
       });
     });
 
@@ -166,24 +167,16 @@ describe("\n====Auth API====\n", function() {
 
   describe("GET /api/auth/sign-out", function() {
 
-    it("Fail state: no 'session' cookie exists to be cleared", function() {
-      return chai.request(app)
-      .get("/api/auth/sign-out")
-      .then( function(res) {
-        expect(res).to.have.status(400);
-        expect(res).to.not.have.cookie("session");
-      })
-    });
-
-    it("Success: clears httpOnly 'session' cookie", function() {
-      const sessionJwt = User.makeJwtFor(preexistingUser.username);
+    it("Success: clears 'session' cookie", function() {
+      const session = User.makeJwtFor(preexistingUser.username);
 
       return chai.request(app)
       .get("/api/auth/sign-out")
-      .set("Cookie", `session=${sessionJwt}`)
+      .set("Cookie", `session=${session}`)
       .then( function(res) {
-        expect(res).to.have.status(200);
+        expect(res).to.have.status(204);
         expect(res).to.not.have.cookie("session");
+        expect(res).to.not.have.cookie("user");
       })
     });
 
@@ -196,16 +189,16 @@ describe("\n====Auth API====\n", function() {
       .get("/api/auth/sessionTest")
       .then( function(res) {
         expect(res).to.have.status(401);
-        expect(res.body).to.have.property("errorType").and.to.equal("Unauthorized");
+        expect(res.body).to.have.property("errorType").and.to.equal("NoActiveSession");
       })
     });
 
     it("Fail state: 'session' cookie JWT is malformed", function() {
-      const sessionJwt = User.makeJwtFor(preexistingUser.username);
+      const session = User.makeJwtFor(preexistingUser.username);
 
       return chai.request(app)
       .get("/api/auth/sessionTest")
-      .set("Cookie", `session=${sessionJwt.slice(0, -1)}`) //Break the JWT to trigger the intended error
+      .set("Cookie", `session=${session.slice(0, -1)}`) //Break the JWT to trigger the intended error
       .then( function(res) {
         expect(res).to.have.status(401);
         expect(res.body).to.have.property("errorType").and.to.equal("MalformedJWT");
@@ -213,12 +206,12 @@ describe("\n====Auth API====\n", function() {
     });
 
     it("Success: 'session' cookie exists and is a valid JWT", function() {
-      const sessionJwt = User.makeJwtFor(preexistingUser.username);
+      const session = User.makeJwtFor(preexistingUser.username);
 
       return chai.request(app)
       .get("/api/auth/sessionTest")
-      .set("Cookie", `session=${sessionJwt}`)
-      .then( function(res) {
+      .set("Cookie", `session=${session}`)
+      .then(function(res) {
         expect(res).to.have.status(200);
       })
     });

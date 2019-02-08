@@ -32,6 +32,7 @@ header {
   top: 0;
   left: 0;
   right: 0;
+  z-index: 1;
 
   width: 100%;
   /*Hollow button text height, hollow button padding, hollow button border, header padding, and header separator height */
@@ -77,7 +78,7 @@ header {
 .view {
   position: relative;
   top: 59px;
-  height: calc(100vh - 59px);
+  min-height: calc(100vh - 59px);
   padding: 2em;
   display: flex;
   flex-flow: column nowrap;
@@ -97,14 +98,36 @@ header {
 
 #view-signIn {}
 
-  #signIn-instructions {
+  .wrapper-instructions {
+    min-height: calc(1.25em * 3);
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
     margin-bottom: 3em;
   }
 
 #view-register {}
 
-  #register-instructions {
+#view-userHome {
+  justify-content: flex-start;
+}
+
+  #active-user,
+  #recipe-count {
+    line-height: 1;
+  }
+
+  #active-user {
+    margin-bottom: 0.25em;
+    word-break: break-all;
+  }
+
+  #recipe-count {
     margin-bottom: 3em;
+  }
+
+  .recipe-name {
+    margin-bottom: 0.25em;
   }
 
 
@@ -212,10 +235,30 @@ label {
 
 
 
+.recipe-card {
+  position: relative;
+  border-radius: 6px;
+  background-color: #46494D;
+  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.2), 0 1px 3px 0 rgba(60,63,66,0.1);
+  padding: 1em;
+  /* Accoutn for chevron icon width, and both sides of chevron padding */
+  padding-right: calc(2em + 7px);
+  cursor: pointer;
+}
+.recipe-card:not(:last-of-type) {
+  margin-bottom: 16px;
+}
+.svg-view-recipe-chevron {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 1em;
+}
+
 
 
 .button-hollow {
-  background-color: transparent;
+  background-color: var(--color-dark);
   border: 1px solid var(--color-orange4);
   box-shadow: 0 1px 2px 0 rgba(0,0,0,0.2), 0 1px 3px 0 rgba(60,63,66,0.1);
   border-radius: 6px;

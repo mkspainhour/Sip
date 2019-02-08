@@ -1,10 +1,35 @@
 "use strict";
 
-const flags = {
-   sessionActive: document.cookie.indexOf("session") != -1
+const launchFlags = {
+   sessionCookiePresent: getCookieValue("session") != null,
+   userCookiePresent: getCookieValue("user") != null
 }
 
-//Entry Point
+const appSession = {
+   currentUser: getCookieValue("user")
+}
+
+
+
 $(function entryPoint() {
-   flags.sessionActive ? ui.activeSessionSetup() : ui.defaultSetup();
+   //Prep
+   ui.setup();
+
+   //Begin
+   if (launchFlags.sessionCookiePresent && launchFlags.userCookiePresent) {
+      appSession.currentUser = getCookieValue("user");
+      ui.showUserHomeView("fadeIn");
+   }
+   else {
+      ui.showLandingView("fadeIn");
+   }
 });
+
+
+
+//Utility Functions
+function getCookieValue(cookieName) {
+   //Credit: https://stackoverflow.com/a/25490531
+   var locatedSegment = document.cookie.match('(^|;)\\s*' + cookieName + '\\s*=\\s*([^;]+)');
+   return locatedSegment ? locatedSegment.pop() : null;
+}

@@ -29,17 +29,20 @@ const preexistingCocktail = {
      {
        amount: 3,
        measurementUnit: "part",
-       name: "Gin"
+       name: "Gin",
+       abv: 44
      },
      {
        amount: 2,
        measurementUnit: "part",
-       name: "Campari"
+       name: "Campari",
+       abv: 26
      },
      {
        amount: 2,
        measurementUnit: "part",
-       name: "Red Vermouth"
+       name: "Red Vermouth",
+       abv: 16
      }
    ]
  }
@@ -122,12 +125,13 @@ describe("====Core Route Tests====", function() {
       return chai.request(app)
       .get(`/cocktail/${preexistingCocktail.id}`)
       .then( (res)=> {
-        //console.log("\ncocktail:", res.body, "\n");
         expect(res).to.have.status(200).and.to.be.json;
 				expect(res.body).to.be.an("object");
 				expect(res.body).to.have.property("id").that.equals(preexistingCocktail.id.toString());
-				expect(res.body).to.have.property("creator").that.equals(preexistingUser.username);
-				expect(res.body).to.have.property("ingredients").that.is.an("array");
+        expect(res.body).to.have.property("creator").that.equals(preexistingUser.username);
+        expect(res.body).to.have.property("ingredientNames").that.is.a("string").and.does.not.equal("");
+        expect(res.body).to.have.property("ingredients").that.is.an("array");
+        expect(res.body).to.have.property("abv").that.is.a("number").that.is.at.least(0);
       });
     });
 

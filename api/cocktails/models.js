@@ -29,24 +29,40 @@ const cocktailSchema = mongoose.Schema({
 cocktailSchema.methods.totalAbv = function() {
   let abvSum = 0;
   let numberOfAlcoholicIngredients = 0;
+  let round = function(value, precision) {
+      let multiplier = Math.pow(10, precision||0);
+      return Math.round(value * multiplier) / multiplier;
+  }
 
   this.ingredients.forEach(function(ingredient) {
-    console.log(ingredient);
-    if(ingredient.hasOwnProperty("abv") && ingredient.abv > 0) {
+    if(ingredient.abv && ingredient.abv > 0) {
       abvSum += ingredient.abv;
       numberOfAlcoholicIngredients++;
     }
   });
 
-  return abvSum / numberOfAlcoholicIngredients;
+  const rawAbv = abvSum / numberOfAlcoholicIngredients;
+
+  return round(rawAbv, 1);
 };
+
+cocktailSchema.methods.ingredientNames = function() {
+  let ingredientNames = this.ingredients.map((ingredient)=> {
+    return ingredient.name;
+  });
+
+  //Returns a comma-separated list of ingredient names as a string
+  return ingredientNames.join(", ");
+}
 
 cocktailSchema.methods.serialize = function() {
   return {
     id: this._id,
     name: this.name,
     creator: this.creator,
+    ingredientNames: this.ingredientNames(),
     ingredients: this.ingredients,
+    abv: this.totalAbv(),
     recipeAge: moment(this.createdAt).fromNow(true)
   }
 }

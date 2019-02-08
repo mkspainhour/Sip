@@ -27,6 +27,7 @@ app.use(function(req, res, next) {
   next();
 });
 app.use(express.static( "client", {maxAge: "1d"} ));
+//#endregion
 
 //API Routes
 const {router: cocktailsRouter} = require("./api/cocktails");
@@ -37,7 +38,7 @@ app.use("/api/user", usersRouter);
 
 const {router: authRouter} = require("./api/auth");
 app.use("/api/auth", authRouter);
-//#endregion
+
 
 
 

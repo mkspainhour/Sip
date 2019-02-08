@@ -6,7 +6,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>Sip — Cocktail Recipes</title>
 	<meta name="application-name" content="Sip">
-	<!--TODO--> <meta name="description" content="Placeholder description.">
+	<meta name="description" content="Save and share your favorite cocktail recipes.">
 	<meta name="author" content="Marshall Spainhour">
 
 	<!--STYLESHEETS-->
@@ -62,7 +62,9 @@
 
 		<!--Sign In View-->
 		<section id="view-signIn" class="view" role="region" style="display: none;">
-			<p id="signIn-instructions" class="typo-body typo-center">Sign in by entering your account credentials in the fields below.</p>
+			<div class="wrapper-instructions">
+				<p id="signIn-instructions" class="typo-body typo-center">Sign in by entering your account credentials in the fields below.</p>
+			</div>
 
 			<form id="form-signIn" action="#" role="form">
 				<!--Username Field-->
@@ -78,7 +80,7 @@
 				</div>
 
 				<!--Sign In Sumbit Button-->
-				<button id="button-signIn-submit" type="button" class="button-filled typo-color-dark" disabled>Sign In</button>
+				<button id="button-signIn-submit" type="submit" class="button-filled typo-color-dark" disabled>Sign In</button>
 			</form>
 		</section>
 
@@ -86,7 +88,9 @@
 
 		<!--Register View-->
 		<section id="view-register" class="view" role="region" style="display: none;">
-				<p id="register-instructions" class="typo-body typo-center">Please enter your desired username.</p>
+				<div class="wrapper-instructions">
+					<p id="register-instructions" class="typo-body typo-center">Please enter your desired username.</p>
+				</div>
 
 				<form id="form-register" action="#" role="form">
 					<!--Username Field-->
@@ -116,13 +120,14 @@
 					<!--Register Sumbit Button-->
 					<button id="button-register-submit" type="button" class="button-filled typo-color-dark" disabled>Register</button>
 				</form>
-			</section>
+		</section>
 
 
 
 		<!--User Home View-->
 		<section id="view-userHome" class="view" role="region" style="display: none;">
-			<p class="typo-body typo-center">You're signed in!</p>
+			<p id="active-user" class="typo-body typo-center">temporaryTestUsername</p>
+			<p id="recipe-count" class="typo-body-small typo-center typo-color-orange3">3 Recipes</p>
 		</section>
 
 

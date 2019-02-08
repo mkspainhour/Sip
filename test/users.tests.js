@@ -68,7 +68,6 @@ describe("\n====User API====\n", function() {
         expect(res).to.be.json;
         expect(res.body).to.be.an("object");
         expect(res.body).to.have.property("errorType", "MissingField");
-        expect(res.body).to.have.property("message").and.to.be.a("string");
       });
     });
 
@@ -89,7 +88,6 @@ describe("\n====User API====\n", function() {
         expect(res).to.be.json;
         expect(res.body).to.be.an("object");
         expect(res.body).to.have.property("errorType", "UnexpectedDataType");
-        expect(res.body).to.have.property("message").and.to.be.a("string");
       });
     });
 
@@ -110,7 +108,6 @@ describe("\n====User API====\n", function() {
         expect(res).to.be.json;
         expect(res.body).to.be.an("object");
         expect(res.body).to.have.property("errorType", "UntrimmedString");
-        expect(res.body).to.have.property("message").and.to.be.a("string");
       });
     });
 
@@ -131,7 +128,6 @@ describe("\n====User API====\n", function() {
         expect(res).to.be.json;
         expect(res.body).to.be.an("object");
         expect(res.body).to.have.property("errorType", "MissingField");
-        expect(res.body).to.have.property("message").and.to.be.a("string");
       });
     });
 
@@ -152,7 +148,6 @@ describe("\n====User API====\n", function() {
         expect(res).to.be.json;
         expect(res.body).to.be.an("object");
         expect(res.body).to.have.property("errorType", "UnexpectedDataType");
-        expect(res.body).to.have.property("message").and.to.be.a("string");
       });
     });
 
@@ -173,7 +168,6 @@ describe("\n====User API====\n", function() {
         expect(res).to.be.json;
         expect(res.body).to.be.an("object");
         expect(res.body).to.have.property("errorType", "UntrimmedString");
-        expect(res.body).to.have.property("message").and.to.be.a("string");
       });
     });
 
@@ -194,7 +188,6 @@ describe("\n====User API====\n", function() {
         expect(res).to.be.json;
         expect(res.body).to.be.an("object");
         expect(res.body).to.have.property("errorType", "MissingField");
-        expect(res.body).to.have.property("message").and.to.be.a("string");
       });
     });
 
@@ -215,7 +208,6 @@ describe("\n====User API====\n", function() {
         expect(res).to.be.json;
         expect(res.body).to.be.an("object");
         expect(res.body).to.have.property("errorType", "UnexpectedDataType");
-        expect(res.body).to.have.property("message").and.to.be.a("string");
       });
     });
 
@@ -236,7 +228,6 @@ describe("\n====User API====\n", function() {
         expect(res).to.be.json;
         expect(res.body).to.be.an("object");
         expect(res.body).to.have.property("errorType", "UntrimmedString");
-        expect(res.body).to.have.property("message").and.to.be.a("string");
       });
     });
 
@@ -250,7 +241,7 @@ describe("\n====User API====\n", function() {
       })
       .then(function(res) {
         expect(res).to.have.status(422);
-        expect(res.body.errorType).to.exist.and.to.be.a("string").and.to.equal("CredentialNotUnique");
+        expect(res.body.errorType).to.exist.and.to.be.a("string").and.to.equal("UsernameNotUnique");
       });
     });
 
@@ -264,7 +255,7 @@ describe("\n====User API====\n", function() {
       })
       .then(function(res) {
         expect(res).to.have.status(422);
-        expect(res.body.errorType).to.exist.and.to.be.a("string").and.to.equal("CredentialNotUnique");
+        expect(res.body.errorType).to.exist.and.to.be.a("string").and.to.equal("EmailNotUnique");
       });
     });
 
@@ -280,10 +271,9 @@ describe("\n====User API====\n", function() {
       .send(testData)
       .then( (res)=> {
         expect(res).to.have.status(201);
-        expect(res).to.be.json;
         expect(res.body).to.be.an("object");
-        expect(res.body).to.have.property("message").and.to.be.a("string");
         expect(res).to.have.cookie("session");
+        expect(res).to.have.cookie("user");
         User.findOne({username: testData.username})
         .then( (locatedUser)=> {
           expect(locatedUser).to.have.property("username", testData.username);

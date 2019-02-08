@@ -6,123 +6,130 @@ const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
-const { JWT_SECRET } = require("../../config");
+const { JWT_SECRET, COOKIE_EXPIRY } = require("../../config");
 const { User } = require("../users");
 //#endregion
 
 
 
-//JWT Validation Middleware
+//Middleware
 const authorize = function(req, res, next) {
-  //Ensure that a session cookie exists
+  //Ensure that a session cookie accompanies the request
   if (!req.cookies.session) {
     return res.status(401).json({
-      errorType: "Unauthorized",
-      message: `No session authorization cookie found.`
+      errorType: "NoActiveSession",
     });
   }
-  //Verify that the session cookie JWT is not malformed
+
+  //Verify that the session cookie JWT is not expired or malformed
+  let sessionUser;
   try {
-    jwt.verify(req.cookies.session, JWT_SECRET);
+    sessionUser = jwt.verify(req.cookies.session, JWT_SECRET).sub;
   }
   catch(err) {
     res.clearCookie("session");
+    if (err.name == "TokenExpiredError") {
+      return res.status(401).json({
+        errorType: "ExpiredJWT",
+        message: "Session cleared."
+      });
+    }
+    //JWT is generally malformed
     return res.status(401).json({
       errorType: "MalformedJWT",
-      message: `Invalid session cookie. Session reset.`
+      message: "Session cleared."
     });
   }
+
+  //The session is valid. Extend its expiry by another day.
+  res.cookie("session", User.makeJwtFor(sessionUser), {expires: COOKIE_EXPIRY});
+  res.cookie("user", sessionUser, {expires: COOKIE_EXPIRY});
+
   next();
 }
 
 
 
 router.post("/sign-in", (req, res)=> {
-  //A session must not already be active
-  if(req.cookies.session) {
-    return res.status(400).json({
-      errorType: "SessionAlreadyActive",
-      message: "It is not possible to sign in while a user session is already active.",
-    })
-  }
-
-  //Required fields must be present and not empty
-  for(let requiredField of ["username", "password"]) {
-    if (!req.body.hasOwnProperty(requiredField) || req.body[requiredField]=="") {
-      return res.status(422).json({
-        errorType: "MissingField",
-        message: `Request body is missing the '${requiredField}' field.`,
-      });
+  //#region Request Validation
+    //A session must not already be active
+    if(req.cookies.session) {
+      return res.status(400).json({
+        errorType: "SessionAlreadyActive",
+        message: "It is not possible to sign in while a user session is already active.",
+      })
     }
-  }
 
-  //The username and hashedPassword fields are Strings
-  for(let stringField of ["username", "password"]) {
-    if(req.body.hasOwnProperty(stringField) && typeof req.body[stringField] != "string") {
-      return res.status(422).json({
-        errorType: "UnexpectedDataType",
-        message: `The '${stringField}' field in the request body must be a String.`,
-      });
+    //Required fields must be present and non-empty
+    for(let requiredField of ["username", "password"]) {
+      if (!req.body[requiredField]) {
+        console.error(`Request body is missing the '${requiredField}' field.`);
+        return res.status(422).json({
+          errorType: "MissingField",
+        });
+      }
     }
-  }
 
-  //The username field is trimmed
-  for(let trimmedField of ["username", "password"]) {
-    if(req.body[trimmedField].trim().length != req.body[trimmedField].length) {
-      return res.status(422).json({
-        errorType: "UntrimmedString",
-        message: `The '${trimmedField}' field in the request body may not begin or end in whitespace.`,
-      });
+    //The username and password fields are Strings
+    for(let stringField of ["username", "password"]) {
+      if(req.body.hasOwnProperty(stringField) && typeof req.body[stringField] != "string") {
+        console.error(`The '${stringField}' field in the request body must be a String.`);
+        return res.status(422).json({
+          errorType: "UnexpectedDataType",
+        });
+      }
     }
-  }
+
+    //The username field is trimmed
+    for(let trimmedField of ["username", "password"]) {
+      if(req.body[trimmedField].trim().length != req.body[trimmedField].length) {
+        console.error(`The '${trimmedField}' String field in the request body may not begin or end with whitespace.`)
+        return res.status(422).json({
+          errorType: "UntrimmedString",
+        });
+      }
+    }
+  //#endregion
 
   return User.findOne({
     username: req.body.username,
   })
-  .then( (locatedUser)=> {
-    if(locatedUser) {
-      if(bcrypt.compareSync(req.body.password, locatedUser.hashedPassword)) {
-        res.cookie("session", User.makeJwtFor(req.body.username), {
-          expires: new Date( Date.now() + (1)*24*60*60*1000 ) //1 day from now, in milliseconds
-        });
-        return res.status(200).json({
-          message: `${req.body.username} signed in.`
-        });
-      }
+  .then((locatedUser)=> {
+    //If there is a user with the provided username, and the provided password is correct
+    if(locatedUser && bcrypt.compareSync(req.body.password, locatedUser.hashedPassword)) {
+      res.cookie("session", User.makeJwtFor(req.body.username), {expires: COOKIE_EXPIRY});
+      res.cookie("user", req.body.username, {expires: COOKIE_EXPIRY});
+      return res.status(204).send();
     }
-    //The username and hashedPassword provided point to no user
+    //Otherwise, the username and password provided do not both belong to a user
     return res.status(404).json({
       errorType: "NoSuchUser",
-      message: "No user exists with the specified credentials.",
     });
   })
   .catch( (err)=> {
-    console.error(`\n✖ Server Error:\n${err}\n`);
+    console.error(`✖ Server Error:\n${err}`);
     return res.status(500).json({
-      errorType: "InternalServerError",
-      message: "Internal server error."
+      errorType: "InternalServerError"
     });
   })
 });
 
 router.get("/sign-out", (req, res)=> {
-  if(req.cookies.session) {
+  //There is no situation in which only one cookie is present, but this seems generally safer
+  if(req.cookies) {
     res.clearCookie("session");
-    return res.status(200).json({
-      message: `User logged out.`
-    });
+    res.clearCookie("user");
   }
-  return res.status(400).json({
-    errorType: "NoActiveSession",
-    message: "It is not possible to sign out when no one has been signed in.",
-  });
+  return res.status(204).send();
 });
 
-//TEMP
+//TEMP: Development tool. Not intended for production.
 router.get("/sessionTest", authorize, (req, res)=> {
+  let decodedJwt = jwt.verify(req.cookies.session, JWT_SECRET);
   return res.status(200).json({
     message: "You're authorized!",
-    currentUser: jwt.verify(req.cookies.session, JWT_SECRET).sub,
+    username: req.cookies.user,
+    sessionToken: decodedJwt
   });
 });
 
