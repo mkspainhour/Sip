@@ -128,7 +128,6 @@ describe("\n====Cocktail API====\n", function() {
         ingredients: [{name:"water",measurementUnit:"part",amount:1,abv:0}]
       })
       .then( function(res) {
-        console.log(res.body);
         expect(res).to.have.status(422).and.to.be.json;
         expect(res.body).to.be.an("object");
         expect(res.body).to.have.property("errorType").and.to.equal("StringNotTrimmed");
@@ -163,7 +162,6 @@ describe("\n====Cocktail API====\n", function() {
         ingredients: 12
       })
       .then( function(res) {
-        console.log("ingredients not valid array", res.body);
         expect(res).to.have.status(422).and.to.be.json;
         expect(res.body).to.be.an("object");
         expect(res.body).to.have.property("errorType").to.be.a("string").and.to.equal("IncorrectDataType");

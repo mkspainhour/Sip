@@ -12,8 +12,6 @@ const { User } = require("./models");
 
 
 router.post("/create", (req, res)=> {
-  console.log("recieved create instructions:", req.body);
-
   //#region Request Validation
     //Required fields must be present and not empty
     for(let requiredField of ["username", "password"]) {
@@ -75,7 +73,6 @@ router.post("/create", (req, res)=> {
       User.findOne({email: req.body.email})
       .then( (user)=> {
         if (user) {
-          console.log("email not unique");
           return reject({
             code: 422,
             errorType: "EmailNotUnique",
@@ -99,7 +96,6 @@ router.post("/create", (req, res)=> {
       newUserData.email = req.body.email;
     }
 
-    console.log("creating user");
     return User.create(newUserData);
   })
   .then( (newUser)=> {
@@ -107,7 +103,6 @@ router.post("/create", (req, res)=> {
     res.cookie("session", sessionJwt, {maxAge: COOKIE_EXPIRY});
     res.cookie("user", newUser.username, {maxAge: COOKIE_EXPIRY});
 
-    console.log("returning new user");
     return res.status(201).send();
   })
   .catch ( (err)=> {

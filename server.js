@@ -123,7 +123,7 @@ function startServer(url = DATABASE_URL) {
         return reject(err);
       }
       server = app.listen(PORT, ()=> {
-        //console.log(`Your app is listening on port ${PORT}`);
+        console.log(`Sip is listening on port ${PORT}`);
         resolve();
       })
       .on("error", (err)=> {

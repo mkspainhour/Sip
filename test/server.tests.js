@@ -99,7 +99,6 @@ describe("====Core Route Tests====", function() {
       return chai.request(app)
       .get(`/user/${preexistingUser.username}`)
       .then( (res)=> {
-        //console.log("\nuser:", res.body, "\n");
         expect(res).to.have.status(200).and.to.be.json;
         expect(res.body).to.be.an("object");
         expect(res.body).to.have.property("username").that.equals(preexistingUser.username);
