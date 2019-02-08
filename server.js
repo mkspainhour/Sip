@@ -66,6 +66,7 @@ app.get("/user/:username", (req,res)=> {
     })
   })
   .then((cocktails)=> {
+    console.log("cocktails:", cocktails);
     returnUser.createdCocktails = cocktails.map((cocktail => cocktail.serialize()));
     return res.status(200).json(returnUser);
   })
