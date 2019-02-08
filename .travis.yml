@@ -1,0 +1,13 @@
+
+language: node_js
+node_js: node
+services:
+- mongodb
+deploy:
+  provider: heroku
+  api_key:
+    secure: d7izOLhmqDTLIF5oPo1m9CmTYqB+F3QqI7KOnU10tPoA5nUbwY2Jgic55NFRREXYiu3qgJ2yoW6DF7ql6VUM+ak4EEIVQ2KORumbqiH+4iRf82kjx79zbFABlmMSYyLRCOn0u2YHM2r9htmzWv2fJvynV7R+wrpKTkTNwQFa7bB4Wx50VF7SJEC1e5f8oUbPRz0rcdcvhudPcraAvNLW/fqENmhYMe2qYTjKrZAA36Zx5drijl8zPzjHdT55yxH5yEhGw3QhIegkR2owIIRIOIp+eHJh3/CcN1gYA95Fpj8MjuCotSEQtQv5zm9i2VbbKInmWrbmmDU355A4whCUkXVrdWfC+3bPkdUA2J+v0XrcRZQA7HZjXwC4MU5VmgKhTu/R/E0INoICuoG1VWE+HVCk02h++Zmyva0A4zQSiYoejbrEDkWpZcqxVWNDd0d3IyB34RKsh/8wUTGxBmwPHt258WeSV2vGo3MYE5NlBUlEKanCYpV934stCsWdOK3t7wis02Cs2onnH5wVlIv5+bV9Xefvy0TQmssJET4DYWpBUA9gXBJo5fhWJRH91Cgx1j8G5mgCP83dRxXpDUJ8ba9JI0ohTBBhTHSfv904HEgtkK0nzP7iTrrFdB/G39CM3ezE1lqlVzw94wyJyslQhqLN6+fqpNzKf7Bp0nMk0Nk=
+  app: pacific-castle-68250
+  on:
+    repo: mkspainhour/sip
+    branch: master
