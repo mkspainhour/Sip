@@ -58,7 +58,7 @@ app.get("/user/:username", (req,res)=> {
   .then((user)=> {
     if(user) {
       returnUser = user.serialize(); //username, createdAt
-      return Cocktail.find({creator: user.username})
+      return Cocktail.find({creator: user.username});
     }
     return res.status(404).json({
       errorType: "NoSuchUser",
@@ -66,8 +66,12 @@ app.get("/user/:username", (req,res)=> {
     })
   })
   .then((cocktails)=> {
-    console.log("cocktails:", cocktails);
-    returnUser.createdCocktails = cocktails.map((cocktail => cocktail.serialize()));
+    if(cocktails) {
+      returnUser.createdCocktails = cocktails.map((cocktail => cocktail.serialize()));
+    }
+    else {
+      returnUser.createdCocktails = [];
+    }
     return res.status(200).json(returnUser);
   })
   .catch((err)=> {

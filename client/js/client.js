@@ -18,6 +18,7 @@ $(function entryPoint() {
    //Begin
    if (launchFlags.sessionCookiePresent && launchFlags.userCookiePresent) {
       appSession.currentUser = getCookieValue("user");
+      console.log("appSession.currentUser set to:", appSession.currentUser);
       ui.showUserHomeView("fadeIn");
    }
    else {

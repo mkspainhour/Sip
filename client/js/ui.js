@@ -415,6 +415,7 @@ const ui = {
                   data: JSON.stringify(requestData)
                })
                .then(async ()=> {
+                  appSession.currentUser = getCookieValue("user");
                   await ui.hideCurrentView("fadeOutLeft");
                   ui.showUserHomeView("fadeInRight");
                   resolve();
