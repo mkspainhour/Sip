@@ -49,7 +49,7 @@ header {
   /* border-bottom: 1px solid #54585C; */
 }
 
-  #header-left-wrapper {
+  #wrapper-header-leftArea {
     display: flex;
     flex-flow: row nowrap;
     justify-content: flex-start;
@@ -62,12 +62,12 @@ header {
       pointer-events: none;
     }
 
-  #header-right-wrapper {
+  #wrapper-header-rightArea {
     display: flex;
     flex-flow: row nowrap;
     justify-content: flex-end;
   }
-  #header-right-wrapper > *:not(:first-child) {
+  #wrapper-header-rightArea > *:not(:first-child) {
     margin-left: 0.5em;
   }
 
@@ -85,44 +85,44 @@ header {
   justify-content: center;
 }
 
-#view-landing {}
+#js-view-landing {}
 
-  #landing-heading {
+  #landing-text-usp {
     margin: 0;
     margin-bottom: 1em;
   }
 
-  #landing-instruction {
+  #landing-text-direction {
     margin-bottom: 1em;
   }
 
-#view-signIn {}
+#js-view-signIn {}
 
-  .wrapper-instructions {
+  .wrapper-direction {
     min-height: calc(1.25em * 3);
     display: flex;
     flex-flow: column nowrap;
     justify-content: center;
-    margin-bottom: 3em;
+    margin-bottom: 2em;
   }
 
-#view-register {}
+#js-view-register {}
 
-#view-userHome {
+#js-view-userHome {
   justify-content: flex-start;
 }
 
-  #active-user,
-  #recipe-count {
+  #js-current-user,
+  #js-recipe-count {
     line-height: 1;
   }
 
-  #active-user {
+  #js-current-user {
     margin-bottom: 0.25em;
     word-break: break-all;
   }
 
-  #recipe-count {
+  #js-recipe-count {
     margin-bottom: 3em;
   }
 
@@ -207,11 +207,15 @@ form {
   }
 
 form button {
-  margin-top: 1em;
+  margin-top: 1rem;
 }
 
 label {
-  margin-bottom: 0.267em;
+  margin-top: 0.267em;
+  /* error color: #FF8A80 */
+}
+label.invalid {
+  color: #FF8A80;
 }
 
 .wrapper-input {
@@ -248,7 +252,7 @@ label {
 .recipe-card:not(:last-of-type) {
   margin-bottom: 16px;
 }
-.svg-view-recipe-chevron {
+.svg-chevron-show-recipe {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);

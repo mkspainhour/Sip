@@ -57,7 +57,6 @@ router.post("/create", (req, res)=> {
     User.findOne({username: req.body.username})
     .then( (user)=> {
       if (user) {
-        console.error("username not unique:", user);
         reject({
           code: 422,
           errorType: "UsernameNotUnique",

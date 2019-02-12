@@ -30,104 +30,105 @@
 	<main role="main">
 
 
+
 		<!--Logo & Header Buttons-->
 		<header role="banner">
-			<div id="header-left-wrapper">
+			<div id="wrapper-header-leftArea">
 				<div id="wrapper-logo">
 					<h2 id="logo" class="typo-heading-small typo-color-orange3">Sip</h2>
 				</div>
 			</div>
 
-			<div id="header-right-wrapper">
-				<button id="button-signIn" type="button" class="button-hollow typo-color-orange4" style="display: none;">Sign In</button>
+			<div id="wrapper-header-rightArea">
+				<button id="js-headerButton-signIn" type="button" class="button-hollow typo-color-orange4" style="display: none;">Sign In</button>
 
-				<button id="button-signInInstead" type="button" class="button-hollow typo-color-orange4" style="display: none;">Sign In Instead</button>
+				<button id="js-headerButton-signInInstead" type="button" class="button-hollow typo-color-orange4" style="display: none;">Sign In Instead</button>
 
-				<button id="button-registerInstead" type="button" class="button-hollow typo-color-orange4" style="display: none;">Register Instead</button>
+				<button id="js-headerButton-registerInstead" type="button" class="button-hollow typo-color-orange4" style="display: none;">Register Instead</button>
 
-				<button id="button-signOut" type="button" class="button-hollow typo-color-orange4" style="display: none;">Sign Out</button>
+				<button id="js-headerButton-signOut" type="button" class="button-hollow typo-color-orange4" style="display: none;">Sign Out</button>
 			</div>
 		</header>
 
 
 
 		<!--Landing View-->
-		<section id="view-landing" class="view" role="region" style="display: none;">
-			<h1 id="landing-heading" class="typo-heading-large typo-color-orange3 typo-center">Cool, hip people use Sip to save and share their cocktail recipes.</h1>
-			<p id="landing-instruction" class="typo-body typo-center">Sign in above to continue where you left off, or register below to get started.</p>
-			<button id="button-register" type="button" class="button-filled typo-color-dark">Register</button>
+		<section id="js-view-landing" class="view" role="region" style="display: none;">
+			<h1 id="landing-text-usp" class="typo-heading-large typo-color-orange3 typo-center">Use Sip to save and share your cocktail recipes.</h1>
+			<p id="landing-text-direction" class="typo-body typo-center">Sign in above to continue where you left off, or quickly register below to get started.</p>
+			<button id="js-landing-button-goToRegisterView" type="button" class="button-filled typo-color-dark">Register</button>
 		</section>
 
 
 
 		<!--Sign In View-->
-		<section id="view-signIn" class="view" role="region" style="display: none;">
-			<div class="wrapper-instructions">
-				<p id="signIn-instructions" class="typo-body typo-center">Sign in by entering your account credentials in the fields below.</p>
+		<section id="js-view-signIn" class="view" role="region" style="display: none;">
+			<div class="wrapper-direction">
+				<p id="feedback-form-signIn" class="typo-body-large typo-center">Sign In</p>
 			</div>
 
 			<form id="form-signIn" action="#" role="form">
 				<!--Username Field-->
 				<div class="wrapper-input">
-					<label for="input-signIn-username" class="typo-body-small typo-color-orange3">Username</label>
-					<input id="input-signIn-username" type="text" autocomplete="username" title="Enter your account username." aria-label="account username" required>
+					<input id="js-input-signIn-username" type="text" autocomplete="username" title="Enter your account username." aria-label="account username" required>
+					<label id="js-label-signIn-username" for="js-input-signIn-username" class="typo-body-small typo-color-orange3">Username</label>
 				</div>
 
 				<!--Password Field-->
 				<div class="wrapper-input">
-					<label for="input-signIn-password" class="typo-body-small typo-color-orange3">Password</label>
-					<input id="input-signIn-password" type="password" autocomplete="password" title="Enter your account password." aria-label="account password" required>
+					<input id="js-input-signIn-password" type="password" autocomplete="password" title="Enter your account password." aria-label="account password" required>
+					<label id="js-label-signIn-password" for="js-input-signIn-password" class="typo-body-small typo-color-orange3">Password</label>
 				</div>
 
 				<!--Sign In Sumbit Button-->
-				<button id="button-signIn-submit" type="submit" class="button-filled typo-color-dark" disabled>Sign In</button>
+				<button id="js-button-signIn-submit" type="submit" class="button-filled typo-color-dark" disabled>Sign In</button>
 			</form>
 		</section>
 
 
 
 		<!--Register View-->
-		<section id="view-register" class="view" role="region" style="display: none;">
-				<div class="wrapper-instructions">
-					<p id="register-instructions" class="typo-body typo-center">Please enter your desired username.</p>
+		<section id="js-view-register" class="view" role="region" style="display: none;">
+			<div class="wrapper-direction">
+				<p id="text-register-direction" class="typo-body typo-center">Please enter your desired username.</p>
+			</div>
+
+			<form id="form-register" action="#" role="form">
+				<!--Username-->
+				<div class="wrapper-input">
+					<input id="js-input-register-username" type="text" title="Enter your desired username." aria-label="account username" required>
+					<label id="js-label-register-username" for="js-input-register-username" class="typo-body-small typo-color-orange3">Username</label>
 				</div>
 
-				<form id="form-register" action="#" role="form">
-					<!--Username Field-->
-					<div class="wrapper-input">
-						<label for="input-register-username" class="typo-body-small typo-color-orange3">Username</label>
-						<input id="input-register-username" type="text" title="Enter your desired username." aria-label="account username" required>
-					</div>
+				<!--Email-->
+				<div class="wrapper-input">
+					<input id="js-input-register-email" type="email" title="Enter your email address." aria-label="account email">
+					<label id="js-label-register-email" for="js-input-register-email" class="typo-body-small typo-color-orange3">Email (Optional)</label>
+				</div>
 
-					<!--Email Field-->
-					<div class="wrapper-input">
-						<label for="input-register-email" class="typo-body-small typo-color-orange3">Email (Optional)</label>
-						<input id="input-register-email" type="email" title="Enter your email address." aria-label="account email">
-					</div>
+				<!--Password-->
+				<div class="wrapper-input">
+					<input id="js-input-register-password" type="password" title="Enter your password." aria-label="account password" required>
+					<label id="js-label-register-password" for="js-input-register-password" class="typo-body-small typo-color-orange3">Password</label>
+				</div>
 
-					<!--Password Field-->
-					<div class="wrapper-input">
-						<label for="input-register-password" class="typo-body-small typo-color-orange3">Password</label>
-						<input id="input-register-password" type="password" title="Enter your password." aria-label="account password" required>
-					</div>
+				<!--Password Confirmation-->
+				<div class="wrapper-input">
+					<input id="js-input-register-confirmPassword" type="password" title="Confirm your password." aria-label="confirm account password" required>
+					<label id="js-label-register-confirmPassword" for="js-input-register-confirmPassword" class="typo-body-small typo-color-orange3">Confirm Password</label>
+				</div>
 
-					<!--Password Confirmation Field-->
-					<div class="wrapper-input">
-							<label for="input-register-confirmPassword" class="typo-body-small typo-color-orange3">Confirm Password</label>
-							<input id="input-register-confirmPassword" type="password" title="Confirm your password." aria-label="confirm account password" required>
-						</div>
-
-					<!--Register Sumbit Button-->
-					<button id="button-register-submit" type="button" class="button-filled typo-color-dark" disabled>Register</button>
-				</form>
+				<!--Sumbit Button-->
+				<button id="js-button-register-submit" type="button" class="button-filled typo-color-dark" disabled>Register</button>
+			</form>
 		</section>
 
 
 
 		<!--User Home View-->
-		<section id="view-userHome" class="view" role="region" style="display: none;">
-			<p id="active-user" class="typo-body typo-center">temporaryTestUsername</p>
-			<p id="recipe-count" class="typo-body-small typo-center typo-color-orange3">3 Recipes</p>
+		<section id="js-view-userHome" class="view" role="region" style="display: none;">
+			<p id="js-current-user" class="typo-body typo-center">{ERROR}</p>
+			<p id="js-recipe-count" class="typo-body-small typo-center typo-color-orange3">{ERROR}</p>
 		</section>
 
 

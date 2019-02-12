@@ -1,36 +1,54 @@
 const ui = {
    //#region jQuery Pointers
-      $view_landing: $("#view-landing"),
-         $headerButton_signIn: $("#button-signIn"),
-         $button_register: $("#button-register"),
-      $view_signIn: $("#view-signIn"),
-         $headerButton_registerInstead: $("#button-registerInstead"),
-         $text_signInInstructions: $("#signIn-instructions"),
-         $input_signInUsername: $("#input-signIn-username"),
-         $input_signInPassword: $("#input-signIn-password"),
-         $button_signInSubmit: $("#button-signIn-submit"),
-      $view_register: $("#view-register"),
-         $headerButton_signInInstead: $("#button-signInInstead"),
-         $text_registerInstructions: $("#register-instructions"),
-         $input_registerUsername: $("#input-register-username"),
-         $input_registerEmail: $("#input-register-email"),
-         $input_registerPassword: $("#input-register-password"),
-         $input_registerConfirmPassword: $("#input-register-confirmPassword"),
-         $button_registerSubmit: $("#button-register-submit"),
-      $view_userHome: $("#view-userHome"),
-         $headerButton_signOut: $("#button-signOut"),
-         $text_activeUser: $("#active-user"),
-         $text_recipeCount: $("#recipe-count"),
-         $button_addRecipe: $("#button-addRecipe"),
+      $view_landing: $("#js-view-landing"),
+         $headerButton_signIn: $("#js-headerButton-signIn"),
+         $button_goToRegisterView: $("#js-landing-button-goToRegisterView"),
+
+      $view_signIn: $("#js-view-signIn"),
+         $headerButton_registerInstead: $("#js-headerButton-registerInstead"),
+         $text_signInFormFeedback: $("#feedback-form-signIn"),
+         $input_signInUsername: $("#js-input-signIn-username"),
+         $label_signInUsername: $("#js-label-signIn-username"),
+         $input_signInPassword: $("#js-input-signIn-password"),
+         $label_signInPassword: $("#js-label-signIn-password"),
+         $button_signInFormSubmit: $("#js-button-signIn-submit"),
+
+      $view_register: $("#js-view-register"),
+         $headerButton_signInInstead: $("#js-headerButton-signInInstead"),
+         $text_registerDirection: $("#text-register-direction"),
+         $input_registerUsername: $("#js-input-register-username"),
+         $label_registerUsername: $("#js-label-register-username"),
+         $input_registerEmail: $("#js-input-register-email"),
+         $label_registerEmail: $("#js-label-register-email"),
+         $input_registerPassword: $("#js-input-register-password"),
+         $label_registerPassword: $("#js-label-register-password"),
+         $input_registerConfirmPassword: $("#js-input-register-confirmPassword"),
+         $label_registerConfirmPassword: $("#js-label-register-confirmPassword"),
+         $button_registerFormSubmit: $("#js-button-register-submit"),
+
+      $view_userHome: $("#js-view-userHome"),
+         $headerButton_signOut: $("#js-headerButton-signOut"),
+         $text_activeUser: $("#js-current-user"),
+         $text_recipeCount: $("#js-recipe-count"),
+         $button_addRecipe: $("#js-button-add-recipe"),
    //#endregion
 
    //#region UI Variables
       //UI State
       $currentView: null,
+      signInUsernameIsValid: false,
+      signInPasswordIsValid: false,
 
       //Initial Values
-      initialRegistrationInstructions: "",
-      initialSignInInstructions: "",
+      initialSignInFormFeedback: null,
+      initialSignInUsernameLabel: null,
+      initialSignInPasswordLabel: null,
+
+      initialRegisterFormFeedback: null,
+      initialRegisterUsernameLabel: null,
+      initialRegisterEmailLabel: null,
+      initialRegisterPasswordLabel: null,
+      initialRegisterPasswordConfirmationLabel: null,
    //#endregion
 
    //#region Functions
@@ -42,8 +60,16 @@ const ui = {
 
          //Capture initial HTML values so that they can be reset to when necessary
          saveInitialValues: function() {
-            this.initialRegistrationInstructions = ui.$text_registerInstructions.text();
-            this.initialSignInInstructions = ui.$text_signInInstructions.text();
+            ui.initialRegistrationFormFeedback = ui.$text_registerDirection.text();
+            ui.initialSignInFormFeedback = ui.$text_signInFormFeedback.text();
+
+            ui.initialSignInUsernameLabel = ui.$label_signInUsername.text();
+            ui.initialSignInPasswordLabel = ui.$label_signInPassword.text();
+
+            ui.initialRegisterUsernameLabel = ui.$label_registerUsername.text();
+            ui.initialRegisterEmailLabel = ui.$label_registerEmail.text();
+            ui.initialRegisterPasswordLabel = ui.$label_registerPassword.text();
+            ui.initialRegisterPasswordConfirmationLabel = ui.$label_registerConfirmPassword.text();
          },
 
          configureEventListeners: function() {
@@ -71,7 +97,7 @@ const ui = {
                ui.showSignInView("fadeInRight");
             });
 
-            ui.$button_register.on("click", async function(e) {
+            ui.$button_goToRegisterView.on("click", async function(e) {
                await ui.hideCurrentView("fadeOutLeft");
                ui.showRegisterView("fadeInRight");
             });
@@ -85,15 +111,24 @@ const ui = {
             });
 
             $("#form-signIn").on("submit", function(e) {
-               //$signInSubmit button catches enter-key presses, but the form itself shouldn't react to the event
+               //$signInSubmit button listens for enter-key presses in the inputs, but the form itself shouldn't react to the event
                e.preventDefault();
             });
 
-            $("#form-signIn input").on("input", function(e) {
-               ui.validateSignInForm();
+            ui.$input_signInUsername.on("input", function(e) {
+               ui.validateSignInFormUsername();
             });
 
-            ui.$button_signInSubmit.on("click", async function(e) {
+            ui.$input_signInPassword.on("input", function(e) {
+               ui.validateSignInFormPassword();
+            });
+
+            $("#form-signIn input").on("input", function(e) {
+               (ui.signInUsernameIsValid && ui.signInPasswordIsValid) ? ui.enableSignInSubmitButton() : ui.disableSignInSubmitButton();
+               ui.setSignInFormFeedback(ui.initialSignInFormFeedback);
+            });
+
+            ui.$button_signInFormSubmit.on("click", async function(e) {
                let enteredUsername = ui.$input_signInUsername.val();
                let enteredPassword = ui.$input_signInPassword.val();
 
@@ -112,7 +147,7 @@ const ui = {
                ui.validateRegistrationForm();
             });
 
-            ui.$button_registerSubmit.on("click", async function(e) {
+            ui.$button_registerFormSubmit.on("click", async function(e) {
                let enteredUsername = ui.$input_registerUsername.val();
                let enteredPassword = ui.$input_registerPassword.val();
                let enteredEmail = ui.$input_registerEmail.val();
@@ -129,7 +164,8 @@ const ui = {
          },
       //#endregion
 
-      //DONE
+
+
       //#region Landing View Functions
          beforeShowingLandingView: function() {
             return new Promise((resolve, reject)=> {
@@ -142,6 +178,246 @@ const ui = {
             ui.validateShowAnimation(showAnimation);
             await ui.beforeShowingLandingView();
             ui.showView(ui.$view_landing, showAnimation, ui.$headerButton_signIn);
+         },
+      //#endregion
+
+      //#region Sign In View Functions
+         beforeShowingSignInView: async function() {
+            return new Promise((resolve, reject)=> {
+               ui.resetSignInForm();
+               resolve();
+            });
+         },
+
+         showSignInView: async function(showAnimation) {
+            ui.validateShowAnimation(showAnimation);
+            await ui.beforeShowingSignInView();
+            ui.showView(ui.$view_signIn, showAnimation, ui.$headerButton_registerInstead);
+         },
+
+         validateSignInFormUsername: function() {
+            const enteredUsername = this.$input_signInUsername.val();
+            ui.signInUsernameIsValid = false;
+
+            if(enteredUsername == "") {
+               ui.$label_signInUsername.addClass("invalid");
+               ui.$label_signInUsername.text("Username is blank.");
+            }
+
+            else if(enteredUsername.trim().length != enteredUsername.length) {
+               ui.$label_signInUsername.addClass("invalid");
+               ui.$label_signInUsername.text("Username begins or ends in whitespace.");
+            }
+
+            else {
+               ui.$label_signInUsername.removeClass("invalid");
+               ui.$label_signInUsername.text(ui.initialSignInUsernameLabel);
+               ui.signInUsernameIsValid = true;
+            }
+         },
+
+         validateSignInFormPassword: function() {
+            const enteredPassword = this.$input_signInPassword.val();
+            ui.signInPasswordIsValid = false;
+
+            if(enteredPassword == "") {
+               ui.$label_signInPassword.addClass("invalid");
+               ui.$label_signInPassword.text("Password is blank.");
+            }
+
+            else {
+               ui.$label_signInPassword.removeClass("invalid");
+               ui.$label_signInPassword.text(ui.initialSignInPasswordLabel);
+               ui.signInPasswordIsValid = true;
+            }
+         },
+
+         disableSignInSubmitButton: function() {
+            ui.$button_signInFormSubmit.prop("disabled", true);
+         },
+
+         enableSignInSubmitButton: function() {
+            ui.$button_signInFormSubmit.prop("disabled", false);
+         },
+
+         //API Call
+         signIn: async function(username, password) {
+            return new Promise((resolve, reject)=> {
+               $.ajax({
+                  method: "POST",
+                  url: "/api/auth/sign-in",
+                  contentType: "application/json",
+                  data: JSON.stringify({
+                     username: username,
+                     password: password
+                  })
+               })
+               .then(async ()=> {
+                  ui.setSignInFormFeedback("Success!");
+                  appSession.currentUser = username;
+                  await pause(1000); //So that the 'Success!" message can be seen
+                  await ui.hideCurrentView("fadeOutLeft")
+                  ui.resetSignInForm();
+                  ui.showUserHomeView("fadeInRight");
+                  resolve();
+               })
+               .catch((returnedData)=> {
+                  const errorStatus = returnedData.status;
+                  const response = returnedData.responseJSON;
+                  const errorType = response.errorType;
+                  console.error("ERROR:", errorStatus, response);
+
+                  switch(errorType) {
+                     case "SessionAlreadyActive":
+                        alert("ERROR: SessionAlreadyActive");
+                        break;
+                     case "MissingField":
+                        alert("ERROR: MissingField");
+                        break;
+                     case "UnexpectedDataType":
+                        alert("ERROR: UnexpectedDataType");
+                        break;
+                     case "MissingField":
+                        alert("ERROR: MissingField");
+                        break;
+                     case "UntrimmedString":
+                        alert("ERROR: UntrimmedString");
+                        break;
+                     case "NoSuchUser":
+                        ui.setSignInFormFeedback("No such account.", true);
+                        ui.resetSignInPasswordField();
+                        break;
+                     default:
+                        alert(`ERROR: signIn() enountered unexpected error '${errorType}'.`, );
+                        break;
+                  }
+               });
+            });
+         },
+
+         setSignInFormFeedback: function(feedback, isProblematic=false) {
+            ui.$text_signInFormFeedback.text(feedback);
+            isProblematic ? ui.$text_signInFormFeedback.css("color", "#FF8A80") : ui.$text_signInFormFeedback.css("color", "");
+         },
+
+         resetSignInForm: function() {
+            ui.setSignInFormFeedback(ui.initialSignInFormFeedback);
+            ui.resetSignInUsernameField();
+            ui.resetSignInPasswordField();
+            ui.disableSignInSubmitButton();
+         },
+
+         resetSignInUsernameField: function() {
+            ui.$input_signInUsername.val("");
+            ui.$label_signInUsername.val(ui.initialSignInUsernameLabel);
+            ui.signInUsernameIsValid = false;
+         },
+
+         resetSignInPasswordField: function() {
+            ui.$input_signInPassword.val("");
+            ui.signInPasswordIsValid = false;
+            ui.disableSignInSubmitButton();
+         },
+      //#endregion
+
+      //#region Register View Functions
+         beforeShowingRegisterView: async function() {
+            return new Promise((resolve, reject)=> {
+               ui.resetRegistrationForm();
+               resolve();
+            });
+         },
+
+         showRegisterView: async function(showAnimation) {
+            ui.validateShowAnimation(showAnimation);
+            await ui.beforeShowingRegisterView();
+            ui.showView(ui.$view_register, showAnimation, ui.$headerButton_signInInstead);
+         },
+
+         validateRegistrationForm: function() {
+            const enteredUsername = this.$input_registerUsername.val();
+            const enteredPassword = this.$input_registerPassword.val();
+            const enteredPasswordConfirmation = this.$input_registerConfirmPassword.val();
+            let formIsValid = false;
+
+            if (enteredUsername.length = 0) {
+               ui.$text_registerDirection.text(ui.defaultRegistrationInstructions);
+            }
+            else if (enteredUsername.trim().length != enteredUsername.length) {
+               ui.$text_registerDirection.text("Your username cannot begin or end with whitespace characters.");
+            }
+            else if (enteredPassword.length < 10) {
+               ui.$text_registerDirection.text("Your password must be at least 10 characters long.");
+            }
+            else if (enteredPassword.length >= 10 && enteredPasswordConfirmation.length == 0) {
+               ui.$text_registerDirection.text("Please confirm your password by entering it a second time.");
+            }
+            else if (enteredPassword != enteredPasswordConfirmation) {
+               ui.$text_registerDirection.text("Your password and password confirmation do not match.");
+            }
+            else {
+               formIsValid = true;
+               ui.$text_registerDirection.text("Looks good! Click the register button below to continue.");
+            }
+
+            formIsValid ? ui.enableRegisterSubmitButton() : ui.disableRegisterSubmitButton();
+         },
+
+         resetRegistrationForm: function() {
+            ui.$text_registerDirection.text(ui.defaultRegistrationInstructions);
+            ui.$input_registerUsername.val("");
+            ui.$input_registerEmail.val("");
+            ui.$input_registerPassword.val("");
+            ui.$input_registerConfirmPassword.val("");
+         },
+
+         disableRegisterSubmitButton: function() {
+            this.$button_registerFormSubmit.prop("disabled", true);
+         },
+
+         enableRegisterSubmitButton: function() {
+            this.$button_registerFormSubmit.prop("disabled", false);
+         },
+
+         //API Call
+         createUser: async function(username, password, email) {
+            return new Promise((resolve, reject)=> {
+               let requestData = {};
+               requestData.username = username;
+               requestData.password = password;
+               if(email) { requestData.email = email; }
+
+               $.ajax({
+                  method: "POST",
+                  url: "/api/user/create",
+                  contentType: "application/json",
+                  data: JSON.stringify(requestData)
+               })
+               .then(async ()=> {
+                  appSession.currentUser = getCookieValue("user");
+                  await ui.hideCurrentView("fadeOutLeft");
+                  ui.showUserHomeView("fadeInRight");
+                  resolve();
+               })
+               .catch((returnedData)=> {
+                  const response = returnedData.responseJSON;
+                  const errorType = response.errorType;
+                  console.error("ERROR:", response);
+
+                  switch(errorType) {
+                     case "UsernameNotUnique":
+                        ui.$text_registerDirection.text("Unfortunately, that username is already in use.");
+                        break;
+                     case "EmailNotUnique":
+                        ui.$text_registerDirection.text("That email address is already in use. Do you already have an account?");
+                        ui.$input_registerEmail.val("");
+                        break;
+                     default:
+                        alert("ERROR: createUser() enountered an unexpected error.");
+                        break;
+                  }
+               });
+            });
          },
       //#endregion
 
@@ -237,210 +513,7 @@ const ui = {
          },
       //#endregion
 
-      //#region Sign In View Functions
-         beforeShowingSignInView: async function() {
-            return new Promise((resolve, reject)=> {
-               ui.resetSignInForm();
-               resolve();
-            });
-         },
 
-         showSignInView: async function(showAnimation) {
-            ui.validateShowAnimation(showAnimation);
-            await ui.beforeShowingSignInView();
-            ui.showView(ui.$view_signIn, showAnimation, ui.$headerButton_registerInstead);
-         },
-
-         validateSignInForm: function() {
-            const enteredUsername = this.$input_signInUsername.val();
-            const enteredPassword = this.$input_signInPassword.val();
-            let formIsValid = false;
-
-            if (enteredUsername == "") {
-               ui.$text_signInInstructions.text("Please enter a username.");
-            }
-            else if (enteredPassword == "") {
-               ui.$text_signInInstructions.text("Please enter a password.");
-            }
-            else if (enteredUsername.trim().length != enteredUsername.length) {
-               ui.$text_signInInstructions.text("Usernames cannot begin or end with whitespace.");
-            }
-            else {
-               ui.$text_signInInstructions.text("Sign In with the button below.");
-               formIsValid = true;
-            }
-
-            formIsValid ? ui.enableSignInSubmitButton() : ui.disableSignInSubmitButton();
-         },
-
-         disableSignInSubmitButton: function() {
-            ui.$button_signInSubmit.prop("disabled", true);
-         },
-
-         enableSignInSubmitButton: function() {
-            ui.$button_signInSubmit.prop("disabled", false);
-         },
-
-         //API Call
-         signIn: async function(username, password) {
-            return new Promise((resolve, reject)=> {
-               $.ajax({
-                  method: "POST",
-                  url: "/api/auth/sign-in",
-                  contentType: "application/json",
-                  data: JSON.stringify({
-                     username: username,
-                     password: password
-                  })
-               })
-               .then(async ()=> {
-                  appSession.currentUser = username;
-                  await ui.hideCurrentView("fadeOutLeft")
-                  ui.showUserHomeView("fadeInRight");
-                  resolve();
-               })
-               .catch((returnedData)=> {
-                  const errorStatus = returnedData.status;
-                  const response = returnedData.responseJSON;
-                  const errorType = response.errorType;
-                  console.error("ERROR:", errorStatus, response);
-
-                  switch(errorType) {
-                     case "SessionAlreadyActive":
-                        alert("ERROR: SessionAlreadyActive");
-                        break;
-                     case "MissingField":
-                        alert("ERROR: MissingField");
-                        break;
-                     case "UnexpectedDataType":
-                        alert("ERROR: UnexpectedDataType");
-                        break;
-                     case "MissingField":
-                        alert("ERROR: MissingField");
-                        break;
-                     case "UntrimmedString":
-                        alert("ERROR: UntrimmedString");
-                        break;
-                     case "NoSuchUser":
-                        ui.$text_signInInstructions.text("Couldn't find an account with those credentials.");
-                        ui.$input_signInPassword.val("");
-                        ui.disableSignInSubmitButton();
-                        break;
-                     default:
-                        alert(`ERROR: signIn() enountered an unexpected error.\n\n${errorType}`, );
-                        break;
-                  }
-               });
-            });
-         },
-
-         resetSignInForm: function() {
-            ui.$text_signInInstructions.text(ui.initialSignInInstructions);
-            ui.$input_signInUsername.val("");
-            ui.$input_signInPassword.val("");
-         },
-      //#endregion
-
-      //#region Register View Functions
-         beforeShowingRegisterView: async function() {
-            return new Promise((resolve, reject)=> {
-               ui.resetRegistrationForm();
-               resolve();
-            });
-         },
-
-         showRegisterView: async function(showAnimation) {
-            ui.validateShowAnimation(showAnimation);
-            await ui.beforeShowingRegisterView();
-            ui.showView(ui.$view_register, showAnimation, ui.$headerButton_signInInstead);
-         },
-
-         validateRegistrationForm: function() {
-            const enteredUsername = this.$input_registerUsername.val();
-            const enteredPassword = this.$input_registerPassword.val();
-            const enteredPasswordConfirmation = this.$input_registerConfirmPassword.val();
-            let formIsValid = false;
-
-            if (enteredUsername.length = 0) {
-               ui.$text_registerInstructions.text(ui.defaultRegistrationInstructions);
-            }
-            else if (enteredUsername.trim().length != enteredUsername.length) {
-               ui.$text_registerInstructions.text("Your username cannot begin or end with whitespace characters.");
-            }
-            else if (enteredPassword.length < 10) {
-               ui.$text_registerInstructions.text("Your password must be at least 10 characters long.");
-            }
-            else if (enteredPassword.length >= 10 && enteredPasswordConfirmation.length == 0) {
-               ui.$text_registerInstructions.text("Please confirm your password by entering it a second time.");
-            }
-            else if (enteredPassword != enteredPasswordConfirmation) {
-               ui.$text_registerInstructions.text("Your password and password confirmation do not match.");
-            }
-            else {
-               formIsValid = true;
-               ui.$text_registerInstructions.text("Looks good! Click the register button below to continue.");
-            }
-
-            formIsValid ? ui.enableRegisterSubmitButton() : ui.disableRegisterSubmitButton();
-         },
-
-         resetRegistrationForm: function() {
-            ui.$text_registerInstructions.text(ui.defaultRegistrationInstructions);
-            ui.$input_registerUsername.val("");
-            ui.$input_registerEmail.val("");
-            ui.$input_registerPassword.val("");
-            ui.$input_registerConfirmPassword.val("");
-         },
-
-         disableRegisterSubmitButton: function() {
-            this.$button_registerSubmit.prop("disabled", true);
-         },
-
-         enableRegisterSubmitButton: function() {
-            this.$button_registerSubmit.prop("disabled", false);
-         },
-
-         //API Call
-         createUser: async function(username, password, email) {
-            return new Promise((resolve, reject)=> {
-               let requestData = {};
-               requestData.username = username;
-               requestData.password = password;
-               if(email) { requestData.email = email; }
-
-               $.ajax({
-                  method: "POST",
-                  url: "/api/user/create",
-                  contentType: "application/json",
-                  data: JSON.stringify(requestData)
-               })
-               .then(async ()=> {
-                  appSession.currentUser = getCookieValue("user");
-                  await ui.hideCurrentView("fadeOutLeft");
-                  ui.showUserHomeView("fadeInRight");
-                  resolve();
-               })
-               .catch((returnedData)=> {
-                  const response = returnedData.responseJSON;
-                  const errorType = response.errorType;
-                  console.error("ERROR:", response);
-
-                  switch(errorType) {
-                     case "UsernameNotUnique":
-                        ui.$text_registerInstructions.text("Unfortunately, that username is already in use.");
-                        break;
-                     case "EmailNotUnique":
-                        ui.$text_registerInstructions.text("That email address is already in use. Do you already have an account?");
-                        ui.$input_registerEmail.val("");
-                        break;
-                     default:
-                        alert("ERROR: createUser() enountered an unexpected error.");
-                        break;
-                  }
-               });
-            });
-         },
-      //#endregion
 
       //#region Animate.css Functions
          hideCurrentView: function(hideAnimation) {
@@ -451,7 +524,7 @@ const ui = {
                }
 
                //Hide all header buttons
-               $("#header-right-wrapper *").delay(150).fadeOut(400);
+               $("#wrapper-header-rightArea *").delay(150).fadeOut(400);
                //If there's an active view, hide it
                if (ui.$currentView && hideAnimation) {
                   ui.hideWithAnimation(ui.$currentView, hideAnimation)

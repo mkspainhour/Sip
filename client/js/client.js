@@ -18,7 +18,6 @@ $(function entryPoint() {
    //Begin
    if (launchFlags.sessionCookiePresent && launchFlags.userCookiePresent) {
       appSession.currentUser = getCookieValue("user");
-      console.log("appSession.currentUser set to:", appSession.currentUser);
       ui.showUserHomeView("fadeIn");
    }
    else {
@@ -33,4 +32,10 @@ function getCookieValue(cookieName) {
    //Credit: https://stackoverflow.com/a/25490531
    var locatedSegment = document.cookie.match('(^|;)\\s*' + cookieName + '\\s*=\\s*([^;]+)');
    return locatedSegment ? locatedSegment.pop() : null;
+}
+
+function pause(ms) {
+   return new Promise((resolve)=> {
+      setTimeout(resolve, ms);
+   });
 }
