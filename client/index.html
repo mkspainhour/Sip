@@ -4,9 +4,9 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1 maximum-scale=1, user-scalable=0">
-	<title>Sip — Cocktail Recipes</title>
+	<title>Sip / Cocktail Recipes</title>
 	<meta name="application-name" content="Sip">
-	<meta name="description" content="Save and share your favorite cocktail recipes.">
+	<meta name="description" content="Save your favorite cocktail recipes.">
 	<meta name="author" content="Marshall Spainhour">
 
 	<!--STYLESHEETS-->
@@ -47,6 +47,8 @@
 				<button id="js-headerButton-registerInstead" type="button" class="button-hollow typo-color-orange4" style="display: none;">Register Instead</button>
 
 				<button id="js-headerButton-signOut" type="button" class="button-hollow typo-color-orange4" style="display: none;">Sign Out</button>
+
+				<button id="js-headerButton-cancelRecipeEdit" type="button" class="button-hollow typo-color-orange4" style="display: none;">Cancel</button>
 			</div>
 		</header>
 
@@ -54,17 +56,17 @@
 
 		<!--Landing View-->
 		<section id="js-view-landing" class="view" role="region" style="display: none;">
-			<h1 id="landing-text-usp" class="typo-heading-large typo-color-orange3 typo-center">Use Sip to save and share your cocktail recipes.</h1>
-			<p id="landing-text-direction" class="typo-body typo-center">Sign in above to continue where you left off, or quickly register below to get started.</p>
-			<button id="js-landing-button-goToRegisterView" type="button" class="button-filled typo-color-dark">Register</button>
+			<h1 id="landing-text-usp" class="typo-heading-large typo-color-orange3 typo-center">Use Sip to save your favorite cocktail recipes.</h1>
+			<p id="landing-text-direction" class="typo-body typo-center">Sign in above, or quickly register below to get started.</p>
+			<button id="js-landing-button-goToRegisterView" type="button" class="button-filled typo-color-dark2">Register</button>
 		</section>
 
 
 
 		<!--Sign In View-->
 		<section id="js-view-signIn" class="view" role="region" style="display: none;">
-			<div class="wrapper-direction">
-				<p id="feedback-form-signIn" class="typo-body-large typo-center">Sign In</p>
+			<div class="wrapper-feedback">
+				<p id="form-signIn-feedback" class="typo-heading-small typo-center">Sign In</p>
 			</div>
 
 			<form id="form-signIn" action="#" role="form">
@@ -81,7 +83,7 @@
 				</div>
 
 				<!--Sign In Sumbit Button-->
-				<button id="js-button-signIn-submit" type="submit" class="button-filled typo-color-dark" disabled>Sign In</button>
+				<button id="js-button-signIn-submit" type="submit" class="button-filled typo-color-dark2" disabled>Sign In</button>
 			</form>
 		</section>
 
@@ -89,9 +91,9 @@
 
 		<!--Register View-->
 		<section id="js-view-register" class="view" role="region" style="display: none;">
-			<div class="wrapper-direction">
-				<p id="text-register-direction" class="typo-body typo-center">Please enter your desired username.</p>
-			</div>
+			<div class="wrapper-feedback">
+				<p id="form-register-feedback" class="typo-heading-small typo-center">Register</p>
+			</div><img src="" alt="" sizes="" srcset="">
 
 			<form id="form-register" action="#" role="form">
 				<!--Username-->
@@ -119,7 +121,7 @@
 				</div>
 
 				<!--Sumbit Button-->
-				<button id="js-button-register-submit" type="button" class="button-filled typo-color-dark" disabled>Register</button>
+				<button id="js-button-register-submit" type="button" class="button-filled typo-color-dark2" disabled>Register</button>
 			</form>
 		</section>
 
@@ -129,6 +131,89 @@
 		<section id="js-view-userHome" class="view" role="region" style="display: none;">
 			<p id="js-current-user" class="typo-body typo-center">{ERROR}</p>
 			<p id="js-recipe-count" class="typo-body-small typo-center typo-color-orange3">{ERROR}</p>
+
+			<div class="recipe-card">
+		   	<h3 id="recipe-card-name" class="recipe-name typo-heading-small typo-color-orange3">Negroni</h3>
+				<p id="recipe-card-ingredientNames" class="ingredients-list typo-body-small">Gin, Red Vermouth, Campari</p>
+				<img src="resources/icons/chevron.svg" class="svg-chevron-show-recipe" alt="View cocktail recipe...">
+			</div>
+
+			<div class="recipe-card">
+				<h3 id="recipe-card-name" class="recipe-name typo-heading-small typo-color-orange3">Negroni</h3>
+				<p id="recipe-card-ingredientNames" class="ingredients-list typo-body-small">Gin, Red Vermouth, Campari</p>
+				<img src="resources/icons/chevron.svg" class="svg-chevron-show-recipe" alt="View cocktail recipe...">
+			</div>
+
+			<div class="recipe-card">
+				<h3 id="recipe-card-name" class="recipe-name typo-heading-small typo-color-orange3">Negroni</h3>
+				<p id="recipe-card-ingredientNames" class="ingredients-list typo-body-small">Gin, Red Vermouth, Campari</p>
+				<img src="resources/icons/chevron.svg" class="svg-chevron-show-recipe" alt="View cocktail recipe...">
+			</div>
+
+			<div class="recipe-card">
+				<h3 id="recipe-card-name" class="recipe-name typo-heading-small typo-color-orange3">Negroni</h3>
+				<p id="recipe-card-ingredientNames" class="ingredients-list typo-body-small">Gin, Red Vermouth, Campari</p>
+				<img src="resources/icons/chevron.svg" class="svg-chevron-show-recipe" alt="View cocktail recipe...">
+			</div>
+
+			<div class="recipe-card">
+				<h3 id="recipe-card-name" class="recipe-name typo-heading-small typo-color-orange3">Negroni</h3>
+				<p id="recipe-card-ingredientNames" class="ingredients-list typo-body-small">Gin, Red Vermouth, Campari</p>
+				<img src="resources/icons/chevron.svg" class="svg-chevron-show-recipe" alt="View cocktail recipe...">
+			</div>
+
+			<div class="recipe-card">
+				<h3 id="recipe-card-name" class="recipe-name typo-heading-small typo-color-orange3">Negroni</h3>
+				<p id="recipe-card-ingredientNames" class="ingredients-list typo-body-small">Gin, Red Vermouth, Campari</p>
+				<img src="resources/icons/chevron.svg" class="svg-chevron-show-recipe" alt="View cocktail recipe...">
+			</div>
+
+			<div class="recipe-card">
+				<h3 id="recipe-card-name" class="recipe-name typo-heading-small typo-color-orange3">Negroni</h3>
+				<p id="recipe-card-ingredientNames" class="ingredients-list typo-body-small">Gin, Red Vermouth, Campari</p>
+				<img src="resources/icons/chevron.svg" class="svg-chevron-show-recipe" alt="View cocktail recipe...">
+			</div>
+
+			<div class="recipe-card">
+				<h3 id="recipe-card-name" class="recipe-name typo-heading-small typo-color-orange3">Negroni</h3>
+				<p id="recipe-card-ingredientNames" class="ingredients-list typo-body-small">Gin, Red Vermouth, Campari</p>
+				<img src="resources/icons/chevron.svg" class="svg-chevron-show-recipe" alt="View cocktail recipe...">
+			</div>
+
+			<div class="recipe-card">
+				<h3 id="recipe-card-name" class="recipe-name typo-heading-small typo-color-orange3">Negroni</h3>
+				<p id="recipe-card-ingredientNames" class="ingredients-list typo-body-small">Gin, Red Vermouth, Campari</p>
+				<img src="resources/icons/chevron.svg" class="svg-chevron-show-recipe" alt="View cocktail recipe...">
+			</div>
+
+			<div class="recipe-card">
+				<h3 id="recipe-card-name" class="recipe-name typo-heading-small typo-color-orange3">Negroni</h3>
+				<p id="recipe-card-ingredientNames" class="ingredients-list typo-body-small">Gin, Red Vermouth, Campari</p>
+				<img src="resources/icons/chevron.svg" class="svg-chevron-show-recipe" alt="View cocktail recipe...">
+			</div>
+
+			<div class="recipe-card">
+				<h3 id="recipe-card-name" class="recipe-name typo-heading-small typo-color-orange3">Negroni</h3>
+				<p id="recipe-card-ingredientNames" class="ingredients-list typo-body-small">Gin, Red Vermouth, Campari</p>
+				<img src="resources/icons/chevron.svg" class="svg-chevron-show-recipe" alt="View cocktail recipe...">
+			</div>
+
+			<div class="recipe-card">
+				<h3 id="recipe-card-name" class="recipe-name typo-heading-small typo-color-orange3">Negroni</h3>
+				<p id="recipe-card-ingredientNames" class="ingredients-list typo-body-small">Gin, Red Vermouth, Campari</p>
+				<img src="resources/icons/chevron.svg" class="svg-chevron-show-recipe" alt="View cocktail recipe...">
+			</div>
+
+		</section>
+
+		<button id="js-button-userHome-addRecipe" type="button" class="button-hollow typo-color-orange4" style="display: none;">Add Recipe</button>
+
+
+
+
+		<!--Recipe Edit View-->
+		<section id="js-view-recipeEdit" class="view" role="region" style="display: none;">
+			<p>Recipe Edit View!</p>
 		</section>
 
 

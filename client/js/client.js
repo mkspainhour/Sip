@@ -27,6 +27,8 @@ $(function entryPoint() {
 
 
 
+
+
 //Utility Functions
 function getCookieValue(cookieName) {
    //Credit: https://stackoverflow.com/a/25490531

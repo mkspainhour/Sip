@@ -6,7 +6,7 @@ const ui = {
 
       $view_signIn: $("#js-view-signIn"),
          $headerButton_registerInstead: $("#js-headerButton-registerInstead"),
-         $text_signInFormFeedback: $("#feedback-form-signIn"),
+         $text_signInFormFeedback: $("#form-signIn-feedback"),
          $input_signInUsername: $("#js-input-signIn-username"),
          $label_signInUsername: $("#js-label-signIn-username"),
          $input_signInPassword: $("#js-input-signIn-password"),
@@ -15,7 +15,7 @@ const ui = {
 
       $view_register: $("#js-view-register"),
          $headerButton_signInInstead: $("#js-headerButton-signInInstead"),
-         $text_registerDirection: $("#text-register-direction"),
+         $text_registerFormFeedback: $("#form-register-feedback"),
          $input_registerUsername: $("#js-input-register-username"),
          $label_registerUsername: $("#js-label-register-username"),
          $input_registerEmail: $("#js-input-register-email"),
@@ -30,20 +30,36 @@ const ui = {
          $headerButton_signOut: $("#js-headerButton-signOut"),
          $text_activeUser: $("#js-current-user"),
          $text_recipeCount: $("#js-recipe-count"),
-         $button_addRecipe: $("#js-button-add-recipe"),
+         $button_addRecipe: $("#js-button-userHome-addRecipe"),
+
+      $view_recipeEdit: $("#js-view-recipeEdit"),
+         $headerButton_cancelRecipeEdit: $("#js-headerButton-cancelRecipeEdit"),
    //#endregion
 
    //#region UI Variables
       //UI State
       $currentView: null,
+      userHomeViewScrollPositionCache: {
+         x: null,
+         y: null
+      },
+
+      //Sign In Form Valid Field Flags
       signInUsernameIsValid: false,
       signInPasswordIsValid: false,
 
-      //Initial Values
+      //Register Form Valid Field Flags
+      registerUsernameIsValid: false,
+      registerEmailIsValid: false,
+      registerPasswordIsValid: false,
+      registerPasswordConfirmationIsValid: false,
+
+      //Sign In Form Initial Values
       initialSignInFormFeedback: null,
       initialSignInUsernameLabel: null,
       initialSignInPasswordLabel: null,
 
+      //Register Form Initial Values
       initialRegisterFormFeedback: null,
       initialRegisterUsernameLabel: null,
       initialRegisterEmailLabel: null,
@@ -60,12 +76,13 @@ const ui = {
 
          //Capture initial HTML values so that they can be reset to when necessary
          saveInitialValues: function() {
-            ui.initialRegistrationFormFeedback = ui.$text_registerDirection.text();
+            //Sign In Form Initial Values
             ui.initialSignInFormFeedback = ui.$text_signInFormFeedback.text();
-
             ui.initialSignInUsernameLabel = ui.$label_signInUsername.text();
             ui.initialSignInPasswordLabel = ui.$label_signInPassword.text();
 
+            //Register Form Initial Values
+            ui.initialRegisterFormFeedback = ui.$text_registerFormFeedback.text();
             ui.initialRegisterUsernameLabel = ui.$label_registerUsername.text();
             ui.initialRegisterEmailLabel = ui.$label_registerEmail.text();
             ui.initialRegisterPasswordLabel = ui.$label_registerPassword.text();
@@ -73,6 +90,7 @@ const ui = {
          },
 
          configureEventListeners: function() {
+            //#region General Events
             //If the user navigations with the mouse, accessibility focus are hidden
             $(window).on("mousedown", function handleClick(e) {
                if($("html").hasClass("user-navigates-with-keyboard")) {
@@ -88,10 +106,9 @@ const ui = {
                   }
                }
             });
+            //#endregion
 
-
-
-            //Landing View
+            //#region Landing View
             ui.$headerButton_signIn.on("click", async function(e) {
                await ui.hideCurrentView("fadeOutLeft");
                ui.showSignInView("fadeInRight");
@@ -101,10 +118,9 @@ const ui = {
                await ui.hideCurrentView("fadeOutLeft");
                ui.showRegisterView("fadeInRight");
             });
+            //#endregion
 
-
-
-            //Sign In View
+            //#region Sign In View
             ui.$headerButton_registerInstead.on("click", async function(e) {
                await ui.hideCurrentView("fadeOutRight");
                ui.showRegisterView("fadeInLeft");
@@ -117,34 +133,49 @@ const ui = {
 
             ui.$input_signInUsername.on("input", function(e) {
                ui.validateSignInFormUsername();
+               ui.validateSignInForm();
             });
 
             ui.$input_signInPassword.on("input", function(e) {
                ui.validateSignInFormPassword();
-            });
-
-            $("#form-signIn input").on("input", function(e) {
-               (ui.signInUsernameIsValid && ui.signInPasswordIsValid) ? ui.enableSignInSubmitButton() : ui.disableSignInSubmitButton();
-               ui.setSignInFormFeedback(ui.initialSignInFormFeedback);
+               ui.validateSignInForm();
             });
 
             ui.$button_signInFormSubmit.on("click", async function(e) {
-               let enteredUsername = ui.$input_signInUsername.val();
-               let enteredPassword = ui.$input_signInPassword.val();
+               ui.setSignInFormFeedback("Signing in...");
+               await ui.signIn(ui.$input_signInUsername.val(), ui.$input_signInPassword.val());
+            });
+            //#endregion
 
-               await ui.signIn(enteredUsername, enteredPassword);
+            //#region Register View
+            $("#form-register").on("submit", function(e) {
+               //$signInSubmit button listens for enter-key presses in the inputs, but the form itself shouldn't react to the event
+               e.preventDefault();
             });
 
-
-
-            //Register View
             ui.$headerButton_signInInstead.on("click", async function(e) {
                await ui.hideCurrentView("fadeOutLeft");
                ui.showSignInView("fadeInRight");
             });
 
-            $("#form-register input").on("input", function(e) {
-               ui.validateRegistrationForm();
+            ui.$input_registerUsername.on("input", function(e) {
+               ui.validateRegisterFormUsername();
+               ui.validateRegisterForm();
+            });
+
+            ui.$input_registerEmail.on("input", function(e) {
+               ui.validateRegisterFormEmail();
+               ui.validateRegisterForm();
+            });
+
+            ui.$input_registerPassword.on("input", function(e) {
+               ui.validateRegisterFormPassword();
+               ui.validateRegisterForm();
+            });
+
+            ui.$input_registerConfirmPassword.on("input", function(e) {
+               ui.validateRegisterFormPasswordConfirmation();
+               ui.validateRegisterForm();
             });
 
             ui.$button_registerFormSubmit.on("click", async function(e) {
@@ -152,15 +183,30 @@ const ui = {
                let enteredPassword = ui.$input_registerPassword.val();
                let enteredEmail = ui.$input_registerEmail.val();
 
+               ui.setRegisterFormFeedback("Registering...");
                await ui.createUser(enteredUsername, enteredPassword, enteredEmail);
             });
+            //#endregion
 
-
-
-            //User Home View
-            this.$headerButton_signOut.on("click", async function(e) {
-               await ui.signOut();
+            //#region User Home View
+            ui.$headerButton_signOut.on("click", function(e) {
+               ui.signOut();
             });
+
+            ui.$button_addRecipe.on("click", async function(e) {
+               ui.hideWithAnimation(ui.$button_addRecipe, "fadeOut");
+               await ui.hideCurrentView("fadeOutLeft");
+               ui.showRecipeEditView("fadeInRight");
+            });
+            //#endregion
+
+            //#region Recipe Edit View
+            ui.$headerButton_cancelRecipeEdit.on("click", async function(e) {
+               await ui.hideCurrentView("fadeOutRight");
+               await ui.showUserHomeView("fadeInLeft");
+               await pause(200);
+            });
+            //#endregion
          },
       //#endregion
 
@@ -169,7 +215,7 @@ const ui = {
       //#region Landing View Functions
          beforeShowingLandingView: function() {
             return new Promise((resolve, reject)=> {
-               //Preparatory behaviors...
+               //Do things first...
                resolve();
             });
          },
@@ -181,7 +227,7 @@ const ui = {
          },
       //#endregion
 
-      //#region Sign In View Functions
+      //#region Sign In View Functionss
          beforeShowingSignInView: async function() {
             return new Promise((resolve, reject)=> {
                ui.resetSignInForm();
@@ -193,6 +239,26 @@ const ui = {
             ui.validateShowAnimation(showAnimation);
             await ui.beforeShowingSignInView();
             ui.showView(ui.$view_signIn, showAnimation, ui.$headerButton_registerInstead);
+         },
+
+         setSignInFormFeedback: function(feedback, isProblematic=false) {
+            ui.$text_signInFormFeedback.text(feedback);
+            isProblematic ?
+               ui.$text_signInFormFeedback.css("color", "#FF8A80")
+               : ui.$text_signInFormFeedback.css("color", "");
+         },
+
+         validateSignInForm: function() {
+            (ui.signInUsernameIsValid && ui.signInPasswordIsValid) ?
+               ui.enableSignInSubmitButton()
+               : ui.disableSignInSubmitButton();
+         },
+
+         resetSignInForm: function() {
+            ui.setSignInFormFeedback(ui.initialSignInFormFeedback);
+            ui.resetSignInUsernameField();
+            ui.resetSignInPasswordField();
+            ui.disableSignInSubmitButton();
          },
 
          validateSignInFormUsername: function() {
@@ -216,6 +282,13 @@ const ui = {
             }
          },
 
+         resetSignInUsernameField: function() {
+            ui.$input_signInUsername.val("");
+            ui.$label_signInUsername.val(ui.initialSignInUsernameLabel);
+            ui.signInUsernameIsValid = false;
+            ui.disableSignInSubmitButton();
+         },
+
          validateSignInFormPassword: function() {
             const enteredPassword = this.$input_signInPassword.val();
             ui.signInPasswordIsValid = false;
@@ -230,6 +303,13 @@ const ui = {
                ui.$label_signInPassword.text(ui.initialSignInPasswordLabel);
                ui.signInPasswordIsValid = true;
             }
+         },
+
+         resetSignInPasswordField: function() {
+            ui.$input_signInPassword.val("");
+            ui.$label_signInPassword.val(ui.initialSignInPasswordLabel);
+            ui.signInPasswordIsValid = false;
+            ui.disableSignInSubmitButton();
          },
 
          disableSignInSubmitButton: function() {
@@ -255,7 +335,7 @@ const ui = {
                .then(async ()=> {
                   ui.setSignInFormFeedback("Success!");
                   appSession.currentUser = username;
-                  await pause(1000); //So that the 'Success!" message can be seen
+                  await pause(700); //So that the 'Success!" message can be parsed by the user
                   await ui.hideCurrentView("fadeOutLeft")
                   ui.resetSignInForm();
                   ui.showUserHomeView("fadeInRight");
@@ -294,36 +374,12 @@ const ui = {
                });
             });
          },
-
-         setSignInFormFeedback: function(feedback, isProblematic=false) {
-            ui.$text_signInFormFeedback.text(feedback);
-            isProblematic ? ui.$text_signInFormFeedback.css("color", "#FF8A80") : ui.$text_signInFormFeedback.css("color", "");
-         },
-
-         resetSignInForm: function() {
-            ui.setSignInFormFeedback(ui.initialSignInFormFeedback);
-            ui.resetSignInUsernameField();
-            ui.resetSignInPasswordField();
-            ui.disableSignInSubmitButton();
-         },
-
-         resetSignInUsernameField: function() {
-            ui.$input_signInUsername.val("");
-            ui.$label_signInUsername.val(ui.initialSignInUsernameLabel);
-            ui.signInUsernameIsValid = false;
-         },
-
-         resetSignInPasswordField: function() {
-            ui.$input_signInPassword.val("");
-            ui.signInPasswordIsValid = false;
-            ui.disableSignInSubmitButton();
-         },
       //#endregion
 
       //#region Register View Functions
          beforeShowingRegisterView: async function() {
             return new Promise((resolve, reject)=> {
-               ui.resetRegistrationForm();
+               ui.resetRegisterForm();
                resolve();
             });
          },
@@ -334,41 +390,142 @@ const ui = {
             ui.showView(ui.$view_register, showAnimation, ui.$headerButton_signInInstead);
          },
 
-         validateRegistrationForm: function() {
-            const enteredUsername = this.$input_registerUsername.val();
-            const enteredPassword = this.$input_registerPassword.val();
-            const enteredPasswordConfirmation = this.$input_registerConfirmPassword.val();
-            let formIsValid = false;
-
-            if (enteredUsername.length = 0) {
-               ui.$text_registerDirection.text(ui.defaultRegistrationInstructions);
-            }
-            else if (enteredUsername.trim().length != enteredUsername.length) {
-               ui.$text_registerDirection.text("Your username cannot begin or end with whitespace characters.");
-            }
-            else if (enteredPassword.length < 10) {
-               ui.$text_registerDirection.text("Your password must be at least 10 characters long.");
-            }
-            else if (enteredPassword.length >= 10 && enteredPasswordConfirmation.length == 0) {
-               ui.$text_registerDirection.text("Please confirm your password by entering it a second time.");
-            }
-            else if (enteredPassword != enteredPasswordConfirmation) {
-               ui.$text_registerDirection.text("Your password and password confirmation do not match.");
-            }
-            else {
-               formIsValid = true;
-               ui.$text_registerDirection.text("Looks good! Click the register button below to continue.");
-            }
-
-            formIsValid ? ui.enableRegisterSubmitButton() : ui.disableRegisterSubmitButton();
+         setRegisterFormFeedback: function(feedback, isProblematic=false) {
+            ui.$text_registerFormFeedback.text(feedback);
+            (isProblematic) ?
+               ui.$text_signInFormFeedback.css("color", "#FF8A80")
+               : ui.$text_signInFormFeedback.css("color", "");
          },
 
-         resetRegistrationForm: function() {
-            ui.$text_registerDirection.text(ui.defaultRegistrationInstructions);
+         validateRegisterForm: function() {
+            (ui.registerUsernameIsValid && ui.registerEmailIsValid && ui.registerPasswordIsValid && ui.registerPasswordConfirmationIsValid) ?
+               ui.enableRegisterSubmitButton()
+               : ui.disableRegisterSubmitButton();
+         },
+
+         resetRegisterForm: function() {
+            ui.setRegisterFormFeedback(ui.initialRegisterFormFeedback);
+            ui.resetRegisterUsernameField();
+            ui.resetRegisterEmailField();
+            ui.resetRegisterPasswordField();
+            ui.resetRegisterPasswordConfirmationField();
+            ui.disableRegisterSubmitButton();
+         },
+
+         validateRegisterFormUsername: function() {
+            const enteredUsername = this.$input_registerUsername.val();
+            ui.registerUsernameIsValid = false;
+
+            if(!enteredUsername) {
+               ui.$label_registerUsername.addClass("invalid");
+               ui.$label_registerUsername.text("Username is blank.");
+            }
+
+            else {
+               ui.$label_registerUsername.removeClass("invalid");
+               ui.$label_registerUsername.text(ui.initialRegisterUsernameLabel);
+               ui.registerUsernameIsValid = true;
+            }
+         },
+
+         resetRegisterUsernameField: function() {
             ui.$input_registerUsername.val("");
+            ui.$label_registerUsername.val(ui.initialRegisterUsernameLabel);
+            ui.registerUsernameIsValid = false;
+            ui.disableRegisterSubmitButton();
+         },
+
+         validateRegisterFormEmail: function() {
+            const enteredEmail = this.$input_registerEmail.val();
+            const emailRegex = /[0-9a-zA-Z!#$%&'"*/=.?^_+\-`{|}~]+@{1}[^@\s]+/;
+
+            if(enteredEmail!="" && enteredEmail != enteredEmail.match(emailRegex)) {
+               ui.$label_registerEmail.addClass("invalid");
+               ui.$label_registerEmail.text("Email is invalid.");
+               ui.registerEmailIsValid = false;
+            }
+
+            else {
+               ui.$label_registerEmail.removeClass("invalid");
+               ui.$label_registerEmail.text(ui.initialRegisterEmailLabel);
+               ui.registerEmailIsValid = true;
+            }
+         },
+
+         resetRegisterEmailField: function() {
             ui.$input_registerEmail.val("");
+            ui.$label_registerEmail.val(ui.initialRegisterEmailLabel);
+            ui.registerEmailIsValid = false;
+            ui.disableRegisterSubmitButton();
+         },
+
+         validateRegisterFormPassword: function() {
+            const enteredPassword = this.$input_registerPassword.val();
+            ui.signInPasswordIsValid = false;
+
+            if(enteredPassword == "") {
+               ui.$label_registerPassword.addClass("invalid");
+               ui.$label_registerPassword.text("Password is blank.");
+            }
+
+            else if(enteredPassword.length < 10) {
+               ui.$label_registerPassword.addClass("invalid");
+               ui.$label_registerPassword.text("Password must be at least 10 characters.");
+            }
+
+            else {
+               ui.$label_registerPassword.removeClass("invalid");
+               ui.$label_registerPassword.text(ui.initialRegisterPasswordLabel);
+               ui.registerPasswordIsValid = true;
+            }
+
+            //Changes to this field after the password has been confirmed cause re-test the validity of the confimed password.
+            if(enteredPassword != ui.$input_registerConfirmPassword.val()) {
+               ui.$label_registerConfirmPassword.addClass("invalid");
+               ui.$label_registerConfirmPassword.text("Passwords do not match.");
+               ui.registerPasswordConfirmationIsValid = false;
+            }
+
+            else {
+               ui.$label_registerConfirmPassword.removeClass("invalid");
+               ui.$label_registerConfirmPassword.text(ui.initialRegisterPasswordConfirmationLabel);
+               ui.registerPasswordConfirmationIsValid = true;
+            }
+         },
+
+         resetRegisterPasswordField: function() {
             ui.$input_registerPassword.val("");
+            ui.$label_registerPassword.val(ui.initialRegisterPasswordLabel);
+            ui.registerPasswordIsValid = false;
+            ui.disableRegisterSubmitButton();
+         },
+
+         validateRegisterFormPasswordConfirmation: function() {
+            const enteredPasswordConfirmation = this.$input_registerConfirmPassword.val();
+            ui.registerPasswordConfirmationIsValid = false;
+
+            if(enteredPasswordConfirmation == "") {
+               ui.$label_registerConfirmPassword.addClass("invalid");
+               ui.$label_registerConfirmPassword.text("Confirm your password.");
+            }
+
+            else if(enteredPasswordConfirmation != ui.$input_registerPassword.val()) {
+               ui.$label_registerConfirmPassword.addClass("invalid");
+               ui.$label_registerConfirmPassword.text("Passwords do not match.");
+            }
+
+            else {
+               ui.$label_registerConfirmPassword.removeClass("invalid");
+               ui.$label_registerConfirmPassword.text(ui.initialRegisterPasswordConfirmationLabel);
+               ui.registerPasswordConfirmationIsValid = true;
+            }
+         },
+
+         resetRegisterPasswordConfirmationField: function() {
             ui.$input_registerConfirmPassword.val("");
+            ui.$label_registerConfirmPassword.val(ui.initialRegisterPasswordConfirmationLabel);
+            ui.registerPasswordConfirmationIsValid= false;
+            ui.disableRegisterSubmitButton();
          },
 
          disableRegisterSubmitButton: function() {
@@ -394,7 +551,9 @@ const ui = {
                   data: JSON.stringify(requestData)
                })
                .then(async ()=> {
+                  ui.setRegisterFormFeedback("Success!");
                   appSession.currentUser = getCookieValue("user");
+                  await pause(700); //So that the 'Success!" message can be understood
                   await ui.hideCurrentView("fadeOutLeft");
                   ui.showUserHomeView("fadeInRight");
                   resolve();
@@ -406,11 +565,16 @@ const ui = {
 
                   switch(errorType) {
                      case "UsernameNotUnique":
-                        ui.$text_registerDirection.text("Unfortunately, that username is already in use.");
+                        ui.$label_registerUsername.addClass("invalid");
+                        ui.$label_registerUsername.text("Username already in use.");
+                        ui.$input_registerUsername.val("");
+                        ui.disableRegisterSubmitButton();
                         break;
                      case "EmailNotUnique":
-                        ui.$text_registerDirection.text("That email address is already in use. Do you already have an account?");
+                        ui.$label_registerEmail.addClass("invalid");
+                        ui.$label_registerEmail.text("Email address already in use.");
                         ui.$input_registerEmail.val("");
+                        ui.disableRegisterSubmitButton();
                         break;
                      default:
                         alert("ERROR: createUser() enountered an unexpected error.");
@@ -449,7 +613,9 @@ const ui = {
          showUserHomeView: async function(showAnimation) {
             ui.validateShowAnimation(showAnimation);
             await ui.beforeShowingUserHomeView();
-            ui.showView(ui.$view_userHome, "fadeIn", ui.$headerButton_signOut);
+            ui.showView(ui.$view_userHome, showAnimation, ui.$headerButton_signOut);
+            ui.showWithAnimation(ui.$button_addRecipe, "fadeIn");
+            window.scrollTo(0, ui.userHomeViewScrollPosition || 0);
          },
 
          //API Call
@@ -503,6 +669,7 @@ const ui = {
                })
                .then(()=> {
                   appSession.currentUser = null;
+                  ui.hideWithAnimation(ui.$button_addRecipe, "fadeOutRight");
                   ui.hideCurrentView("fadeOutRight")
                   .then(()=> {
                      ui.showLandingView("fadeInLeft");
@@ -513,7 +680,19 @@ const ui = {
          },
       //#endregion
 
+      //#region Recipe Edit View
+      beforeShowingRecipeEditView: async function() {
+         return new Promise((resolve, reject)=> {
+            //Do things here...
+            resolve();
+         });
+      },
 
+      showRecipeEditView: async function(showAnimation) {
+         ui.validateShowAnimation(showAnimation);
+         await ui.beforeShowingRecipeEditView();
+         ui.showView(ui.$view_recipeEdit, showAnimation, ui.$headerButton_cancelRecipeEdit);
+      },
 
       //#region Animate.css Functions
          hideCurrentView: function(hideAnimation) {
