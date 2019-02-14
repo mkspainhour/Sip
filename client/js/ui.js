@@ -108,9 +108,15 @@ const ui = {
                }
             });
 
+            //Update innerHeight to compensate for iOS Safari bottom bar and any other dynamic interface components that play with the viewport
             $(window).on("resize", function(e) {
-               console.log("resizing...");
-               document.body.height = window.innerHeight;
+               console.log("BEFORE");
+               console.log(`document.body.height: ${document.body.style.height}`);
+
+               $("body").css("height", window.innerHeight+"px");
+
+               console.log("AFTER");
+               console.log(`document.body.height: ${document.body.style.height}`);
             });
             //#endregion
 
