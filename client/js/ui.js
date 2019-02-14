@@ -70,6 +70,7 @@ const ui = {
    //#region Functions
       //#region Setup Functions
          setup: function() {
+            document.body.height = window.innerHeight;
             this.saveInitialValues();
             this.configureEventListeners();
          },
@@ -105,6 +106,11 @@ const ui = {
                      $("html").addClass("user-navigates-with-keyboard");
                   }
                }
+            });
+
+            $(window).on("resize", function(e) {
+               console.log("resizing...");
+               document.body.height = window.innerHeight;
             });
             //#endregion
 
@@ -148,14 +154,14 @@ const ui = {
             //#endregion
 
             //#region Register View
-            $("#form-register").on("submit", function(e) {
-               //$signInSubmit button listens for enter-key presses in the inputs, but the form itself shouldn't react to the event
-               e.preventDefault();
-            });
-
             ui.$headerButton_signInInstead.on("click", async function(e) {
                await ui.hideCurrentView("fadeOutLeft");
                ui.showSignInView("fadeInRight");
+            });
+
+            $("#form-register").on("submit", function(e) {
+               //$registerSubmit button listens for enter-key presses in the inputs, but the form itself shouldn't react to the event
+               e.preventDefault();
             });
 
             ui.$input_registerUsername.on("input", function(e) {
@@ -179,12 +185,8 @@ const ui = {
             });
 
             ui.$button_registerFormSubmit.on("click", async function(e) {
-               let enteredUsername = ui.$input_registerUsername.val();
-               let enteredPassword = ui.$input_registerPassword.val();
-               let enteredEmail = ui.$input_registerEmail.val();
-
                ui.setRegisterFormFeedback("Registering...");
-               await ui.createUser(enteredUsername, enteredPassword, enteredEmail);
+               await ui.createUser(ui.$input_registerUsername.val(), ui.$input_registerPassword.val(), ui.$input_registerEmail.val());
             });
             //#endregion
 
@@ -334,7 +336,7 @@ const ui = {
                })
                .then(async ()=> {
                   ui.setSignInFormFeedback("Success!");
-                  appSession.currentUser = username;
+                  appSession.currentUser = getCookieValue("user");
                   await pause(700); //So that the 'Success!" message can be parsed by the user
                   await ui.hideCurrentView("fadeOutLeft")
                   ui.resetSignInForm();

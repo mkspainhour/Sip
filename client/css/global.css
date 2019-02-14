@@ -91,7 +91,7 @@ header {
   position: relative;
   top: var(--height);
   min-height: calc(100vh - var(--height));
-  padding: 2em;
+  padding: 2rem;
   display: flex;
   flex-flow: column nowrap;
   justify-content: center;
@@ -150,8 +150,8 @@ header {
 
   #js-button-userHome-addRecipe {
     position: fixed;
-    bottom: 2em;
-    right: 2em;
+    bottom: 1rem;
+    right: 1rem;
     box-shadow: 0px 10px 20px rgba(0,0,0,0.19);
   }
 
