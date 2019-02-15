@@ -39,10 +39,7 @@ const ui = {
    //#region UI Variables
       //UI State
       $currentView: null,
-      userHomeViewScrollPositionCache: {
-         x: null,
-         y: null
-      },
+      userHomeViewScrollPosition: null,
 
       //Sign In Form Valid Field Flags
       signInUsernameIsValid: false,
@@ -50,7 +47,7 @@ const ui = {
 
       //Register Form Valid Field Flags
       registerUsernameIsValid: false,
-      registerEmailIsValid: false,
+      registerEmailIsValid: true,
       registerPasswordIsValid: false,
       registerPasswordConfirmationIsValid: false,
 
@@ -70,7 +67,6 @@ const ui = {
    //#region Functions
       //#region Setup Functions
          setup: function() {
-            document.body.height = window.innerHeight;
             this.saveInitialValues();
             this.configureEventListeners();
          },
@@ -106,17 +102,6 @@ const ui = {
                      $("html").addClass("user-navigates-with-keyboard");
                   }
                }
-            });
-
-            //Update innerHeight to compensate for iOS Safari bottom bar and any other dynamic interface components that play with the viewport
-            $(window).on("resize", function(e) {
-               console.log("BEFORE");
-               console.log(`document.body.height: ${document.body.style.height}`);
-
-               $("body").css("height", window.innerHeight+"px");
-
-               console.log("AFTER");
-               console.log(`document.body.height: ${document.body.style.height}`);
             });
             //#endregion
 
@@ -396,6 +381,7 @@ const ui = {
             ui.validateShowAnimation(showAnimation);
             await ui.beforeShowingRegisterView();
             ui.showView(ui.$view_register, showAnimation, ui.$headerButton_signInInstead);
+            window.scrollTo(0, 0);
          },
 
          setRegisterFormFeedback: function(feedback, isProblematic=false) {
@@ -463,7 +449,7 @@ const ui = {
          resetRegisterEmailField: function() {
             ui.$input_registerEmail.val("");
             ui.$label_registerEmail.val(ui.initialRegisterEmailLabel);
-            ui.registerEmailIsValid = false;
+            ui.registerEmailIsValid = true;
             ui.disableRegisterSubmitButton();
          },
 
@@ -621,7 +607,7 @@ const ui = {
          showUserHomeView: async function(showAnimation) {
             ui.validateShowAnimation(showAnimation);
             await ui.beforeShowingUserHomeView();
-            ui.showView(ui.$view_userHome, showAnimation, ui.$headerButton_signOut);
+            await ui.showView(ui.$view_userHome, showAnimation, ui.$headerButton_signOut);
             ui.showWithAnimation(ui.$button_addRecipe, "fadeIn");
             window.scrollTo(0, ui.userHomeViewScrollPosition || 0);
          },
@@ -634,6 +620,7 @@ const ui = {
                   url: `/user/${targetUsername}`
                })
                .then((userInformation)=> {
+                  console.log(userInformation);
                   resolve(userInformation);
                })
                .catch(async (error)=> {
@@ -645,6 +632,7 @@ const ui = {
                   switch(errorType) {
                      case "NoSuchUser":
                         alert("ERROR: NoSuchUser");
+                        //The user is both signed in, and nonexistent. This can only happen if the user tampers with their cookies, so the session is deemed invalid and the user is forcibly 'signed out', clearing any active cookies.
                         ui.signOut();
                         break;
                      default:
@@ -655,17 +643,29 @@ const ui = {
             });
          },
 
-         buildCocktailRecipeCard: function(cocktailRecipeName, ingredientNames) {
-            //TODO: buildCocktailRecipeCard()
-            // `<div class="recipe-card">
-				//    <h3 id="recipe-card-name" class="recipe-name typo-heading-small typo-color-orange3">Negroni</h3>
-				//    <p id="recipe-card-ingredientNames" class="ingredients-list typo-body-small"></p>
-				//    <img src="resources/icons/chevron.svg" class="svg-view-recipe-chevron" alt="View cocktail recipe...">
-			   // </div>`
+         buildCocktailRecipeCard: function(cardIndex, cocktailRecipeName, ingredientNames) {
+            return `
+               <div id="recipe-card-${cardIndex}" class="recipe-card">
+                  <h3 id="recipe-card-name" class="recipe-name typo-heading-small typo-color-orange3">${cocktailRecipeName}</h3>
+                  <p id="recipe-card-ingredientNames" class="ingredients-list typo-body-small">${ingredientNames}</p>
+                  <img src="resources/icons/chevron.svg" class="svg-chevron-show-recipe" alt="View cocktail recipe...">
+               </div>`;
          },
 
-         renderCocktailRecipeCards: function(cocktailRecipeCards = []) {
-            //TODO: renderCocktailRecipeCards()
+         renderCocktailRecipeCards: async function(cocktails) {
+            await cocktails.forEach((cocktail, index, array)=> {
+               ui.$view_userHome.append( ui.buildCocktailRecipeCard(index, cocktail.name, cocktail.ingredientNames) );
+            });
+
+            ui.addRecipeCardEventListeners();
+         },
+
+         addRecipeCardEventListeners: function() {
+            //TODO: addRecipeCardEventListeners()
+            console.log("addRecipeCardEventListeners() called!");
+            $(".recipe-card").on("click", function(e) {
+               console.log("Clicked: ", e.currentTarget);
+            });
          },
 
          //API Call
@@ -726,10 +726,7 @@ const ui = {
          },
 
          showView: function($view, showAnimation, $headerButtons) {
-            const availableShowAnimations = ["fadeInLeft", "fadeInRight", "fadeIn"];
-            if (!availableShowAnimations.includes(showAnimation)) {
-               throw Error(`showCurrentView(): invalid showAnimation value "${showAnimation}".`);
-            }
+            ui.validateShowAnimation(showAnimation);
 
             ui.showWithAnimation($view, showAnimation);
             if ($headerButtons) {
@@ -737,13 +734,17 @@ const ui = {
                //'pointer-events' disabled to prevent erroneous clicks that confuse execution
                $headerButtons.css({
                   "pointer-events": "none",
-                  "transition": "none"
+                  "transition": "none",
+                  "-webkit-transition": "none",
+                  "-o-transition": "none"
                });
                $headerButtons.delay(200).fadeIn(500, function() {
                   //Properties are cleared after the animation ends
                   $headerButtons.css({
                      "pointer-events": "",
-                     "transition": ""
+                     "transition": "",
+                     "-webkit-transition": "none",
+                     "-o-transition": "none"
                   });
                });
             }
