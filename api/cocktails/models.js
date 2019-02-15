@@ -27,17 +27,18 @@ const cocktailSchema = mongoose.Schema({
 
 
 cocktailSchema.methods.totalAbv = function() {
+  let round = function(value, precision) {
+    let multiplier = Math.pow(10, precision||0);
+    return Math.round(value * multiplier) / multiplier;
+  }
   let abvSum = 0;
   let numberOfAlcoholicIngredients = 0;
-  let round = function(value, precision) {
-      let multiplier = Math.pow(10, precision||0);
-      return Math.round(value * multiplier) / multiplier;
-  }
 
   this.ingredients.forEach(function(ingredient) {
     if(ingredient.abv && ingredient.abv > 0) {
-      abvSum += ingredient.abv;
-      numberOfAlcoholicIngredients++;
+
+      abvSum += (ingredient.abv * ingredient.amount);
+      numberOfAlcoholicIngredients += ingredient.amount;
     }
   });
 

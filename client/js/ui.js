@@ -40,6 +40,7 @@ const ui = {
       //UI State
       $currentView: null,
       userHomeViewScrollPosition: null,
+      cocktailsCache: [],
 
       //Sign In Form Valid Field Flags
       signInUsernameIsValid: false,
@@ -187,9 +188,15 @@ const ui = {
             });
 
             ui.$button_addRecipe.on("click", async function(e) {
-               ui.hideWithAnimation(ui.$button_addRecipe, "fadeOut");
                await ui.hideCurrentView("fadeOutLeft");
                ui.showRecipeEditView("fadeInRight");
+            });
+
+            ui.$view_userHome.on("click", ".recipe-card", async function(e) {
+               selectedRecipe = ui.cocktailsCache[e.currentTarget.id];
+               console.log("Clicked Recipe:", selectedRecipe);
+               //await ui.hideCurrentView("fadeOutLeft");
+               // ui.showRecipeView("fadeInRight");
             });
             //#endregion
 
@@ -607,8 +614,8 @@ const ui = {
          showUserHomeView: async function(showAnimation) {
             ui.validateShowAnimation(showAnimation);
             await ui.beforeShowingUserHomeView();
-            await ui.showView(ui.$view_userHome, showAnimation, ui.$headerButton_signOut);
-            ui.showWithAnimation(ui.$button_addRecipe, "fadeIn");
+            ui.showView(ui.$view_userHome, showAnimation, ui.$headerButton_signOut);
+            //ui.showWithAnimation(ui.$button_addRecipe, "fadeIn");
             window.scrollTo(0, ui.userHomeViewScrollPosition || 0);
          },
 
@@ -620,7 +627,7 @@ const ui = {
                   url: `/user/${targetUsername}`
                })
                .then((userInformation)=> {
-                  console.log(userInformation);
+                  ui.cocktailsCache = userInformation.createdCocktails;
                   resolve(userInformation);
                })
                .catch(async (error)=> {
@@ -645,7 +652,7 @@ const ui = {
 
          buildCocktailRecipeCard: function(cardIndex, cocktailRecipeName, ingredientNames) {
             return `
-               <div id="recipe-card-${cardIndex}" class="recipe-card">
+               <div id="${cardIndex}" class="recipe-card">
                   <h3 id="recipe-card-name" class="recipe-name typo-heading-small typo-color-orange3">${cocktailRecipeName}</h3>
                   <p id="recipe-card-ingredientNames" class="ingredients-list typo-body-small">${ingredientNames}</p>
                   <img src="resources/icons/chevron.svg" class="svg-chevron-show-recipe" alt="View cocktail recipe...">
@@ -653,19 +660,12 @@ const ui = {
          },
 
          renderCocktailRecipeCards: async function(cocktails) {
-            await cocktails.forEach((cocktail, index, array)=> {
-               ui.$view_userHome.append( ui.buildCocktailRecipeCard(index, cocktail.name, cocktail.ingredientNames) );
+            builtCocktails = [];
+            cocktails.forEach((cocktail, index, array)=> {
+               builtCocktails.push( ui.buildCocktailRecipeCard(index, cocktail.name, cocktail.ingredientNames) )
+               //ui.$view_userHome.append( ui.buildCocktailRecipeCard(index, cocktail.name, cocktail.ingredientNames) );
             });
-
-            ui.addRecipeCardEventListeners();
-         },
-
-         addRecipeCardEventListeners: function() {
-            //TODO: addRecipeCardEventListeners()
-            console.log("addRecipeCardEventListeners() called!");
-            $(".recipe-card").on("click", function(e) {
-               console.log("Clicked: ", e.currentTarget);
-            });
+            $("#js-wrapper-recipeCards").html(builtCocktails.join(""));
          },
 
          //API Call
@@ -677,7 +677,6 @@ const ui = {
                })
                .then(()=> {
                   appSession.currentUser = null;
-                  ui.hideWithAnimation(ui.$button_addRecipe, "fadeOutRight");
                   ui.hideCurrentView("fadeOutRight")
                   .then(()=> {
                      ui.showLandingView("fadeInLeft");
