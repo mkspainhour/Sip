@@ -12,16 +12,14 @@ html {
   --color-dark1: #424549;
 }
 
-/* html:not(.user-navigates-with-keyboard) input:focus,
+html:not(.user-navigates-with-keyboard) input:focus,
 html:not(.user-navigates-with-keyboard) textarea:focus {
   outline: none;
-  box-shadow: unset;
 }
 
 *:focus {
-  box-shadow: 0px 0px 2px 3px #5E94FF;
-  outline: none;
-} */
+  outline: 0px 0px 2px 3px #5E94FF;
+}
 
 ::selection {
   background-color: var(--color-orange3);
@@ -418,11 +416,10 @@ input::placeholder {
 
 
 
-/* @media (hover: none) {
-  .button-hollow:hover,
-  .button-hollow:active {
+@media (hover: none) {
+  /* .button-hollow:active {
     background: #FF984E;
     box-shadow: 0 2.5px 0 0 #B3784F;
     transform: translateY(1px);
-  }
-} */
+  } */
+}
