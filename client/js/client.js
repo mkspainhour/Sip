@@ -6,7 +6,14 @@ const launchFlags = {
 }
 
 const appSession = {
-   currentUser: getCookieValue("user")
+   currentUser: getCookieValue("user"),
+   userCocktailsCache: [],
+   currentCocktail: null,
+   reset: function() {
+      this.currentUser = null;
+      this.userCocktailsCache = [];
+      this.currentCocktail = null;
+   }
 }
 
 

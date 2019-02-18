@@ -40,14 +40,27 @@
 			</div>
 
 			<div id="wrapper-header-rightArea">
+				<!-- Landing -->
 				<button id="js-headerButton-signIn" type="button" class="button-hollow typo-color-orange4" style="display: none;">Sign In</button>
 
+				<!-- Register -->
 				<button id="js-headerButton-signInInstead" type="button" class="button-hollow typo-color-orange4" style="display: none;">Sign In Instead</button>
 
+				<!-- Sign In -->
 				<button id="js-headerButton-registerInstead" type="button" class="button-hollow typo-color-orange4" style="display: none;">Register Instead</button>
 
+				<!-- User Home -->
 				<button id="js-headerButton-signOut" type="button" class="button-hollow typo-color-orange4" style="display: none;">Sign Out</button>
 
+				<!-- Recipe Create -->
+				<button id="js-headerButton-cancelRecipeCreate" type="button" class="button-hollow typo-color-orange4" style="display: none;">Cancel</button>
+
+				<!-- Recipe -->
+				<button id="js-headerButton-recipeBack" type="button" class="button-hollow typo-color-orange4" style="display: none;">Back</button>
+
+				<button id="js-headerButton-editRecipe" type="button" class="button-hollow typo-color-orange4" style="display: none;">Edit Recipe</button>
+
+				<!-- Recipe Edit -->
 				<button id="js-headerButton-cancelRecipeEdit" type="button" class="button-hollow typo-color-orange4" style="display: none;">Cancel</button>
 			</div>
 		</header>
@@ -131,14 +144,98 @@
 		<section id="js-view-userHome" class="view" role="region" style="display: none;">
 			<p id="js-current-user" class="typo-body typo-center">{ERROR}</p>
 			<p id="js-recipe-count" class="typo-body-small typo-center typo-color-orange3">{ERROR}</p>
-			<div id="js-wrapper-recipeCards">
-				<!-- JS -->
+			<div id="js-wrapper-recipeCards" aria-live="polite">
+				<!-- JavaScript -->
 			</div>
 
 			<button id="js-button-userHome-addRecipe" type="button" class="button-hollow typo-color-orange4">+ Add Recipe</button>
 		</section>
 
 
+
+
+
+		<!--Recipe Create View-->
+		<section id="js-view-recipeCreate" class="view" role="region" style="display: none;">
+
+			<form id="js-form-recipeCreate" action="#" role="form">
+
+				<div id="wrapper-recipeCreate-cocktailName" class="wrapper-input">
+					<input id="js-input-recipeCreate-cocktailName" type="text" title="Enter cocktail name." aria-label="cocktail name" required>
+					<label id="js-label-recipeCreate-cocktailName" for="js-input-recipeCreate-cocktailName" class="typo-body-small typo-color-orange3">Cocktail Name</label>
+				</div>
+
+				<div id="js-wrapper-recipeCreate-ingredientBlocks">
+
+					<div id="recipeCreate-ingredientBlock-0" class="recipeCreate-ingredientBlock">
+						<div class="wrapper-svg-remove-ingredient-block">
+							<img src="resources/icons/close.svg" class="svg-remove-ingredient-block" alt="Remove ingredient.">
+						</div>
+
+						<div class="wrapper-input wrapper-ingredientBlock-name">
+							<input id="js-input-recipeCreate-ingredientBlock-0-name" type="text" title="Ingredient name." aria-label="ingredient name" required>
+							<label id="js-label-recipeCreate-ingredientBlock-0-name" class="typo-body-small typo-color-orange3">Ingredient Name</label>
+						</div>
+
+						<div class="wrapper-input wrapper-ingredientBlock-amount">
+							<input id="js-input-recipeCreate-ingredientBlock-0-amount" type="text" title="Ingredient amount." aria-label="ingredient amount" required>
+							<label id="js-input-recipeCreate-ingredientBlock-0-amount" class="typo-body-small typo-color-orange3">Ingredient Amount</label>
+						</div>
+
+						<div class="wrapper-input wrapper-ingredientBlock-measurementUnit">
+							<input id="js-input-recipeCreate-ingredientBlock-0-measurementUnit" type="text" title="Ingredient measurement unit." aria-label="ingredient measurement unit" required>
+							<label id="js-input-recipeCreate-ingredientBlock-0-measurementUnit" class="typo-body-small typo-color-orange3">Measurement Unit</label>
+						</div>
+
+						<div class="wrapper-input wrapper-ingredientBlock-abv">
+							<input id="js-input-recipeCreate-ingredientBlock-0-abv" type="text" title="Ingredient ABV." aria-label="ingredient ABV">
+							<label id="js-input-recipeCreate-ingredientBlock-0-abv" class="typo-body-small typo-color-orange3">ABV (Optional)</label>
+						</div>
+					</div>
+
+					<!-- Further .ingredient-block's added with JavaScript -->
+				</div>
+
+				<!--Sumbit Button-->
+				<button id="js-button-recipeCreate-submit" type="button" class="button-filled typo-color-dark2">Save Recipe</button>
+
+			</form>
+
+			<button id="js-button-recipeCreate-addIngredientBlock" type="submit" class="button-hollow typo-color-orange4">+ Add Ingredient</button>
+		</section>
+
+
+
+
+
+		<!--Recipe View-->
+		<section id="js-view-recipe" class="view" role="region" style="display: none;">
+			<p>Recipe View!</p>
+			<!--
+				Cocktail Name
+				Cocktail ABV
+				Cocktail Ingredient Names
+				Cocktail Creator
+				Cocktail Ingredients
+
+
+				INGREDIENT BLOCK
+
+					<div> .ingredient
+						<h1 id="COCKTAIL_NAME" class="typo-heading-large"
+						<p id="ABV" class="typo-body"
+						<h2 id="INGREDIENT_NAMES" class="typo-body-large"
+						<p id="CREATOR" class="typo-body-small"
+
+						<ol id="INGREDIENTS_LIST"
+							<li id="ingredient-#n" //Ex: #ingredient-#4
+								<span class="INGREDIENT_AMOUNT">
+								<span class="INGREDIENT_UNIT"
+								<span class="INGREDIENT_NAME"
+								(optional) <span class="INGREDIENT_ABV"
+							...
+			 -->
+		</section>
 
 
 
@@ -169,6 +266,7 @@
 								(optional) <span class="INGREDIENT_ABV"
 							...
 			 -->
+			 <button id="js-button-recipeEdit-submit" type="button" class="button-filled typo-color-dark2">Save Changes</button>
 		</section>
 
 

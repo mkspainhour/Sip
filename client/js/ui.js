@@ -32,15 +32,30 @@ const ui = {
          $text_recipeCount: $("#js-recipe-count"),
          $button_addRecipe: $("#js-button-userHome-addRecipe"),
 
+      $view_recipeCreate: $("#js-view-recipeCreate"),
+         $headerButton_cancelRecipeCreate: $("#js-headerButton-cancelRecipeCreate"),
+
+         $input_recipeCreateCocktailName: $("#js-input-recipeCreate-cocktailName"),
+         $label_recipeCreateCocktailName: $("#js-label-recipeCreate-cocktailName"),
+         $form_recipeCreate: $("#js-form-recipeCreate"),
+         $button_addIngredientBlock: $("#js-button-recipeCreate-addIngredientBlock"),
+         $wrapper_recipeCreateIngredientBlocks: $("#js-wrapper-recipeCreate-ingredientBlocks"),
+         $button_recipeCreateFormSubmit: $("#js-button-recipeCreate-submit"),
+
+      $view_recipe: $("#js-view-recipe"),
+         $headerButton_recipeBack: $("#js-headerButton-recipeBack"),
+         $headerButton_editRecipe: $("#js-headerButton-editRecipe"),
+
       $view_recipeEdit: $("#js-view-recipeEdit"),
          $headerButton_cancelRecipeEdit: $("#js-headerButton-cancelRecipeEdit"),
+         $button_saveEditedRecipe: $("js-button-recipeEdit-submit"),
    //#endregion
 
    //#region UI Variables
       //UI State
       $currentView: null,
       userHomeViewScrollPosition: null,
-      cocktailsCache: [],
+      existingRecipeCreateIngredientBlockIDs: [],
 
       //Sign In Form Valid Field Flags
       signInUsernameIsValid: false,
@@ -52,17 +67,21 @@ const ui = {
       registerPasswordIsValid: false,
       registerPasswordConfirmationIsValid: false,
 
-      //Sign In Form Initial Values
-      initialSignInFormFeedback: null,
-      initialSignInUsernameLabel: null,
-      initialSignInPasswordLabel: null,
+      //Initial Values
+         //Sign In Form
+         initialSignInFormFeedback: null,
+         initialSignInUsernameLabel: null,
+         initialSignInPasswordLabel: null,
 
-      //Register Form Initial Values
-      initialRegisterFormFeedback: null,
-      initialRegisterUsernameLabel: null,
-      initialRegisterEmailLabel: null,
-      initialRegisterPasswordLabel: null,
-      initialRegisterPasswordConfirmationLabel: null,
+         //Register Form
+         initialRegisterFormFeedback: null,
+         initialRegisterUsernameLabel: null,
+         initialRegisterEmailLabel: null,
+         initialRegisterPasswordLabel: null,
+         initialRegisterPasswordConfirmationLabel: null,
+
+         //Recipe Create View
+         initialRecipeCreateIngredientBlocks: null,
    //#endregion
 
    //#region Functions
@@ -72,14 +91,18 @@ const ui = {
             this.configureEventListeners();
          },
 
-         //Capture initial HTML values so that they can be reset to when necessary
+         reset: function() {
+            ui.userHomeViewScrollPosition = null;
+         },
+
+         //Capture initial HTML values so that they can be restored when necessary
          saveInitialValues: function() {
-            //Sign In Form Initial Values
+            //Sign In Form
             ui.initialSignInFormFeedback = ui.$text_signInFormFeedback.text();
             ui.initialSignInUsernameLabel = ui.$label_signInUsername.text();
             ui.initialSignInPasswordLabel = ui.$label_signInPassword.text();
 
-            //Register Form Initial Values
+            //Register Form
             ui.initialRegisterFormFeedback = ui.$text_registerFormFeedback.text();
             ui.initialRegisterUsernameLabel = ui.$label_registerUsername.text();
             ui.initialRegisterEmailLabel = ui.$label_registerEmail.text();
@@ -88,15 +111,16 @@ const ui = {
          },
 
          configureEventListeners: function() {
+            //DONE
             //#region General Events
-            //If the user navigations with the mouse, accessibility focus are hidden
+            //If the user navigates with the mouse, style for accessibility accordingly
             $(window).on("mousedown", function handleClick(e) {
                if($("html").hasClass("user-navigates-with-keyboard")) {
                   $("html").removeClass("user-navigates-with-keyboard");
                }
             });
 
-            //If they tab key is pressed, accessibility focus outlines are restored
+            //If the user navigates with the keybaord (tab key is pressed), style for accessibility accordingly
             $(window).on("keydown", function handleTab(e) {
                if($("html").hasClass("user-navigates-with-keyboard") == false) {
                   if (e.keyCode === 9) {
@@ -106,6 +130,7 @@ const ui = {
             });
             //#endregion
 
+            //DONE
             //#region Landing View
             ui.$headerButton_signIn.on("click", async function(e) {
                await ui.hideCurrentView("fadeOutLeft");
@@ -118,6 +143,7 @@ const ui = {
             });
             //#endregion
 
+            //DONE
             //#region Sign In View
             ui.$headerButton_registerInstead.on("click", async function(e) {
                await ui.hideCurrentView("fadeOutRight");
@@ -125,7 +151,8 @@ const ui = {
             });
 
             $("#form-signIn").on("submit", function(e) {
-               //$signInSubmit button listens for enter-key presses in the inputs, but the form itself shouldn't react to the event
+               //Prevents unnecessary refreshing behavior.
+               //The form's submit button interprets the submit event on behalf of the form element.
                e.preventDefault();
             });
 
@@ -145,6 +172,7 @@ const ui = {
             });
             //#endregion
 
+            //DONE
             //#region Register View
             ui.$headerButton_signInInstead.on("click", async function(e) {
                await ui.hideCurrentView("fadeOutLeft");
@@ -152,7 +180,8 @@ const ui = {
             });
 
             $("#form-register").on("submit", function(e) {
-               //$registerSubmit button listens for enter-key presses in the inputs, but the form itself shouldn't react to the event
+               //Prevents unnecessary refreshing behavior.
+               //The form's submit button interprets the submit event on behalf of the form element.
                e.preventDefault();
             });
 
@@ -182,29 +211,78 @@ const ui = {
             });
             //#endregion
 
+            //DONE
             //#region User Home View
             ui.$headerButton_signOut.on("click", function(e) {
                ui.signOut();
             });
 
             ui.$button_addRecipe.on("click", async function(e) {
+               ui.saveUserHomeViewScrollPosition();
                await ui.hideCurrentView("fadeOutLeft");
-               ui.showRecipeEditView("fadeInRight");
+               ui.showRecipeCreateView("fadeInRight");
             });
 
             ui.$view_userHome.on("click", ".recipe-card", async function(e) {
-               selectedRecipe = ui.cocktailsCache[e.currentTarget.id];
-               console.log("Clicked Recipe:", selectedRecipe);
-               //await ui.hideCurrentView("fadeOutLeft");
-               // ui.showRecipeView("fadeInRight");
+               //Isolates 'n' from the element id 'recipe-card-n'
+               recipeCardId = e.currentTarget.id.replace("recipe-card-", "");
+               appSession.currentCocktail = appSession.userCocktailsCache[recipeCardId];
+
+               console.log("Clicked Recipe:", appSession.currentCocktail.name);
+               ui.saveUserHomeViewScrollPosition();
+
+               await ui.hideCurrentView("fadeOutLeft");
+               ui.showRecipeView("fadeInRight");
+            });
+            //#endregion
+
+            //#region Recipe Create View
+            ui.$headerButton_cancelRecipeCreate.on("click", async function(e) {
+               await ui.hideCurrentView("fadeOutRight");
+               ui.showUserHomeView("fadeInLeft");
+            });
+
+            ui.$button_addIngredientBlock.on("click", function(e) {
+               ui.recipeCreate_addIngredientBlock();
+            });
+
+            ui.$wrapper_recipeCreateIngredientBlocks.on("click", ".wrapper-svg-remove-ingredient-block", async function(e) {
+               targetedIngredientBlockId = e.currentTarget.parentElement.id;
+               $("#"+targetedIngredientBlockId).slideUp(400, function() {
+                  this.remove();
+               });
+            });
+
+            ui.$wrapper_recipeCreateIngredientBlocks.on("input", ".recipeCreate-ingredientBlock", function(e) {
+               console.log(`event fired on ${e.currentTarget.id}`);
+            });
+
+            ui.$button_recipeCreateFormSubmit.on("click", function(e){
+               console.log("Click: recipeCreate submit button");
+            });
+            //#endregion
+
+            //#region Recipe View
+            ui.$headerButton_recipeBack.on("click", async function(e) {
+               await ui.hideCurrentView("fadeOutRight");
+               ui.showUserHomeView("fadeInLeft");
+            });
+
+            ui.$headerButton_editRecipe.on("click", async function(e) {
+               await ui.hideCurrentView("fadeOut");
+               ui.showRecipeEditView(appSession.currentCocktail, "fadeIn");
             });
             //#endregion
 
             //#region Recipe Edit View
             ui.$headerButton_cancelRecipeEdit.on("click", async function(e) {
-               await ui.hideCurrentView("fadeOutRight");
-               await ui.showUserHomeView("fadeInLeft");
-               await pause(200);
+               await ui.hideCurrentView("fadeOut");
+               ui.showRecipeView("fadeIn");
+            });
+
+            ui.$button_saveEditedRecipe.on("click", function(e) {
+               console.log("saving edited recipe");
+               ui.updateRecipe();
             });
             //#endregion
          },
@@ -212,10 +290,11 @@ const ui = {
 
 
 
+      //DONE
       //#region Landing View Functions
          beforeShowingLandingView: function() {
             return new Promise((resolve, reject)=> {
-               //Do things first...
+               //Things...
                resolve();
             });
          },
@@ -227,6 +306,7 @@ const ui = {
          },
       //#endregion
 
+      //DONE
       //#region Sign In View Functionss
          beforeShowingSignInView: async function() {
             return new Promise((resolve, reject)=> {
@@ -336,8 +416,8 @@ const ui = {
                   ui.setSignInFormFeedback("Success!");
                   appSession.currentUser = getCookieValue("user");
                   await pause(700); //So that the 'Success!" message can be parsed by the user
+
                   await ui.hideCurrentView("fadeOutLeft")
-                  ui.resetSignInForm();
                   ui.showUserHomeView("fadeInRight");
                   resolve();
                })
@@ -376,6 +456,7 @@ const ui = {
          },
       //#endregion
 
+      //DONE
       //#region Register View Functions
          beforeShowingRegisterView: async function() {
             return new Promise((resolve, reject)=> {
@@ -388,6 +469,7 @@ const ui = {
             ui.validateShowAnimation(showAnimation);
             await ui.beforeShowingRegisterView();
             ui.showView(ui.$view_register, showAnimation, ui.$headerButton_signInInstead);
+
             window.scrollTo(0, 0);
          },
 
@@ -555,6 +637,7 @@ const ui = {
                   ui.setRegisterFormFeedback("Success!");
                   appSession.currentUser = getCookieValue("user");
                   await pause(700); //So that the 'Success!" message can be understood
+
                   await ui.hideCurrentView("fadeOutLeft");
                   ui.showUserHomeView("fadeInRight");
                   resolve();
@@ -586,10 +669,12 @@ const ui = {
          },
       //#endregion
 
+      //DONE
       //#region User Home View Functions
          beforeShowingUserHomeView: async function() {
             return new Promise(async (resolve, reject)=> {
                let userInformation = await ui.getUserInformation(appSession.currentUser);
+                  console.log("fetched userInformation:", userInformation);
                const cocktailCount = userInformation.createdCocktails.length;
                const cocktails = userInformation.createdCocktails;
 
@@ -598,7 +683,7 @@ const ui = {
 
                //Set recipe count
                if (cocktailCount === 1) {
-                  ui.$text_recipeCount.text(`${userInformation.createdCocktails.length} Recipe`)
+                  ui.$text_recipeCount.text("1 Recipe");
                }
                else {
                   ui.$text_recipeCount.text(`${userInformation.createdCocktails.length} Recipes`)
@@ -615,7 +700,7 @@ const ui = {
             ui.validateShowAnimation(showAnimation);
             await ui.beforeShowingUserHomeView();
             ui.showView(ui.$view_userHome, showAnimation, ui.$headerButton_signOut);
-            //ui.showWithAnimation(ui.$button_addRecipe, "fadeIn");
+
             window.scrollTo(0, ui.userHomeViewScrollPosition || 0);
          },
 
@@ -627,7 +712,7 @@ const ui = {
                   url: `/user/${targetUsername}`
                })
                .then((userInformation)=> {
-                  ui.cocktailsCache = userInformation.createdCocktails;
+                  appSession.userCocktailsCache = userInformation.createdCocktails;
                   resolve(userInformation);
                })
                .catch(async (error)=> {
@@ -652,19 +737,20 @@ const ui = {
 
          buildCocktailRecipeCard: function(cardIndex, cocktailRecipeName, ingredientNames) {
             return `
-               <div id="${cardIndex}" class="recipe-card">
+               <div id="recipe-card-${cardIndex}" class="recipe-card">
                   <h3 id="recipe-card-name" class="recipe-name typo-heading-small typo-color-orange3">${cocktailRecipeName}</h3>
                   <p id="recipe-card-ingredientNames" class="ingredients-list typo-body-small">${ingredientNames}</p>
                   <img src="resources/icons/chevron.svg" class="svg-chevron-show-recipe" alt="View cocktail recipe...">
                </div>`;
          },
 
-         renderCocktailRecipeCards: async function(cocktails) {
+         renderCocktailRecipeCards: function(cocktails) {
             builtCocktails = [];
             cocktails.forEach((cocktail, index, array)=> {
                builtCocktails.push( ui.buildCocktailRecipeCard(index, cocktail.name, cocktail.ingredientNames) )
                //ui.$view_userHome.append( ui.buildCocktailRecipeCard(index, cocktail.name, cocktail.ingredientNames) );
             });
+
             $("#js-wrapper-recipeCards").html(builtCocktails.join(""));
          },
 
@@ -676,7 +762,9 @@ const ui = {
                   url: "/api/auth/sign-out"
                })
                .then(()=> {
-                  appSession.currentUser = null;
+                  appSession.reset();
+                  ui.reset();
+
                   ui.hideCurrentView("fadeOutRight")
                   .then(()=> {
                      ui.showLandingView("fadeInLeft");
@@ -685,21 +773,150 @@ const ui = {
                });
             });
          },
+
+         saveUserHomeViewScrollPosition: function() {
+            ui.userHomeViewScrollPosition = window.scrollY;
+         },
       //#endregion
 
-      //#region Recipe Edit View
-      beforeShowingRecipeEditView: async function() {
+      //#region Recipe Create View
+      beforeShowingRecipeCreateView: async function() {
          return new Promise((resolve, reject)=> {
-            //Do things here...
+            ui.resetRecipeCreateView();
             resolve();
          });
       },
 
-      showRecipeEditView: async function(showAnimation) {
+      resetRecipeCreateView: function() {
+         //TODO: resetRecipeCreateView()
+      },
+
+      showRecipeCreateView: async function(showAnimation) {
          ui.validateShowAnimation(showAnimation);
-         await ui.beforeShowingRecipeEditView();
+         await ui.beforeShowingRecipeCreateView();
+         ui.showView(ui.$view_recipeCreate, showAnimation, ui.$headerButton_cancelRecipeCreate);
+
+         window.scrollTo(0, 0);
+         console.log("showRecipeCreateView()");
+      },
+
+      recipeCreate_addIngredientBlock: async function() {
+
+         //The new block's index begins as the number of existing ingredientBlocks
+         let newBlockIndex = $(".recipeCreate-ingredientBlock").length;
+
+         //However, depending on how the user has added and deleted blocks, an ingredientBlock with that index may already exist
+         while( $(`#recipeCreate-ingredientBlock-${newBlockIndex}`).length ) {
+            console.log(`#recipeCreate-ingredientBlock-${newBlockIndex} already exists. Incrementing ID and trying again.`)
+            newBlockIndex++;
+         }
+
+         ingredientBlockTemplate = `
+            <div id="recipeCreate-ingredientBlock-${newBlockIndex}" class="recipeCreate-ingredientBlock" style="display:none;">
+
+               <div class="wrapper-svg-remove-ingredient-block">
+                  <img src="resources/icons/close.svg" class="svg-remove-ingredient-block" alt="Remove ingredient.">
+               </div>
+
+               <div class="wrapper-input wrapper-ingredientBlock-name">
+                  <input id="js-input-recipeCreate-ingredientBlock-${newBlockIndex}-name" type="text" title="Ingredient name." aria-label="ingredient name" required>
+                  <label id="js-label-recipeCreate-ingredientBlock-${newBlockIndex}-name" class="typo-body-small typo-color-orange3">Ingredient Name</label>
+               </div>
+
+               <div class="wrapper-input wrapper-ingredientBlock-amount">
+                  <input id="js-input-recipeCreate-ingredientBlock-${newBlockIndex}-amount" type="text" title="Ingredient amount." aria-label="ingredient amount" required>
+                  <label id="js-input-recipeCreate-ingredientBlock-${newBlockIndex}-amount" class="typo-body-small typo-color-orange3">Ingredient Amount</label>
+               </div>
+
+               <div class="wrapper-input wrapper-ingredientBlock-measurementUnit">
+                  <input id="js-input-recipeCreate-ingredientBlock-${newBlockIndex}-measurementUnit" type="text" title="Ingredient measurement unit." aria-label="ingredient measurement unit" required>
+                  <label id="js-input-recipeCreate-ingredientBlock-${newBlockIndex}-measurementUnit" class="typo-body-small typo-color-orange3">Measurement Unit</label>
+               </div>
+
+               <div class="wrapper-input wrapper-ingredientBlock-abv">
+                  <input id="js-input-recipeCreate-ingredientBlock-${newBlockIndex}-abv" type="text" title="Ingredient ABV." aria-label="ingredient ABV">
+                  <label id="js-input-recipeCreate-ingredientBlock-${newBlockIndex}-abv" class="typo-body-small typo-color-orange3">ABV (Optional)</label>
+               </div>
+            </div>
+         `;
+
+         ui.$wrapper_recipeCreateIngredientBlocks.append(ingredientBlockTemplate);
+         $(`#recipeCreate-ingredientBlock-${newBlockIndex}`).slideDown(400);
+         ui.scrollToBottom(400);
+      },
+
+      buildRecipeCreateRequest: function() {
+         const presentIngredientBlocks = $(".recipeCreate-ingredientBlock");
+         console.log(presentIngredientBlocks);
+      },
+
+
+      //#endregion
+
+      //#region Recipe View
+      beforeShowingRecipeView: function() {
+         return new Promise(async (resolve, reject)=> {
+            ui.resetRecipeView();
+            ui.renderRecipeView(appSession.currentCocktail);
+            resolve();
+         });
+      },
+
+      resetRecipeView: function() {
+         //TODO: resetRecipeView()
+      },
+
+      renderRecipeView: function() {
+         console.log("renderRecipeView():", appSession.currentCocktail.name);
+         //TODO: renderRecipeView()
+      },
+
+      showRecipeView: async function(showAnimation) {
+         ui.validateShowAnimation(showAnimation);
+         await ui.beforeShowingRecipeView();
+         ui.showView(ui.$view_recipe, showAnimation, $("#js-headerButton-editRecipe, #js-headerButton-recipeBack"));
+      },
+      //#endregion
+
+      //#region Recipe Edit View
+      beforeShowingRecipeEditView: async function(recipe) {
+         return new Promise((resolve, reject)=> {
+            ui.resetRecipeEditView();
+            ui.renderRecipeEditView(recipe);
+            resolve();
+         });
+      },
+
+      resetRecipeEditView: function() {
+         //TODO: resetRecipeEditView()
+      },
+
+      renderRecipeEditView: function(recipe) {
+         console.log("renderRecipeEditView():", appSession.currentCocktail.name);
+         //TODO: renderRecipeEditView()
+      },
+
+      showRecipeEditView: async function(recipe, showAnimation) {
+         ui.validateShowAnimation(showAnimation);
+         await ui.beforeShowingRecipeEditView(recipe);
          ui.showView(ui.$view_recipeEdit, showAnimation, ui.$headerButton_cancelRecipeEdit);
       },
+
+      //API Call
+      updateRecipe: function() {
+         //TODO: updateRecipe
+      },
+      //#endregion
+
+
+
+      //#region View-agnostic Functions
+      scrollToBottom: function(ms) {
+         $("html").stop(true).animate({
+            scrollTop: $(document).height()
+         }, ms);
+      },
+      //#endregion
 
       //#region Animate.css Functions
          hideCurrentView: function(hideAnimation) {
