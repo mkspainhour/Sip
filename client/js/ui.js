@@ -115,16 +115,16 @@ const ui = {
             //#region General Events
             //If the user navigates with the mouse, style for accessibility accordingly
             $(window).on("mousedown", function handleClick(e) {
-               if($("html").hasClass("user-navigates-with-keyboard")) {
-                  $("html").removeClass("user-navigates-with-keyboard");
+               if($("html").hasClass("user-navigating-with-keyboard")) {
+                  $("html").removeClass("user-navigating-with-keyboard");
                }
             });
 
             //If the user navigates with the keybaord (tab key is pressed), style for accessibility accordingly
             $(window).on("keydown", function handleTab(e) {
-               if($("html").hasClass("user-navigates-with-keyboard") == false) {
+               if($("html").hasClass("user-navigating-with-keyboard") == false) {
                   if (e.keyCode === 9) {
-                     $("html").addClass("user-navigates-with-keyboard");
+                     $("html").addClass("user-navigating-with-keyboard");
                   }
                }
             });
@@ -959,8 +959,8 @@ const ui = {
                   $headerButtons.css({
                      "pointer-events": "",
                      "transition": "",
-                     "-webkit-transition": "none",
-                     "-o-transition": "none"
+                     "-webkit-transition": "",
+                     "-o-transition": ""
                   });
                });
             }

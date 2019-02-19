@@ -1,34 +1,35 @@
-html {
+:root {
   --font-sans: "Work Sans", sans-serif;
   --font-serif: "Eczar", serif;
-  font-size: 15px;
+  /*Set rem size for UI scaling*/ font-size: 15px;
 
-  --color-orange4: #FFA15E;
-  --color-orange3: #FFBF91;
-  --color-orange2: #FFDDC4;
-  --color-orange1: #FFFBF7;
+  --color-orange: #FFCCB3;
+  --color-orange-dark: #FFAA80;
+  --color-orange-light: #FFDDCC;
 
-  --color-dark2: #3C3F42;
-  --color-dark1: #424549;
-}
+  --color-gray: #414141;
+  --color-gray-dark: #383838;
+  --color-gray-light: #474747;
 
-html:not(.user-navigates-with-keyboard) input:focus,
-html:not(.user-navigates-with-keyboard) textarea:focus {
-  outline: none;
+  --box-shadow-1dp: 0 1px 1px 0 rgba(0,0,0,0.14), 0 2px 1px -1px rgba(0,0,0,0.20), 0 1px 3px 0 rgba(0,0,0,0.20);
+  --box-shadow-2dp: 0 2px 2px 0 rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.20), 0 1px 5px 0 rgba(0,0,0,0.20);
+  --box-shadow-3dp: 0 3px 4px 0 rgba(0,0,0,0.14), 0 3px 3px -2px rgba(0,0,0,0.20), 0 1px 8px 0 rgba(0,0,0,0.20);
+  --box-shadow-4dp: 0 4px 5px 0 rgba(0,0,0,0.14), 0 1px 10px 0 rgba(0,0,0,0.20), 0 2px 4px -1px rgba(0,0,0,0.20);
+
+  --box-shadow-interior-1dp: inset 0 1px 1px 0 rgba(0,0,0,0.14), inset 0 2px 1px -1px rgba(0,0,0,0.20), inset 0 1px 3px 0 rgba(0,0,0,0.20);
 }
 
 *:focus {
-  outline: 0px 0px 2px 3px #5E94FF;
+  outline: #5E94FF auto 4px;
 }
-
-::selection {
-  background-color: var(--color-orange3);
+html:not(.user-navigating-with-keyboard) *:focus {
+  outline: none;
 }
 
 body {
-  background-color: var(--color-dark2);
+  background-color: var(--color-gray);
   font-family: var(--font-sans);
-  color: var(--color-orange2);
+  color: var(--color-orange-light);
 }
 
 
@@ -42,10 +43,8 @@ header {
   right: 0;
   z-index: 1;
 
-  width: 100%;
-
-  /*Hollow button text height, hollow button interior padding, hollow button border width, header vertical padding, and header separator height */
-  min-height: calc(0.8em + 0.8em + 2px + 2rem + 1px);
+  /*Hollow button text line height, hollow button interior padding, hollow button border width, and header vertical padding */
+  min-height: calc(0.8em + 0.8em + 2px + 2rem);
 
   display: flex;
   flex-flow: row nowrap;
@@ -53,8 +52,8 @@ header {
 
   padding: 1rem;
 
-  background-color: var(--color-dark2);
-  box-shadow: 0 3px 6px 0 rgba(0,0,0,0.16);
+  background-color: var(--color-gray-dark);
+  /* box-shadow: 0 3px 6px 0 rgba(0,0,0,0.16); */
 }
 
   #wrapper-header-leftArea {
@@ -62,7 +61,6 @@ header {
     flex-flow: row nowrap;
     justify-content: flex-start;
   }
-
     #wrapper-logo {
       display: flex;
       flex-flow: row nowrap;
@@ -84,12 +82,14 @@ header {
 
 
 .view {
-  --header-height: 58px;
+  --header-height: 56px;
 
   position: relative;
   top: var(--header-height);
+  max-width: 960px;
   min-height: calc(100vh - var(--header-height));
   padding: 2rem;
+  margin: 0 auto;
 
   display: flex;
   flex-flow: column nowrap;
@@ -142,28 +142,28 @@ header {
   text-align: center;
 }
 
-.typo-color-orange4 {
-  color: var(--color-orange4);
+.typo-color-orange {
+  color: var(--color-orange);
 }
 
-.typo-color-orange3 {
-  color: var(--color-orange3);
+.typo-color-orange-dark {
+  color: var(--color-orange-dark);
 }
 
-.typo-color-orange2 {
-  color: var(--color-orange2);
+.typo-color-orange-light {
+  color: var(--color-orange-light);
 }
 
-.typo-color-orange1 {
-  color: var(--color-orange1);
+.typo-color-gray {
+  color: var(--color-gray);
 }
 
-.typo-color-dark2 {
-  color: var(--color-dark2);
+.typo-color-gray-dark {
+  color: var(--color-gray-dark);
 }
 
-.typo-color-dark1 {
-  color: var(--color-dark1);
+.typo-color-gray-light {
+  color: var(--color-gray-light);
 }
 
 
@@ -176,15 +176,15 @@ form {
   justify-content: flex-start;
 }
 
-form button {
-  margin-top: 1rem;
+form .button-filled {
+  margin-top: 2rem;
 }
 
 label {
   margin-top: 0.267em;
 }
 label.invalid {
-  color: #FF8A80;
+  color: #FF9999;
 }
 
 
@@ -192,16 +192,15 @@ label.invalid {
 
 
 input {
-  background: rgba(255, 251, 247, 0.09);
+  background: var(--color-gray-light);
   border: none;
   border-radius: 6px;
-  box-shadow: inset 0 1px 2px 0 rgba(60,63,66,0.20), inset 0 1px 3px 0 rgba(60,63,66,0.10);
+  box-shadow: var(--box-shadow-interior-1dp);
 
-  color: var(--color-orange2);
-
+  color: var(--color-orange-light);
   line-height: 1;
 
-  min-height: 40px;
+  /* Touch-target best-practice */ min-height: 44px;
   padding: 1em;
 }
 input::placeholder {
@@ -211,10 +210,12 @@ input::placeholder {
 .wrapper-input {
   display: flex;
   flex-flow: column nowrap;
+  justify-content: flex-start;
+  align-content: stretch;
   width: 100%;
   margin-bottom: 1rem;
 }
-.wrapper-input:last-child {
+.wrapper-input:last-of-type {
   margin-bottom: 0;
 }
 
@@ -225,11 +226,11 @@ input::placeholder {
 .recipe-card {
   position: relative;
   border-radius: 6px;
-  background-color: #46494D;
-  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.2), 0 1px 3px 0 rgba(60,63,66,0.1);
+  background-color: var(--color-gray-light);
+  box-shadow: var(--box-shadow-1dp);
   padding: 1em;
   /* Account for chevron icon width, and both sides of chevron padding */
-  padding-right: calc(2em + 7px);
+  padding-right: calc(2rem + 11px);
   cursor: pointer;
 }
 .recipe-card:not(:last-of-type) {
@@ -246,9 +247,9 @@ input::placeholder {
 
 
 .button-hollow {
-  background-color: var(--color-dark2);
-  border: 1px solid var(--color-orange4);
-  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.2), 0 1px 3px 0 rgba(60,63,66,0.1);
+  background-color: rgba(0, 0, 0, 0.0);
+  border: 1px solid var(--color-orange-dark);
+  box-shadow: var(--box-shadow-1dp);
   border-radius: 6px;
   padding: 0.4rem 0.533rem 0.4rem 0.533rem;
 
@@ -258,14 +259,12 @@ input::placeholder {
 
   min-height: 24px;
 
-  -webkit-transition: all 0.1s ease-in-out;
-  -o-transition: all 0.1s ease-in-out;
   transition: all 0.1s ease-in-out;
   cursor: pointer;
 }
 .button-hollow:hover {
-  background-color: var(--color-orange4);
-  color: var(--color-dark2);
+  background-color: var(--color-orange-dark);
+  color: var(--color-gray);
 }
 .button-hollow:active {
   transform: translateY(1px);
@@ -276,8 +275,8 @@ input::placeholder {
 
 
 .button-filled {
-  background: var(--color-orange4);
-  box-shadow: 0 2.5px 0 0 #CC895A;
+  background: var(--color-orange-dark);
+  /* box-shadow: 0 2.5px 0 0 #CC895A; */
   border: none;
   border-radius: 6px;
 
@@ -293,14 +292,15 @@ input::placeholder {
 }
 .button-filled:hover {
   background: #FF984E;
-  box-shadow: 0 2.5px 0 0 #B3784F;
+  /* box-shadow: 0 2.5px 0 0 #B3784F; */
 }
 .button-filled:active {
   transform: translateY(2px);
-  box-shadow: 0 0.5px 0 0 #B3784F;
+  /* box-shadow: 0 0.5px 0 0 #B3784F; */
 }
 .button-filled:disabled {
   cursor: not-allowed;
+  background: var(--color-orange-dark);
   opacity: 0.38;
 }
 
@@ -370,7 +370,7 @@ input::placeholder {
     bottom: 1rem;
     right: 1rem;
     z-index: 1;
-    box-shadow: 0px 10px 20px rgba(0,0,0,0.19);
+    /* box-shadow: 0px 10px 20px rgba(0,0,0,0.19); */
   }
 
 
@@ -405,21 +405,30 @@ input::placeholder {
     align-content: flex-start;
 
     border-radius: 6px;
-    background-color: #46494D;
-    box-shadow: 0 1px 2px 0 rgba(0,0,0,0.2), 0 1px 3px 0 rgba(60,63,66,0.1);
+    background-color: var(--color-gray-light);
+    /* box-shadow: 0 1px 2px 0 rgba(0,0,0,0.2), 0 1px 3px 0 rgba(60,63,66,0.1); */
     padding: 1em;
   }
   .recipeCreate-ingredientBlock:not(:last-child) {
     margin-bottom: 1rem;
   }
 
+  #js-button-recipeCreate-submit {
+    margin-top: 2rem;
+  }
+
 
 
 
 @media (hover: none) {
-  /* .button-hollow:active {
-    background: #FF984E;
-    box-shadow: 0 2.5px 0 0 #B3784F;
+  .button-hollow:active {
+    background: var(--color-orange-dark);
+    /* box-shadow: 0 2.5px 0 0 #B3784F; */
     transform: translateY(1px);
-  } */
+  }
+  .button-filled:active {
+    background: var(--color-orange-dark);
+    /* box-shadow: 0 0.5px 0 0 #B3784F; */
+    transform: translateY(2px);
+  }
 }
