@@ -34,8 +34,8 @@
 		<!--Logo & Header Buttons-->
 		<header role="banner">
 			<div id="wrapper-header-leftArea">
-				<div id="wrapper-logo">
-					<h2 id="logo" class="typo-heading-small typo-color-orange">Sip</h2>
+				<div class="wrapper-logoText">
+					<h2 class="typo-heading-small typo-color-orange">Sip</h2>
 				</div>
 			</div>
 
@@ -51,20 +51,23 @@
 
 				<!-- User Home -->
 				<button id="js-headerButton-signOut" type="button" class="button-hollow typo-color-orange-dark" style="display: none;">Sign Out</button>
-				<!-- <button id="js-headerButton-addRecipe" type="button" class="button-hollow typo-color-orange-dark">
-					<img src="" alt="Add Recipe">
-				</button> -->
+
+				<button id="js-headerButton-addRecipe" type="button" class="button-hollow button-icon typo-color-orange-dark" style="display: none;">
+					<img class="svg-icon" src="./resources/icons/add.svg" alt="+ Add Recipe">
+				</button>
 
 				<!-- Recipe Create -->
-				<button id="js-headerButton-cancelRecipeCreate" type="button" class="button-hollow typo-color-orange-dark" style="display: none;">Cancel</button>
+				<button id="js-headerButton-recipeCreateCancel" type="button" class="button-hollow button-hollow-dark-bg typo-color-orange-dark" style="display: none;">Cancel</button>
 
 				<!-- Recipe -->
-				<button id="js-headerButton-recipeBack" type="button" class="button-hollow typo-color-orange-dark" style="display: none;">Back</button>
+				<button id="js-headerButton-recipeBack" type="button" class="button-hollow button-hollow-dark-bg typo-color-orange-dark" style="display: none;">Back</button>
 
-				<button id="js-headerButton-editRecipe" type="button" class="button-hollow typo-color-orange-dark" style="display: none;">Edit Recipe</button>
+				<button id="js-headerButton-recipeEdit" type="button" class="button-hollow button-icon button-hollow-dark-bg typo-color-orange-dark" style="display: none;">
+					<img class="svg-icon" src="./resources/icons/edit.svg" alt="Edit Recipe">
+				</button>
 
 				<!-- Recipe Edit -->
-				<button id="js-headerButton-cancelRecipeEdit" type="button" class="button-hollow typo-color-orange-dark" style="display: none;">Cancel</button>
+				<button id="js-headerButton-recipeEditCancel" type="button" class="button-hollow button-hollow-dark-bg typo-color-orange-dark" style="display: none;">Cancel</button>
 			</div>
 		</header>
 
@@ -72,34 +75,34 @@
 
 		<!--Landing View-->
 		<section id="js-view-landing" class="view" role="region" style="display: none;">
-			<h1 id="landing-text-usp" class="typo-heading-large typo-color-orange typo-center">Use Sip to save your favorite cocktail recipes.</h1>
-			<p id="landing-text-direction" class="typo-body typo-center">Sign in above, or quickly register below to get started.</p>
-			<button id="js-landing-button-goToRegisterView" type="button" class="button-filled typo-color-gray">Register</button>
+			<h1 id="landing-usp" class="typo-heading-large typo-color-orange typo-center">Use Sip to save your favorite cocktail recipes.</h1>
+			<p id="landing-direction" class="typo-body typo-center">Sign in above, or quickly register below to get started.</p>
+			<button id="js-landing-button-register" type="button" class="button-filled typo-color-gray">Register</button>
 		</section>
 
 
 
 		<!--Sign In View-->
 		<section id="js-view-signIn" class="view" role="region" style="display: none;">
-			<div class="wrapper-feedback">
-				<p id="form-signIn-feedback" class="typo-heading-small typo-center">Sign In</p>
+			<div class="wrapper-formFeedback">
+				<p id="js-signIn-formFeedback" class="typo-heading-small typo-center">Sign In</p>
 			</div>
 
 			<form id="form-signIn" action="#" role="form">
 				<!--Username Field-->
 				<div class="wrapper-input">
-					<input id="js-input-signIn-username" type="text" autocomplete="username" title="Enter your account username." aria-label="account username" required>
-					<label id="js-label-signIn-username" for="js-input-signIn-username" class="typo-body-small typo-color-orange">Username</label>
+					<input id="js-signIn-input-username" type="text" autocomplete="username" title="Enter your account username." aria-label="account username" required>
+					<label id="js-signIn-label-username" for="js-signIn-input-username" class="typo-body-small typo-color-orange">Username</label>
 				</div>
 
 				<!--Password Field-->
 				<div class="wrapper-input">
-					<input id="js-input-signIn-password" type="password" autocomplete="password" title="Enter your account password." aria-label="account password" required>
-					<label id="js-label-signIn-password" for="js-input-signIn-password" class="typo-body-small typo-color-orange">Password</label>
+					<input id="js-signIn-input-password" type="password" autocomplete="password" title="Enter your account password." aria-label="account password" required>
+					<label id="js-signIn-label-password" for="js-signIn-input-password" class="typo-body-small typo-color-orange">Password</label>
 				</div>
 
 				<!--Sign In Sumbit Button-->
-				<button id="js-button-signIn-submit" type="submit" class="button-filled typo-color-gray" disabled>Sign In</button>
+				<button id="js-signIn-button-submit" type="submit" class="button-filled typo-color-gray" disabled>Sign In</button>
 			</form>
 		</section>
 
@@ -107,37 +110,37 @@
 
 		<!--Register View-->
 		<section id="js-view-register" class="view" role="region" style="display: none;">
-			<div class="wrapper-feedback">
-				<p id="form-register-feedback" class="typo-heading-small typo-center">Register</p>
+			<div class="wrapper-formFeedback">
+				<p id="js-register-formFeedback" class="typo-heading-small typo-center">Register</p>
 			</div>
 
 			<form id="form-register" action="#" role="form">
 				<!--Username-->
 				<div class="wrapper-input">
-					<input id="js-input-register-username" type="text" title="Enter your desired username." aria-label="account username" required>
-					<label id="js-label-register-username" for="js-input-register-username" class="typo-body-small typo-color-orange">Username</label>
+					<input id="js-register-input-username" type="text" title="Enter your desired username." aria-label="account username" required>
+					<label id="js-register-label-username" for="js-register-input-username" class="typo-body-small typo-color-orange">Username</label>
 				</div>
 
 				<!--Email-->
 				<div class="wrapper-input">
-					<input id="js-input-register-email" type="email" title="Enter your email address." aria-label="account email">
-					<label id="js-label-register-email" for="js-input-register-email" class="typo-body-small typo-color-orange">Email (Optional)</label>
+					<input id="js-register-input-email" type="email" title="Enter your email address." aria-label="account email">
+					<label id="js-label-register-email" for="js-register-input-email" class="typo-body-small typo-color-orange">Email (Optional)</label>
 				</div>
 
 				<!--Password-->
 				<div class="wrapper-input">
-					<input id="js-input-register-password" type="password" title="Enter your password." aria-label="account password" required>
-					<label id="js-label-register-password" for="js-input-register-password" class="typo-body-small typo-color-orange">Password</label>
+					<input id="js-register-input-password" type="password" title="Enter your password." aria-label="account password" required>
+					<label id="js-register-label-password" for="js-register-input-password" class="typo-body-small typo-color-orange">Password</label>
 				</div>
 
 				<!--Password Confirmation-->
 				<div class="wrapper-input">
-					<input id="js-input-register-confirmPassword" type="password" title="Confirm your password." aria-label="confirm account password" required>
-					<label id="js-label-register-confirmPassword" for="js-input-register-confirmPassword" class="typo-body-small typo-color-orange">Confirm Password</label>
+					<input id="js-register-input-confirmPassword" type="password" title="Confirm your password." aria-label="confirm account password" required>
+					<label id="js-register-label-confirmPassword" for="js-register-input-confirmPassword" class="typo-body-small typo-color-orange">Confirm Password</label>
 				</div>
 
 				<!--Sumbit Button-->
-				<button id="js-button-register-submit" type="button" class="button-filled typo-color-gray" disabled>Register</button>
+				<button id="js-register-button-submit" type="button" class="button-filled typo-color-gray" disabled>Register</button>
 			</form>
 		</section>
 
@@ -145,13 +148,13 @@
 
 		<!--User Home View-->
 		<section id="js-view-userHome" class="view" role="region" style="display: none;">
-			<p id="js-current-user" class="typo-body typo-center">{ERROR}</p>
-			<p id="js-recipe-count" class="typo-body-small typo-center typo-color-orange">{ERROR}</p>
-			<div id="js-wrapper-recipeCards" aria-live="polite">
-				<!-- JavaScript -->
+			<div id="wrapper-userHome-userInfo">
+				<p id="js-userHome-text-currentUser" class="typo-body typo-center">{ERROR}</p>
+				<p id="js-userHome-text-recipeCount" class="typo-body-small typo-center typo-color-orange">{ERROR}</p>
 			</div>
-
-			<button id="js-button-userHome-addRecipe" type="button" class="button-hollow typo-color-orange-dark">+ Add Recipe</button>
+			<div id="js-userHome-wrapper-recipeCards" aria-live="polite">
+				<!-- ui.js -->
+			</div>
 		</section>
 
 
@@ -169,8 +172,8 @@
 				<div id="js-wrapper-recipeCreate-ingredientBlocks">
 
 					<div id="recipeCreate-ingredientBlock-0" class="recipeCreate-ingredientBlock">
-						<div class="wrapper-svg-remove-ingredient-block">
-							<img src="resources/icons/close.svg" class="svg-remove-ingredient-block" alt="Remove ingredient.">
+						<div class="wrapper-ingredientBlock-svg-remove">
+							<img src="resources/icons/close.svg" class="svg-ingredientBlock-remove" alt="Remove ingredient.">
 						</div>
 
 						<div class="wrapper-input wrapper-ingredientBlock-name">
@@ -179,7 +182,7 @@
 						</div>
 
 						<div class="wrapper-input wrapper-ingredientBlock-amount">
-							<input id="js-input-recipeCreate-ingredientBlock-0-amount" type="text" title="Ingredient amount." aria-label="ingredient amount" required>
+							<input id="js-input-recipeCreate-ingredientBlock-0-amount" type="number" min="0" title="Ingredient amount." aria-label="ingredient amount" required>
 							<label id="js-input-recipeCreate-ingredientBlock-0-amount" class="typo-body-small typo-color-orange">Ingredient Amount</label>
 						</div>
 
@@ -197,12 +200,13 @@
 					<!-- Further .ingredient-block's added with JavaScript -->
 				</div>
 
+				<!-- Add Ingredient Button -->
+				<button id="js-button-recipeCreate-addIngredientBlock" type="button" class="button-hollow typo-color-orange-dark">Add Ingredient</button>
+
 				<!--Sumbit Button-->
-				<button id="js-button-recipeCreate-submit" type="button" class="button-filled typo-color-gray">Save Recipe</button>
+				<button id="js-button-recipeCreate-submit" type="submit" class="button-filled typo-color-gray">Save Recipe</button>
 
 			</form>
-
-			<button id="js-button-recipeCreate-addIngredientBlock" type="submit" class="button-hollow typo-color-orange-dark">+ Add Ingredient</button>
 		</section>
 
 

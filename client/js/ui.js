@@ -2,38 +2,38 @@ const ui = {
    //#region jQuery Pointers
       $view_landing: $("#js-view-landing"),
          $headerButton_signIn: $("#js-headerButton-signIn"),
-         $button_goToRegisterView: $("#js-landing-button-goToRegisterView"),
+         $button_goToRegisterView: $("#js-landing-button-register"),
 
       $view_signIn: $("#js-view-signIn"),
          $headerButton_registerInstead: $("#js-headerButton-registerInstead"),
-         $text_signInFormFeedback: $("#form-signIn-feedback"),
-         $input_signInUsername: $("#js-input-signIn-username"),
-         $label_signInUsername: $("#js-label-signIn-username"),
-         $input_signInPassword: $("#js-input-signIn-password"),
-         $label_signInPassword: $("#js-label-signIn-password"),
-         $button_signInFormSubmit: $("#js-button-signIn-submit"),
+         $text_signInFormFeedback: $("#js-signIn-formFeedback"),
+         $input_signInUsername: $("#js-signIn-input-username"),
+         $label_signInUsername: $("#js-signIn-label-username"),
+         $input_signInPassword: $("#js-signIn-input-password"),
+         $label_signInPassword: $("#js-signIn-label-password"),
+         $button_signInFormSubmit: $("#js-signIn-button-submit"),
 
       $view_register: $("#js-view-register"),
          $headerButton_signInInstead: $("#js-headerButton-signInInstead"),
-         $text_registerFormFeedback: $("#form-register-feedback"),
-         $input_registerUsername: $("#js-input-register-username"),
-         $label_registerUsername: $("#js-label-register-username"),
-         $input_registerEmail: $("#js-input-register-email"),
+         $text_registerFormFeedback: $("#js-register-formFeedback"),
+         $input_registerUsername: $("#js-register-input-username"),
+         $label_registerUsername: $("#js-register-label-username"),
+         $input_registerEmail: $("#js-register-input-email"),
          $label_registerEmail: $("#js-label-register-email"),
-         $input_registerPassword: $("#js-input-register-password"),
-         $label_registerPassword: $("#js-label-register-password"),
-         $input_registerConfirmPassword: $("#js-input-register-confirmPassword"),
-         $label_registerConfirmPassword: $("#js-label-register-confirmPassword"),
-         $button_registerFormSubmit: $("#js-button-register-submit"),
+         $input_registerPassword: $("#js-register-input-password"),
+         $label_registerPassword: $("#js-register-label-password"),
+         $input_registerConfirmPassword: $("#js-register-input-confirmPassword"),
+         $label_registerConfirmPassword: $("#js-register-label-confirmPassword"),
+         $button_registerFormSubmit: $("#js-register-button-submit"),
 
       $view_userHome: $("#js-view-userHome"),
          $headerButton_signOut: $("#js-headerButton-signOut"),
-         $text_activeUser: $("#js-current-user"),
-         $text_recipeCount: $("#js-recipe-count"),
-         $button_addRecipe: $("#js-button-userHome-addRecipe"),
+         $headerButton_addRecipe: $("#js-headerButton-addRecipe"),
+         $text_activeUser: $("#js-userHome-text-currentUser"),
+         $text_recipeCount: $("#js-userHome-text-recipeCount"),
 
       $view_recipeCreate: $("#js-view-recipeCreate"),
-         $headerButton_cancelRecipeCreate: $("#js-headerButton-cancelRecipeCreate"),
+         $headerButton_cancelRecipeCreate: $("#js-headerButton-recipeCreateCancel"),
 
          $input_recipeCreateCocktailName: $("#js-input-recipeCreate-cocktailName"),
          $label_recipeCreateCocktailName: $("#js-label-recipeCreate-cocktailName"),
@@ -44,10 +44,10 @@ const ui = {
 
       $view_recipe: $("#js-view-recipe"),
          $headerButton_recipeBack: $("#js-headerButton-recipeBack"),
-         $headerButton_editRecipe: $("#js-headerButton-editRecipe"),
+         $headerButton_editRecipe: $("#js-headerButton-recipeEdit"),
 
       $view_recipeEdit: $("#js-view-recipeEdit"),
-         $headerButton_cancelRecipeEdit: $("#js-headerButton-cancelRecipeEdit"),
+         $headerButton_cancelRecipeEdit: $("#js-headerButton-recipeEditCancel"),
          $button_saveEditedRecipe: $("js-button-recipeEdit-submit"),
    //#endregion
 
@@ -217,7 +217,7 @@ const ui = {
                ui.signOut();
             });
 
-            ui.$button_addRecipe.on("click", async function(e) {
+            ui.$headerButton_addRecipe.on("click", async function(e) {
                ui.saveUserHomeViewScrollPosition();
                await ui.hideCurrentView("fadeOutLeft");
                ui.showRecipeCreateView("fadeInRight");
@@ -242,23 +242,38 @@ const ui = {
                ui.showUserHomeView("fadeInLeft");
             });
 
-            ui.$button_addIngredientBlock.on("click", function(e) {
-               ui.recipeCreate_addIngredientBlock();
+            ui.$form_recipeCreate.on("submit", function(e) {
+               //Prevents unnecessary refreshing behavior.
+               //The form's submit button interprets the submit event on behalf of the form element.
+               e.preventDefault();
             });
 
-            ui.$wrapper_recipeCreateIngredientBlocks.on("click", ".wrapper-svg-remove-ingredient-block", async function(e) {
-               targetedIngredientBlockId = e.currentTarget.parentElement.id;
-               $("#"+targetedIngredientBlockId).slideUp(400, function() {
+            ui.$form_recipeCreate.on("input", function(e) {
+               ui.validateRecipeCreateForm();
+            });
+
+            ui.$input_recipeCreateCocktailName.on("input", function(e) {
+               ui.validateRecipeName();
+            });
+
+            ui.$wrapper_recipeCreateIngredientBlocks.on("click", ".wrapper-ingredientBlock-svg-remove", async function(e) {
+               targetedIngredientBlock = e.currentTarget.parentElement;
+               $(targetedIngredientBlock).slideUp(400, function() {
+                  console.log(`Removing: ${targetedIngredientBlock.id}`);
                   this.remove();
                });
             });
 
             ui.$wrapper_recipeCreateIngredientBlocks.on("input", ".recipeCreate-ingredientBlock", function(e) {
-               console.log(`event fired on ${e.currentTarget.id}`);
+               ui.validateIngredientBlock(e.currentTarget);
             });
 
-            ui.$button_recipeCreateFormSubmit.on("click", function(e){
-               console.log("Click: recipeCreate submit button");
+            ui.$button_addIngredientBlock.on("click", function(e) {
+               ui.recipeCreate_addIngredientBlock();
+            });
+
+            ui.$button_recipeCreateFormSubmit.on("click", function(e) {
+               ui.buildRecipeCreateRequest();
             });
             //#endregion
 
@@ -699,7 +714,7 @@ const ui = {
          showUserHomeView: async function(showAnimation) {
             ui.validateShowAnimation(showAnimation);
             await ui.beforeShowingUserHomeView();
-            ui.showView(ui.$view_userHome, showAnimation, ui.$headerButton_signOut);
+            ui.showView(ui.$view_userHome, showAnimation, $("#js-headerButton-signOut, #js-headerButton-addRecipe"));
 
             window.scrollTo(0, ui.userHomeViewScrollPosition || 0);
          },
@@ -738,9 +753,9 @@ const ui = {
          buildCocktailRecipeCard: function(cardIndex, cocktailRecipeName, ingredientNames) {
             return `
                <div id="recipe-card-${cardIndex}" class="recipe-card">
-                  <h3 id="recipe-card-name" class="recipe-name typo-heading-small typo-color-orange3">${cocktailRecipeName}</h3>
+                  <h3 id="recipe-card-name" class="recipe-name typo-heading-small typo-color-orange">${cocktailRecipeName}</h3>
                   <p id="recipe-card-ingredientNames" class="ingredients-list typo-body-small">${ingredientNames}</p>
-                  <img src="resources/icons/chevron.svg" class="svg-chevron-show-recipe" alt="View cocktail recipe...">
+                  <img src="resources/icons/chevron_right.svg" class="svg-icon svg-show-recipe-chevron" alt="View cocktail recipe...">
                </div>`;
          },
 
@@ -751,7 +766,7 @@ const ui = {
                //ui.$view_userHome.append( ui.buildCocktailRecipeCard(index, cocktail.name, cocktail.ingredientNames) );
             });
 
-            $("#js-wrapper-recipeCards").html(builtCocktails.join(""));
+            $("#js-userHome-wrapper-recipeCards").html(builtCocktails.join(""));
          },
 
          //API Call
@@ -801,7 +816,6 @@ const ui = {
       },
 
       recipeCreate_addIngredientBlock: async function() {
-
          //The new block's index begins as the number of existing ingredientBlocks
          let newBlockIndex = $(".recipeCreate-ingredientBlock").length;
 
@@ -814,28 +828,28 @@ const ui = {
          ingredientBlockTemplate = `
             <div id="recipeCreate-ingredientBlock-${newBlockIndex}" class="recipeCreate-ingredientBlock" style="display:none;">
 
-               <div class="wrapper-svg-remove-ingredient-block">
-                  <img src="resources/icons/close.svg" class="svg-remove-ingredient-block" alt="Remove ingredient.">
+               <div class="wrapper-ingredientBlock-svg-remove">
+                  <img src="resources/icons/close.svg" class="svg-ingredientBlock-remove" alt="Remove ingredient.">
                </div>
 
                <div class="wrapper-input wrapper-ingredientBlock-name">
                   <input id="js-input-recipeCreate-ingredientBlock-${newBlockIndex}-name" type="text" title="Ingredient name." aria-label="ingredient name" required>
-                  <label id="js-label-recipeCreate-ingredientBlock-${newBlockIndex}-name" class="typo-body-small typo-color-orange3">Ingredient Name</label>
+                  <label id="js-label-recipeCreate-ingredientBlock-${newBlockIndex}-name" class="typo-body-small typo-color-orange">Ingredient Name</label>
                </div>
 
                <div class="wrapper-input wrapper-ingredientBlock-amount">
-                  <input id="js-input-recipeCreate-ingredientBlock-${newBlockIndex}-amount" type="text" title="Ingredient amount." aria-label="ingredient amount" required>
-                  <label id="js-input-recipeCreate-ingredientBlock-${newBlockIndex}-amount" class="typo-body-small typo-color-orange3">Ingredient Amount</label>
+                  <input id="js-input-recipeCreate-ingredientBlock-${newBlockIndex}-amount" type="number" min="0" title="Ingredient amount." aria-label="ingredient amount" required>
+                  <label id="js-input-recipeCreate-ingredientBlock-${newBlockIndex}-amount" class="typo-body-small typo-color-orange">Ingredient Amount</label>
                </div>
 
                <div class="wrapper-input wrapper-ingredientBlock-measurementUnit">
                   <input id="js-input-recipeCreate-ingredientBlock-${newBlockIndex}-measurementUnit" type="text" title="Ingredient measurement unit." aria-label="ingredient measurement unit" required>
-                  <label id="js-input-recipeCreate-ingredientBlock-${newBlockIndex}-measurementUnit" class="typo-body-small typo-color-orange3">Measurement Unit</label>
+                  <label id="js-input-recipeCreate-ingredientBlock-${newBlockIndex}-measurementUnit" class="typo-body-small typo-color-orange">Measurement Unit</label>
                </div>
 
                <div class="wrapper-input wrapper-ingredientBlock-abv">
-                  <input id="js-input-recipeCreate-ingredientBlock-${newBlockIndex}-abv" type="text" title="Ingredient ABV." aria-label="ingredient ABV">
-                  <label id="js-input-recipeCreate-ingredientBlock-${newBlockIndex}-abv" class="typo-body-small typo-color-orange3">ABV (Optional)</label>
+                  <input id="js-input-recipeCreate-ingredientBlock-${newBlockIndex}-abv" type="number" min="0" max="100" title="Ingredient ABV." aria-label="ingredient ABV">
+                  <label id="js-input-recipeCreate-ingredientBlock-${newBlockIndex}-abv" class="typo-body-small typo-color-orange">ABV (Optional)</label>
                </div>
             </div>
          `;
@@ -845,12 +859,36 @@ const ui = {
          ui.scrollToBottom(400);
       },
 
-      buildRecipeCreateRequest: function() {
-         const presentIngredientBlocks = $(".recipeCreate-ingredientBlock");
-         console.log(presentIngredientBlocks);
+      validateRecipeCreateForm: function() {
+         //TODO: validateRecipeCreateForm()
+         console.log("Validating Recipe Create Form");
       },
 
+      validateRecipeName: function() {
+         //TODO: validateRecipeName()
+         console.log("Validating Recipe Name");
+      },
 
+      validateIngredientBlock: function($ingredientBlock) {
+         //TODO: validateIngredientBlock()
+         console.log("Validating Ingredient Block:", $ingredientBlock);
+      },
+
+      buildRecipeCreateRequest: function() {
+         //TODO: buildRecipeCreateRequest()
+         const presentIngredientBlocks = $(".recipeCreate-ingredientBlock");
+            console.log("Detected Ingredient Blocks:", presentIngredientBlocks);
+         let cocktail = {};
+
+         //Build cocktail from name and ingredient blocks...
+
+         ui.createCocktail(cocktail);
+      },
+
+      //API Call
+      createCocktail: function(cocktail) {
+         //TODO: createCocktail()
+      },
       //#endregion
 
       //#region Recipe View
@@ -874,7 +912,7 @@ const ui = {
       showRecipeView: async function(showAnimation) {
          ui.validateShowAnimation(showAnimation);
          await ui.beforeShowingRecipeView();
-         ui.showView(ui.$view_recipe, showAnimation, $("#js-headerButton-editRecipe, #js-headerButton-recipeBack"));
+         ui.showView(ui.$view_recipe, showAnimation, $("#js-headerButton-recipeEdit, #js-headerButton-recipeBack"));
       },
       //#endregion
 
@@ -927,7 +965,7 @@ const ui = {
                }
 
                //Hide all header buttons
-               $("#wrapper-header-rightArea *").delay(150).fadeOut(400);
+               $("#wrapper-header-rightArea button").delay(150).fadeOut(400);
                //If there's an active view, hide it
                if (ui.$currentView && hideAnimation) {
                   ui.hideWithAnimation(ui.$currentView, hideAnimation)
@@ -950,17 +988,13 @@ const ui = {
                //'pointer-events' disabled to prevent erroneous clicks that confuse execution
                $headerButtons.css({
                   "pointer-events": "none",
-                  "transition": "none",
-                  "-webkit-transition": "none",
-                  "-o-transition": "none"
+                  "transition": "none"
                });
                $headerButtons.delay(200).fadeIn(500, function() {
                   //Properties are cleared after the animation ends
                   $headerButtons.css({
                      "pointer-events": "",
-                     "transition": "",
-                     "-webkit-transition": "",
-                     "-o-transition": ""
+                     "transition": ""
                   });
                });
             }
