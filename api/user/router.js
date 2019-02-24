@@ -1,5 +1,6 @@
-"use strict";
 //#region SETUP
+"use strict";
+
 const router = require("express").Router();
 const mongoose = require("mongoose");
   mongoose.Promise = global.Promise;
@@ -7,6 +8,7 @@ const bcrypt = require("bcryptjs");
 
 const { COOKIE_EXPIRY } = require("../../config");
 const { User } = require("./models");
+const { Cocktail } = require("../cocktail")
 //#endregion
 
 
@@ -23,15 +25,7 @@ router.post("/create", (req, res)=> {
       }
     }
 
-    //If optional email field is present, it is not empty
-    if (req.body.hasOwnProperty("email") && req.body.email == "") {
-      console.error(`The 'email' field in the request body is optional, but it must not be empty if present.`);
-      return res.status(422).json({
-        errorType: "MissingField"
-      });
-    }
-
-    //Fields that are expected to be Strings, are Strings.
+    //Fields are their expected types
     for(let stringField of ["username", "password", "email"]) {
       if(req.body.hasOwnProperty(stringField) && typeof req.body[stringField] != "string") {
         console.error(`The '${stringField}' field in the request body must be a String.`);
@@ -41,19 +35,17 @@ router.post("/create", (req, res)=> {
       }
     }
 
-    //Fields that are expected to be trimmed, are trimmed.
-    for(let field of ["username", "password", "email"]) {
-      if(req.body.hasOwnProperty(field) && req.body[field].trim().length != req.body[field].length) {
-        console.error(`The '${field}' field in the request body may not begin or end in whitespace.`);
-        return res.status(422).json({
-          errorType: "UntrimmedString"
-        });
-      }
+    //If 'email' field is present, it is not an empty String
+    if (req.body.hasOwnProperty("email") && req.body.email == "") {
+      console.error(`The 'email' field in the request body is optional, but it must not be empty if present.`);
+      return res.status(422).json({
+        errorType: "MissingField"
+      });
     }
   //#endregion
 
   //Unique fields are verified to be so
-  let usernameIsUnique = new Promise( (resolve, reject)=> {
+  const usernameIsUnique = new Promise( (resolve, reject)=> {
     User.findOne({username: req.body.username})
     .then( (user)=> {
       if (user) {
@@ -66,7 +58,7 @@ router.post("/create", (req, res)=> {
     });
   });
 
-  let emailIsUnique = new Promise( (resolve, reject)=> {
+  const emailIsUnique = new Promise( (resolve, reject)=> {
     //If the user provided an email address during registration...
     if(req.body.email) {
       User.findOne({email: req.body.email})
@@ -81,6 +73,7 @@ router.post("/create", (req, res)=> {
       });
     }
     else {
+      //Providing an email during registration is optional, so it must resolve if 'email' field is not present in the request body.
       resolve();
     }
   });
@@ -98,23 +91,67 @@ router.post("/create", (req, res)=> {
     return User.create(newUserData);
   })
   .then( (newUser)=> {
-    let sessionJwt = User.makeJwtFor(newUser.username);
+    const sessionJwt = User.makeJwtFor(newUser.username);
     res.cookie("session", sessionJwt, {maxAge: COOKIE_EXPIRY});
     res.cookie("user", newUser.username, {maxAge: COOKIE_EXPIRY});
 
     return res.status(201).send();
   })
   .catch ( (err)=> {
-    //Catch errors thrown by the above 'isUnique() promise functions
+    //Catch errors thrown by the above '...isUnique()' promise functions
     if (err.errorType) {
-      //err.code will be 422, but is left dynamic to make future modifications less involved
+      //As of now, err.code will always be 422, but is left dynamic to make future changes less involved
       console.error("/create catch() err:", err);
       return res.status(err.code).json({
         errorType: err.errorType
       });
     }
     //Catch server errors
-    console.error(`✖ Server Error:\n${err}\n`);
+    console.error(`❗Server Error:\n${err}\n`);
+    return res.status(500).json({
+      errorType: "InternalServerError"
+    });
+  });
+});
+
+router.get("/:username", (req,res)=> {
+  const requestedUsername = req.params.username;
+
+  //#region Request Validation
+  if(requestedUsername.length != requestedUsername.trim().length) {
+    message: "The 'username' route parameter must not begin or end with whitespace characters."
+    return res.status(404).json({
+      errorType: "NoSuchUser",
+    });
+  }
+  //#endregion
+
+  //Acts as a container for building the return data
+  let returnUser = {};
+
+  return User.findOne({username: requestedUsername})
+  .then((locatedUser)=> {
+    if(!locatedUser) {
+      console.error("No user found with the requested 'username'.");
+      return res.status(404).json({
+        errorType: "NoSuchUser"
+      });
+    }
+    returnUser = locatedUser.serialize();
+
+    Cocktail.find({creator: locatedUser.username})
+    .then((cocktails)=> {
+      if(cocktails.length > 0) {
+        returnUser.createdCocktails = cocktails.map((cocktail)=> cocktail.serialize());
+      }
+      else {
+        returnUser.createdCocktails = [];
+      }
+      return res.status(200).json(returnUser);
+    })
+  })
+  .catch((err)=> {
+    console.error(`❗Server Error:\n${err}\n`);
     return res.status(500).json({
       errorType: "InternalServerError"
     });

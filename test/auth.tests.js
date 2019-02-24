@@ -1,60 +1,94 @@
-"use strict";
 //#region SETUP
-// const mongoose = require("mongoose");
-//   mongoose.Promise = global.Promise;
+"use strict";
+
 const chai = require("chai");
   const expect = chai.expect;
   const chaiHttp = require("chai-http");
   chai.use(chaiHttp);
 const bcrypt = require("bcryptjs");
+const faker = require("faker");
 
 const { TEST_DATABASE_URL } = require("../config");
 const { app, startServer, stopServer } = require("../server");
-const { User } = require("../api/users");
+const { User } = require("../api/user");
+const { Cocktail } = require("../api/cocktail");
 //#endregion
+
 let preexistingUser = {
   username: "seedUsername",
   hashedPassword: bcrypt.hashSync("seedPassword", 12),
   email: "seedEmail@domain.tld"
 }
 
+const preexistingCocktail = {
+  name: "Database Seeding Negroni",
+  creator: "seedUsername",
+  ingredients: [
+    {
+      amount: 3,
+      measurementUnit: "part",
+      name: "Gin, dry"
+    },
+    {
+      amount: 2,
+      measurementUnit: "part",
+      name: "Campari"
+    },
+    {
+      amount: 2,
+      measurementUnit: "part",
+      name: "Sweet (Red) Vermouth"
+    }
+  ],
+  directions: "Just mix the dang thing."
+}
+
 
 
 describe("\n====Auth API====\n", function() {
   //#region HOOKS
-  before("Starting server...", function() {
-    return startServer(TEST_DATABASE_URL);
-  });
-  beforeEach("Seeding collection with test document", function() {
-    //Default seed user
-    return User.create(preexistingUser)
-    .then( (user)=> {
-      preexistingUser.id = user._id;
+    before("Starting server...", function() {
+      return startServer(TEST_DATABASE_URL);
     });
-  });
-  afterEach(`Clearing test-added documents...`, function() {
-    //Clear any test-added documents from the collection before moving on.
-    return User.deleteMany({});
-  });
-  after("Stopping server...", function() {
-    return stopServer();
-  });
+
+    beforeEach("Seeding collection with test documents", function() {
+      //Default seed user
+      return User.create(preexistingUser)
+      .then( (user)=> {
+        preexistingUser.id = user._id;
+        return Cocktail.create(preexistingCocktail);
+      })
+      .then( (cocktail)=> {
+        preexistingCocktail.id = cocktail._id;
+      });
+    });
+
+    afterEach(`Clearing test-added documents...`, async function() {
+      //Clear any test-added documents from the collection before moving on.
+      await User.deleteMany({});
+      await Cocktail.deleteMany({});
+    });
+
+    after("Stopping server...", function() {
+      return stopServer();
+    });
   //#endregion
 
   describe("POST /api/auth/sign-in", function() {
 
     it("Fail state: a 'session' cookie is already active", function() {
-      const session = User.makeJwtFor(preexistingUser.username);
+      const sessionJwt = User.makeJwtFor(preexistingUser.username);
       return chai.request(app)
       .post("/api/auth/sign-in")
-      .set("Cookie", `session=${session}`)
+      .set("Cookie", `session=${sessionJwt}`)
       .send({
         username: preexistingUser.username,
         password: "seedPassword"
       })
       .then(function(res) {
         expect(res).to.have.status(400).and.to.be.json;
-        expect(res.body).to.have.property("errorType").and.to.equal("SessionAlreadyActive");
+        expect(res.body).to.be.an("object");
+        expect(res.body).to.have.property("errorType").that.equals("SessionAlreadyActive");
       });
     });
 
@@ -67,7 +101,8 @@ describe("\n====Auth API====\n", function() {
       })
       .then(function(res) {
         expect(res).to.have.status(422).and.to.be.json;
-        expect(res.body).to.have.property("errorType").and.to.equal("MissingField");
+        expect(res.body).to.be.an("object");
+        expect(res.body).to.have.property("errorType").that.equals("MissingField");
       });
     });
 
@@ -80,20 +115,8 @@ describe("\n====Auth API====\n", function() {
       })
       .then(function(res) {
         expect(res).to.have.status(422).and.to.be.json;
-        expect(res.body).to.have.property("errorType").and.to.equal("UnexpectedDataType");
-      });
-    });
-
-    it("Fail state: 'username' field begins or ends in whitespace", function() {
-      return chai.request(app)
-      .post("/api/auth/sign-in")
-      .send({
-        username: " " + preexistingUser.username + " ",
-        password: "seedPassword"
-      })
-      .then(function(res) {
-        expect(res).to.have.status(422).and.to.be.json;
-        expect(res.body).to.have.property("errorType").and.to.equal("UntrimmedString");
+        expect(res.body).to.be.an("object");
+        expect(res.body).to.have.property("errorType").that.equals("UnexpectedDataType");
       });
     });
 
@@ -106,7 +129,8 @@ describe("\n====Auth API====\n", function() {
       })
       .then(function(res) {
         expect(res).to.have.status(422).and.to.be.json;
-        expect(res.body).to.have.property("errorType").and.to.equal("MissingField");
+        expect(res.body).to.be.an("object");
+        expect(res.body).to.have.property("errorType").that.equals("MissingField");
       });
     });
 
@@ -119,20 +143,8 @@ describe("\n====Auth API====\n", function() {
       })
       .then(function(res) {
         expect(res).to.have.status(422).and.to.be.json;
-        expect(res.body).to.have.property("errorType").and.to.equal("UnexpectedDataType");
-      });
-    });
-
-    it("Fail state: 'password' field begins or ends in whitespace", function() {
-      return chai.request(app)
-      .post("/api/auth/sign-in")
-      .send({
-        username: preexistingUser.username,
-        password: " " + "seedPassword" + " "
-      })
-      .then(function(res) {
-        expect(res).to.have.status(422).and.to.be.json;
-        expect(res.body).to.have.property("errorType").and.to.equal("UntrimmedString");
+        expect(res.body).to.be.an("object");
+        expect(res.body).to.have.property("errorType").that.equals("UnexpectedDataType");
       });
     });
 
@@ -140,12 +152,13 @@ describe("\n====Auth API====\n", function() {
       return chai.request(app)
       .post("/api/auth/sign-in")
       .send({
-        username: "mailboxSwordPelican",
-        password: "sixteenhorsesinthekitchen"
+        username: faker.internet.userName(),
+        password: faker.internet.password()
       })
       .then(function(res) {
         expect(res).to.have.status(404).and.to.be.json;
-        expect(res.body).to.have.property("errorType").and.to.equal("NoSuchUser");
+        expect(res.body).to.be.an("object");
+        expect(res.body).to.have.property("errorType").that.equals("NoSuchUser");
       });
     });
 
@@ -168,11 +181,11 @@ describe("\n====Auth API====\n", function() {
   describe("GET /api/auth/sign-out", function() {
 
     it("Success: clears 'session' cookie", function() {
-      const session = User.makeJwtFor(preexistingUser.username);
+      const sessionJwt = User.makeJwtFor(preexistingUser.username);
 
       return chai.request(app)
       .get("/api/auth/sign-out")
-      .set("Cookie", `session=${session}`)
+      .set("Cookie", `session=${sessionJwt}`)
       .then( function(res) {
         expect(res).to.have.status(204);
         expect(res).to.not.have.cookie("session");
@@ -189,30 +202,33 @@ describe("\n====Auth API====\n", function() {
       .get("/api/auth/sessionTest")
       .then( function(res) {
         expect(res).to.have.status(401);
-        expect(res.body).to.have.property("errorType").and.to.equal("NoActiveSession");
+        expect(res.body).to.have.property("errorType").that.equals("NoActiveSession");
       })
     });
 
     it("Fail state: 'session' cookie JWT is malformed", function() {
-      const session = User.makeJwtFor(preexistingUser.username);
+      const sessionJwt = User.makeJwtFor(preexistingUser.username);
 
       return chai.request(app)
       .get("/api/auth/sessionTest")
-      .set("Cookie", `session=${session.slice(0, -1)}`) //Break the JWT to trigger the intended error
+      .set("Cookie", `session=${sessionJwt.slice(0, -1)}`) //Break the JWT to trigger the intended error
       .then( function(res) {
-        expect(res).to.have.status(401);
-        expect(res.body).to.have.property("errorType").and.to.equal("MalformedJWT");
+        expect(res).to.have.status(401).and.to.be.json;
+        expect(res.body).to.be.an("object");
+        expect(res.body).to.have.property("errorType").that.equals("MalformedJWT");
       })
     });
 
     it("Success: 'session' cookie exists and is a valid JWT", function() {
-      const session = User.makeJwtFor(preexistingUser.username);
+      const sessionJwt = User.makeJwtFor(preexistingUser.username);
 
       return chai.request(app)
       .get("/api/auth/sessionTest")
-      .set("Cookie", `session=${session}`)
+      .set("Cookie", `session=${sessionJwt}`)
       .then(function(res) {
         expect(res).to.have.status(200);
+        expect(res).to.have.cookie("session");
+        expect(res).to.have.cookie("user");
       })
     });
 

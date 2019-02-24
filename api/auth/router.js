@@ -1,5 +1,6 @@
-"use strict";
 //#region SETUP
+"use strict";
+
 const router = require("express").Router();
 const mongoose = require("mongoose");
   mongoose.Promise = global.Promise;
@@ -7,7 +8,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
 const { JWT_SECRET, COOKIE_EXPIRY } = require("../../config");
-const { User } = require("../users");
+const { User } = require("../user");
 //#endregion
 
 
@@ -54,9 +55,9 @@ router.post("/sign-in", (req, res)=> {
   //#region Request Validation
     //A session must not already be active
     if(req.cookies.session) {
+      console.error("It is not possible to sign in while a user session is already active.");
       return res.status(400).json({
         errorType: "SessionAlreadyActive",
-        message: "It is not possible to sign in while a user session is already active.",
       })
     }
 
@@ -79,21 +80,9 @@ router.post("/sign-in", (req, res)=> {
         });
       }
     }
-
-    //The username field is trimmed
-    for(let trimmedField of ["username", "password"]) {
-      if(req.body[trimmedField].trim().length != req.body[trimmedField].length) {
-        console.error(`The '${trimmedField}' String field in the request body may not begin or end with whitespace.`)
-        return res.status(422).json({
-          errorType: "UntrimmedString",
-        });
-      }
-    }
   //#endregion
 
-  return User.findOne({
-    username: req.body.username,
-  })
+  return User.findOne({username: req.body.username})
   .then((locatedUser)=> {
     //If there is a user with the provided username, and the provided password is correct
     if(locatedUser && bcrypt.compareSync(req.body.password, locatedUser.hashedPassword)) {
@@ -107,17 +96,19 @@ router.post("/sign-in", (req, res)=> {
     });
   })
   .catch( (err)=> {
-    console.error(`✖ Server Error:\n${err}`);
+    console.error(`❗Server Error:\n${err}`);
     return res.status(500).json({
       errorType: "InternalServerError"
     });
-  })
+  });
 });
 
 router.get("/sign-out", (req, res)=> {
-  //There is no situation in which only one cookie is present, but this seems generally safer
-  if(req.cookies) {
+  //There is no situation in which only one cookie is present, but this seems more responsible
+  if(req.cookies.session) {
     res.clearCookie("session");
+  }
+  if(req.cookies.user) {
     res.clearCookie("user");
   }
   return res.status(204).send();
@@ -125,11 +116,11 @@ router.get("/sign-out", (req, res)=> {
 
 //TEMP: Development tool. Not intended for production.
 router.get("/sessionTest", authorize, (req, res)=> {
-  let decodedJwt = jwt.verify(req.cookies.session, JWT_SECRET);
+  const sessionJwt = jwt.verify(req.cookies.session, JWT_SECRET);
   return res.status(200).json({
     message: "You're authorized!",
-    username: req.cookies.user,
-    sessionToken: decodedJwt
+    userCookie: req.cookies.user,
+    sessionCookie: sessionJwt
   });
 });
 

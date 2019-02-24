@@ -1,7 +1,7 @@
 "use strict";
 
 // POST  /api/user/create
-// PUT   /api/user/update 🔒
+// GET   /api/user/:username
 
 const { User } = require("./models");
 const { router } = require("./router");

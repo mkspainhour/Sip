@@ -67,6 +67,10 @@ const ui = {
       registerPasswordIsValid: false,
       registerPasswordConfirmationIsValid: false,
 
+      //Recipe Create Form Valid Field Flags
+      recipeCreateCocktailNameIsValid: false,
+      recipeCreateIngredientBlocksAreValid: false,
+
       //Initial Values
          //Sign In Form
          initialSignInFormFeedback: null,
@@ -82,6 +86,11 @@ const ui = {
 
          //Recipe Create View
          initialRecipeCreateIngredientBlocks: null,
+         initialRecipeCreateCocktailNameLabel: null,
+         initialIngredientBlockNameLabel: null,
+         initialIngredientBlockAmountLabel: null,
+         initialIngredientBlockUnitLabel: null,
+         initialIngredientBlockAbvLabel: null,
    //#endregion
 
    //#region Functions
@@ -108,6 +117,10 @@ const ui = {
             ui.initialRegisterEmailLabel = ui.$label_registerEmail.text();
             ui.initialRegisterPasswordLabel = ui.$label_registerPassword.text();
             ui.initialRegisterPasswordConfirmationLabel = ui.$label_registerConfirmPassword.text();
+
+            //Recipe Create Form
+            ui.initialRecipeCreateCocktailNameLabel = ui.$label_recipeCreateCocktailName.text();
+            ui.initialRecipeCreateIngredientBlocks = ui.$wrapper_recipeCreateIngredientBlocks.html();
          },
 
          configureEventListeners: function() {
@@ -259,13 +272,12 @@ const ui = {
             ui.$wrapper_recipeCreateIngredientBlocks.on("click", ".wrapper-ingredientBlock-svg-remove", async function(e) {
                targetedIngredientBlock = e.currentTarget.parentElement;
                $(targetedIngredientBlock).slideUp(400, function() {
-                  console.log(`Removing: ${targetedIngredientBlock.id}`);
                   this.remove();
                });
             });
 
             ui.$wrapper_recipeCreateIngredientBlocks.on("input", ".recipeCreate-ingredientBlock", function(e) {
-               ui.validateIngredientBlock(e.currentTarget);
+               ui.validateIngredientBlocks();
             });
 
             ui.$button_addIngredientBlock.on("click", function(e) {
@@ -367,7 +379,7 @@ const ui = {
 
             else if(enteredUsername.trim().length != enteredUsername.length) {
                ui.$label_signInUsername.addClass("invalid");
-               ui.$label_signInUsername.text("Username begins or ends in whitespace.");
+               ui.$label_signInUsername.text("Username begins/ends in whitespace.");
             }
 
             else {
@@ -517,6 +529,11 @@ const ui = {
             if(!enteredUsername) {
                ui.$label_registerUsername.addClass("invalid");
                ui.$label_registerUsername.text("Username is blank.");
+            }
+
+            else if(enteredUsername.trim().length != enteredUsername.length) {
+               ui.$label_registerUsername.addClass("invalid");
+               ui.$label_registerUsername.text("Username begins or ends with whitspace.");
             }
 
             else {
@@ -724,7 +741,7 @@ const ui = {
             return new Promise((resolve, reject)=> {
                $.ajax({
                   method: "GET",
-                  url: `/user/${targetUsername}`
+                  url: `/api/user/${targetUsername}`
                })
                .then((userInformation)=> {
                   appSession.userCocktailsCache = userInformation.createdCocktails;
@@ -761,9 +778,10 @@ const ui = {
 
          renderCocktailRecipeCards: function(cocktails) {
             builtCocktails = [];
-            cocktails.forEach((cocktail, index, array)=> {
+            cocktails.forEach((cocktail, index)=> {
+               //Compose a comma-separated list of ingredient names
+               cocktail.ingredientNames = cocktail.ingredients.map((ingredient)=> {return ingredient.name}).join(", ");
                builtCocktails.push( ui.buildCocktailRecipeCard(index, cocktail.name, cocktail.ingredientNames) )
-               //ui.$view_userHome.append( ui.buildCocktailRecipeCard(index, cocktail.name, cocktail.ingredientNames) );
             });
 
             $("#js-userHome-wrapper-recipeCards").html(builtCocktails.join(""));
@@ -803,16 +821,24 @@ const ui = {
       },
 
       resetRecipeCreateView: function() {
-         //TODO: resetRecipeCreateView()
+         ui.resetCocktailNameField();
+         ui.resetRecipeCreateIngredientBlocks();
+      },
+
+      resetCocktailNameField: function() {
+         ui.$input_recipeCreateCocktailName.val("");
+         ui.$label_recipeCreateCocktailName.text(ui.initialRecipeCreateCocktailNameLabel);
+      },
+
+      resetRecipeCreateIngredientBlocks: function() {
+         ui.$wrapper_recipeCreateIngredientBlocks.html(ui.initialRecipeCreateIngredientBlocks);
       },
 
       showRecipeCreateView: async function(showAnimation) {
          ui.validateShowAnimation(showAnimation);
          await ui.beforeShowingRecipeCreateView();
          ui.showView(ui.$view_recipeCreate, showAnimation, ui.$headerButton_cancelRecipeCreate);
-
          window.scrollTo(0, 0);
-         console.log("showRecipeCreateView()");
       },
 
       recipeCreate_addIngredientBlock: async function() {
@@ -848,8 +874,8 @@ const ui = {
                </div>
 
                <div class="wrapper-input wrapper-ingredientBlock-abv">
-                  <input id="js-input-recipeCreate-ingredientBlock-${newBlockIndex}-abv" type="number" min="0" max="100" title="Ingredient ABV." aria-label="ingredient ABV">
-                  <label id="js-input-recipeCreate-ingredientBlock-${newBlockIndex}-abv" class="typo-body-small typo-color-orange">ABV (Optional)</label>
+                  <input id="js-input-recipeCreate-ingredientBlock-${newBlockIndex}-abv" type="number" min="0" max="100" title="Ingredient ABV Percentage." aria-label="ingredient ABV">
+                  <label id="js-input-recipeCreate-ingredientBlock-${newBlockIndex}-abv" class="typo-body-small typo-color-orange">ABV Percentage (Optional)</label>
                </div>
             </div>
          `;
@@ -859,19 +885,62 @@ const ui = {
          ui.scrollToBottom(400);
       },
 
-      validateRecipeCreateForm: function() {
-         //TODO: validateRecipeCreateForm()
-         console.log("Validating Recipe Create Form");
-      },
-
       validateRecipeName: function() {
-         //TODO: validateRecipeName()
-         console.log("Validating Recipe Name");
+         const cocktailName = ui.$input_recipeCreateCocktailName.val();
+         ui.recipeCreateCocktailNameIsValid = false;
+
+         if(!cocktailName) {
+            ui.$label_recipeCreateCocktailName.addClass("invalid");
+            ui.$label_recipeCreateCocktailName.text("Cocktail Name is blank.");
+         }
+         else if(cocktailName.trim().length != cocktailName.length) {
+            ui.$label_recipeCreateCocktailName.addClass("invalid");
+            ui.$label_recipeCreateCocktailName.text("Cocktail Name begins/ends in whitespace.");
+         }
+         else {
+            ui.$label_recipeCreateCocktailName.removeClass("invalid");
+            ui.$label_recipeCreateCocktailName.text(ui.initialRecipeCreateCocktailNameLabel);
+            ui.recipeCreateCocktailNameIsValid = true;
+         }
       },
 
-      validateIngredientBlock: function($ingredientBlock) {
+      validateIngredientBlocks: function() {
          //TODO: validateIngredientBlock()
-         console.log("Validating Ingredient Block:", $ingredientBlock);
+         const ingredientBlocks = [];
+
+         //Create array of present ingredientBlock id's to be used as reference
+         $(".recipeCreate-ingredientBlock").each((index, element)=> {
+            ingredientBlocks.push("#"+element.id);
+         });
+
+
+            // let currentIngredientName = $(`js-input-recipeCreate-ingredientBlock-${ingredientBlockIdIndex}-name`).val();
+            // let currentIngredientAmount = $(`js-input-recipeCreate-ingredientBlock-${ingredientBlockIdIndex}-amount`).val();
+            // let currentIngredientMeasurementUnit = $(`js-input-recipeCreate-ingredientBlock-${ingredientBlockIdIndex}-measurementUnit`).val();
+            // let currentIngredientAbv = $(`js-input-recipeCreate-ingredientBlock-${ingredientBlockIdIndex}-abv`).val();
+
+            // console.log({
+            //    currentIngredientName,
+            //    currentIngredientAmount,
+            //    currentIngredientMeasurementUnit,
+            //    currentIngredientAbv
+            // })
+
+         console.log("located blocks:", ingredientBlocks);
+      },
+
+      validateRecipeCreateForm: function() {
+         (ui.recipeCreateCocktailNameIsValid && ui.recipeCreateIngredientBlocksAreValid) ?
+         ui.enableRecipeCreateSubmitButton()
+         : ui.disableRecipeCreateSubmitButton();
+      },
+
+      disableRecipeCreateSubmitButton: function() {
+         this.$button_recipeCreateFormSubmit.prop("disabled", true);
+      },
+
+      enableRecipeCreateSubmitButton: function() {
+         this.$button_recipeCreateFormSubmit.prop("disabled", false);
       },
 
       buildRecipeCreateRequest: function() {
@@ -959,13 +1028,10 @@ const ui = {
       //#region Animate.css Functions
          hideCurrentView: function(hideAnimation) {
             return new Promise((resolve, reject)=> {
-               const availableHideAnimations = ["fadeOutLeft", "fadeOutRight", "fadeOut", null];
-               if (!availableHideAnimations.includes(hideAnimation)) {
-                  reject(`hideCurrentView(): invalid hideAnimation value "${hideAnimation}".`);
-               }
+               ui.validateHideAnimation(hideAnimation);
 
                //Hide all header buttons
-               $("#wrapper-header-rightArea button").delay(150).fadeOut(400);
+               $("#wrapper-header-rightArea button").delay(100).fadeOut(300);
                //If there's an active view, hide it
                if (ui.$currentView && hideAnimation) {
                   ui.hideWithAnimation(ui.$currentView, hideAnimation)
@@ -979,10 +1045,10 @@ const ui = {
             });
          },
 
-         showView: function($view, showAnimation, $headerButtons) {
+         showView: async function($view, showAnimation, $headerButtons) {
             ui.validateShowAnimation(showAnimation);
 
-            ui.showWithAnimation($view, showAnimation);
+            await ui.showWithAnimation($view, showAnimation);
             if ($headerButtons) {
                //'transition' disabled to prevent animation interactions
                //'pointer-events' disabled to prevent erroneous clicks that confuse execution
@@ -990,7 +1056,7 @@ const ui = {
                   "pointer-events": "none",
                   "transition": "none"
                });
-               $headerButtons.delay(200).fadeIn(500, function() {
+               $headerButtons.fadeIn(200, function() {
                   //Properties are cleared after the animation ends
                   $headerButtons.css({
                      "pointer-events": "",
@@ -1015,12 +1081,12 @@ const ui = {
                      //Add display:none to the element once it has finished animating
                      $(this).hide(0);
                      //Remove the animate.css classes from the element
-                     $(this).removeClass(`animated fast ${hideAnimation}`);
+                     $(this).removeClass(`animated faster ${hideAnimation}`);
                      resolve();
                   });
 
                   //Trigger the animationEnd event handler by applying the animate.css classes
-                  $elementPointer.addClass(`animated fast ${hideAnimation}`);
+                  $elementPointer.addClass(`animated faster ${hideAnimation}`);
                }
                else {
                   console.warn("hideWithAnimation() called on an already-hidden element.")
@@ -1046,12 +1112,12 @@ const ui = {
                   //Register the animationEnd event handler
                   $elementPointer.one(animationEndEventPolyfill, function() {
                      //Remove the animate.css classes from the element
-                     $(this).removeClass(`animated fast ${showAnimation}`);
+                     $(this).removeClass(`animated faster ${showAnimation}`);
                      resolve();
                   });
 
                   //Trigger the animationEnd event handler by applying the animate.css classes
-                  $elementPointer.addClass(`animated fast ${showAnimation}`);
+                  $elementPointer.addClass(`animated faster ${showAnimation}`);
                   //Remove display:none from the element as it begins animating
                   $elementPointer.show(0);
                }

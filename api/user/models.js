@@ -1,11 +1,13 @@
-"use strict";
 //#region SETUP
+"use strict";
+
 const mongoose = require("mongoose");
   mongoose.Promise = global.Promise;
 const jwt = require("jsonwebtoken");
 
 const { JWT_SECRET, JWT_EXPIRY } = require("../../config");
 //#endregion
+
 
 
 const userSchema = mongoose.Schema({
@@ -20,7 +22,7 @@ const userSchema = mongoose.Schema({
 
 userSchema.statics.makeJwtFor = function(username) {
   if (typeof username != "string") {
-    throw Error("The username argument for User.makeJwtFor must be a String.");
+    throw Error("The username argument for User.makeJwtFor() must be a String.");
   }
   return jwt.sign({sub: username}, JWT_SECRET, {expiresIn: JWT_EXPIRY});
 }
@@ -29,7 +31,7 @@ userSchema.statics.makeJwtFor = function(username) {
 
 userSchema.methods.serialize = function() {
   return {
-    username: this.username,
+    username: this.username
   }
 }
 

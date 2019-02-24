@@ -97,7 +97,7 @@
 
 				<!--Password Field-->
 				<div class="wrapper-input">
-					<input id="js-signIn-input-password" type="password" autocomplete="password" title="Enter your account password." aria-label="account password" required>
+					<input id="js-signIn-input-password" type="password" autocomplete="current-password" title="Enter your account password." aria-label="account password" required>
 					<label id="js-signIn-label-password" for="js-signIn-input-password" class="typo-body-small typo-color-orange">Password</label>
 				</div>
 
@@ -117,25 +117,25 @@
 			<form id="form-register" action="#" role="form">
 				<!--Username-->
 				<div class="wrapper-input">
-					<input id="js-register-input-username" type="text" title="Enter your desired username." aria-label="account username" required>
+					<input id="js-register-input-username" type="text" autocomplete="username" title="Enter your desired username." aria-label="account username" required>
 					<label id="js-register-label-username" for="js-register-input-username" class="typo-body-small typo-color-orange">Username</label>
 				</div>
 
 				<!--Email-->
 				<div class="wrapper-input">
-					<input id="js-register-input-email" type="email" title="Enter your email address." aria-label="account email">
+					<input id="js-register-input-email" type="email" autocomplete="email" title="Enter your email address." aria-label="account email">
 					<label id="js-label-register-email" for="js-register-input-email" class="typo-body-small typo-color-orange">Email (Optional)</label>
 				</div>
 
 				<!--Password-->
 				<div class="wrapper-input">
-					<input id="js-register-input-password" type="password" title="Enter your password." aria-label="account password" required>
+					<input id="js-register-input-password" type="password" autocomplete="new-password" title="Enter your password." aria-label="account password" required>
 					<label id="js-register-label-password" for="js-register-input-password" class="typo-body-small typo-color-orange">Password</label>
 				</div>
 
 				<!--Password Confirmation-->
 				<div class="wrapper-input">
-					<input id="js-register-input-confirmPassword" type="password" title="Confirm your password." aria-label="confirm account password" required>
+					<input id="js-register-input-confirmPassword" type="password" autocomplete="new-password" title="Confirm your password." aria-label="confirm account password" required>
 					<label id="js-register-label-confirmPassword" for="js-register-input-confirmPassword" class="typo-body-small typo-color-orange">Confirm Password</label>
 				</div>
 
@@ -192,8 +192,8 @@
 						</div>
 
 						<div class="wrapper-input wrapper-ingredientBlock-abv">
-							<input id="js-input-recipeCreate-ingredientBlock-0-abv" type="text" title="Ingredient ABV." aria-label="ingredient ABV">
-							<label id="js-input-recipeCreate-ingredientBlock-0-abv" class="typo-body-small typo-color-orange">ABV (Optional)</label>
+							<input id="js-input-recipeCreate-ingredientBlock-0-abv" type="number"  min="0" max="100" title="Ingredient ABV." aria-label="ingredient ABV">
+							<label id="js-input-recipeCreate-ingredientBlock-0-abv" class="typo-body-small typo-color-orange">ABV Percentage (Optional)</label>
 						</div>
 					</div>
 

@@ -1,5 +1,6 @@
-"use strict";
 //#region SETUP
+"use strict";
+
 const express = require("express");
 const morgan = require("morgan");
 const mongoose = require("mongoose");
@@ -9,8 +10,8 @@ const mongoose = require("mongoose");
   const ObjectId = mongoose.Types.ObjectId;
 const cookieParser = require("cookie-parser");
 
-const {User} = require("./api/users");
-const {Cocktail} = require("./api/cocktails");
+const {User} = require("./api/user");
+const {Cocktail} = require("./api/cocktail");
 
 //Express App Instantiation & Server-wide Middleware
 const app = express();
@@ -29,81 +30,17 @@ app.use(function(req, res, next) {
 app.use(express.static( "client", {maxAge: "1d"} ));
 //#endregion
 
+
+
 //API Routes
-const {router: cocktailsRouter} = require("./api/cocktails");
+const {router: cocktailsRouter} = require("./api/cocktail");
 app.use("/api/cocktail", cocktailsRouter);
 
-const {router: usersRouter} = require("./api/users");
+const {router: usersRouter} = require("./api/user");
 app.use("/api/user", usersRouter);
 
 const {router: authRouter} = require("./api/auth");
 app.use("/api/auth", authRouter);
-
-
-
-
-//Fetch all of a user's public-facing information
-app.get("/user/:username", (req,res)=> {
-  const requestedUsername = req.params.username;
-
-  if(requestedUsername.length != requestedUsername.trim().length) {
-    return res.status(422).json({
-      errorType: "UntrimmedString",
-      message: "The 'username' route parameter must not begin or end in whitespace."
-    });
-  }
-
-  let returnUser; //Acts as a container for building the return data
-  User.findOne({username: requestedUsername})
-  .then((user)=> {
-    if(user) {
-      returnUser = user.serialize(); //username, createdAt
-      return Cocktail.find({creator: user.username});
-    }
-    return res.status(404).json({
-      errorType: "NoSuchUser",
-      message: "No user found with the requested 'username'."
-    })
-  })
-  .then((cocktails)=> {
-    if(cocktails) {
-      returnUser.createdCocktails = cocktails.map((cocktail => cocktail.serialize()));
-    }
-    else {
-      returnUser.createdCocktails = [];
-    }
-    return res.status(200).json(returnUser);
-  })
-  .catch((err)=> {
-    console.error(err);
-  });
-});
-
-//Fetch a cocktail recipe
-app.get("/cocktail/:id", (req,res)=> {
-  const requestedId = req.params.id;
-
-  if(!ObjectId.isValid(requestedId)) {
-    return res.status(422).json({
-      errorType: "InvalidObjectId",
-      message: "The 'id' route parameter is an invalid ObjectId."
-    })
-  }
-
-  Cocktail.findOne({_id: requestedId})
-  .then((requestedCocktail)=> {
-    if(requestedCocktail) {
-      return res.status(200).json(requestedCocktail.serialize());
-    }
-    return res.status(404).json({
-      errorType: "NoSuchCocktail",
-      message: "No cocktail recipe found with the requested 'id'."
-    })
-  })
-  .catch((err)=> {
-    console.error(err);
-  });
-});
 
 
 
@@ -161,6 +98,8 @@ if (require.main === module) {
   });
 }
 //#endregion
+
+
 
 module.exports = {
   app,
