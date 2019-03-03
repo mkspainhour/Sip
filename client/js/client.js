@@ -1,34 +1,28 @@
 "use strict";
 
-const launchFlags = {
-   sessionCookiePresent: getCookieValue("session") != null,
-   userCookiePresent: getCookieValue("user") != null
-}
-
 const appSession = {
-   currentUser: getCookieValue("user"),
-   userCocktailsCache: [],
-   currentCocktail: null,
+   sessionToken: getCookieValue("session"),
+   user: getCookieValue("user"),
+   userCocktails: null,
+   activeCocktail: null,
    reset: function() {
-      this.currentUser = null;
-      this.userCocktailsCache = [];
-      this.currentCocktail = null;
+      this.sessionToken = null;
+      this.user = null;
+      this.userCocktails = null;
+      this.activeCocktail = null;
    }
 }
-
-
 
 $(function entryPoint() {
    //Prep
    ui.setup();
 
    //Begin
-   if (launchFlags.sessionCookiePresent && launchFlags.userCookiePresent) {
-      appSession.currentUser = getCookieValue("user");
-      ui.showUserHomeView("fadeIn");
+   if (appSession.sessionToken && appSession.user) {
+      ui.userHomeView.show("fadeIn");
    }
    else {
-      ui.showLandingView("fadeIn");
+      ui.landingView.show("fadeIn");
    }
 });
 
@@ -38,8 +32,7 @@ $(function entryPoint() {
 
 //Utility Functions
 function getCookieValue(cookieName) {
-   //Credit: https://stackoverflow.com/a/25490531
-   var locatedSegment = document.cookie.match('(^|;)\\s*' + cookieName + '\\s*=\\s*([^;]+)');
+   let locatedSegment = document.cookie.match('(^|;)\\s*' + cookieName + '\\s*=\\s*([^;]+)');
    return locatedSegment ? locatedSegment.pop() : null;
 }
 
@@ -49,7 +42,7 @@ function pause(ms) {
    });
 }
 
-let round = function(value, precision) {
-   let multiplier = Math.pow(10, precision||0);
+function round(value, decimalPoints) {
+   let multiplier = Math.pow(10, decimalPoints||0);
    return Math.round(value * multiplier) / multiplier;
 }

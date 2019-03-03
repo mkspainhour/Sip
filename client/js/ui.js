@@ -239,9 +239,9 @@ const ui = {
             ui.$view_userHome.on("click", ".recipe-card", async function(e) {
                //Isolates 'n' from the element id 'recipe-card-n'
                recipeCardId = e.currentTarget.id.replace("recipe-card-", "");
-               appSession.currentCocktail = appSession.userCocktailsCache[recipeCardId];
+               appSession.activeCocktail = appSession.userCocktails[recipeCardId];
 
-               console.log("Clicked Recipe:", appSession.currentCocktail.name);
+               console.log("Clicked Recipe:", appSession.activeCocktail.name);
                ui.saveUserHomeViewScrollPosition();
 
                await ui.hideCurrentView("fadeOutLeft");
@@ -297,7 +297,7 @@ const ui = {
 
             ui.$headerButton_editRecipe.on("click", async function(e) {
                await ui.hideCurrentView("fadeOut");
-               ui.showRecipeEditView(appSession.currentCocktail, "fadeIn");
+               ui.showRecipeEditView(appSession.activeCocktail, "fadeIn");
             });
             //#endregion
 
@@ -441,7 +441,7 @@ const ui = {
                })
                .then(async ()=> {
                   ui.setSignInFormFeedback("Success!");
-                  appSession.currentUser = getCookieValue("user");
+                  appSession.user = getCookieValue("user");
                   await pause(700); //So that the 'Success!" message can be parsed by the user
 
                   await ui.hideCurrentView("fadeOutLeft")
@@ -667,7 +667,7 @@ const ui = {
                })
                .then(async ()=> {
                   ui.setRegisterFormFeedback("Success!");
-                  appSession.currentUser = getCookieValue("user");
+                  appSession.user = getCookieValue("user");
                   await pause(700); //So that the 'Success!" message can be understood
 
                   await ui.hideCurrentView("fadeOutLeft");
@@ -705,13 +705,13 @@ const ui = {
       //#region User Home View Functions
          beforeShowingUserHomeView: async function() {
             return new Promise(async (resolve, reject)=> {
-               let userInformation = await ui.getUserInformation(appSession.currentUser);
+               let userInformation = await ui.getUserInformation(appSession.user);
                   console.log("fetched userInformation:", userInformation);
                const cocktailCount = userInformation.createdCocktails.length;
                const cocktails = userInformation.createdCocktails;
 
                //Set active username
-               ui.$text_activeUser.text(appSession.currentUser);
+               ui.$text_activeUser.text(appSession.user);
 
                //Set recipe count
                if (cocktailCount === 1) {
@@ -744,7 +744,7 @@ const ui = {
                   url: `/api/user/${targetUsername}`
                })
                .then((userInformation)=> {
-                  appSession.userCocktailsCache = userInformation.createdCocktails;
+                  appSession.userCocktails = userInformation.createdCocktails;
                   resolve(userInformation);
                })
                .catch(async (error)=> {
@@ -964,7 +964,7 @@ const ui = {
       beforeShowingRecipeView: function() {
          return new Promise(async (resolve, reject)=> {
             ui.resetRecipeView();
-            ui.renderRecipeView(appSession.currentCocktail);
+            ui.renderRecipeView(appSession.activeCocktail);
             resolve();
          });
       },
@@ -974,7 +974,7 @@ const ui = {
       },
 
       renderRecipeView: function() {
-         console.log("renderRecipeView():", appSession.currentCocktail.name);
+         console.log("renderRecipeView():", appSession.activeCocktail.name);
          //TODO: renderRecipeView()
       },
 
@@ -999,7 +999,7 @@ const ui = {
       },
 
       renderRecipeEditView: function(recipe) {
-         console.log("renderRecipeEditView():", appSession.currentCocktail.name);
+         console.log("renderRecipeEditView():", appSession.activeCocktail.name);
          //TODO: renderRecipeEditView()
       },
 
