@@ -393,9 +393,9 @@ header .button-hollow {
 
 
 
-/* #js-view-recipeCreate {} */
+/* #js-view-recipeEdit {} */
 
-  #wrapper-recipeCreate-cocktailName {
+  #wrapper-recipeEdit-cocktailName {
     margin-bottom: 2rem;
   }
 
@@ -413,13 +413,13 @@ header .button-hollow {
   }
     /* .svg-ingredientBlock-remove {} */
 
-  /* #js-wrapper-recipeCreate-ingredientBlocks {} */
+  /* #js-wrapper-recipeEdit-ingredientBlocks {} */
 
-  #js-button-recipeCreate-addIngredientBlock {
+  #js-button-recipeEdit-addIngredientBlock {
     align-self: center;
   }
 
-  .recipeCreate-ingredientBlock {
+  .recipeEdit-ingredientBlock {
     display: flex;
     flex-flow: row wrap;
     justify-content: space-between;
@@ -433,7 +433,7 @@ header .button-hollow {
     margin-bottom: 1rem;
   }
 
-  #js-button-recipeCreate-submit {
+  #js-button-recipeEdit-submit {
     margin-top: 2rem;
   }
 

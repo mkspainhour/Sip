@@ -56,9 +56,6 @@
 					<img class="svg-icon" src="./resources/icons/add.svg" alt="+ Add Recipe">
 				</button>
 
-				<!-- Recipe Create -->
-				<button id="js-headerButton-recipeCreateCancel" type="button" class="button-hollow button-hollow-dark-bg typo-color-orange-dark" style="display: none;">Cancel</button>
-
 				<!-- Recipe -->
 				<button id="js-headerButton-recipeBack" type="button" class="button-hollow button-hollow-dark-bg typo-color-orange-dark" style="display: none;">Back</button>
 
@@ -159,41 +156,40 @@
 
 
 
-		<!--Recipe Create View-->
-		<section id="js-view-recipeCreate" class="view" role="region" style="display: none;">
+		<!--Edit Recipe View-->
+		<section id="js-view-recipeEdit" class="view" role="region" style="display: none;">
 
-			<form id="js-form-recipeCreate" action="#" role="form">
+			<div class="wrapper-formFeedback">
+				<p id="js-recipeEdit-formFeedback" class="typo-heading-small typo-center">{ERROR}</p>
+			</div>
 
-				<div id="wrapper-recipeCreate-cocktailName" class="wrapper-input">
-					<input id="js-input-recipeCreate-cocktailName" type="text" title="Enter cocktail name." aria-label="cocktail name" required>
-					<label id="js-label-recipeCreate-cocktailName" for="js-input-recipeCreate-cocktailName" class="typo-body-small typo-color-orange">Cocktail Name</label>
+			<form id="js-form-recipeEdit" action="#" role="form">
+
+				<div id="wrapper-recipeEdit-cocktailName" class="wrapper-input">
+					<input id="js-input-recipeEdit-cocktailName" type="text" title="Enter cocktail name." aria-label="cocktail name" required>
+					<label id="js-label-recipeEdit-cocktailName" for="js-input-recipeEdit-cocktailName" class="typo-body-small typo-color-orange">Cocktail Name</label>
 				</div>
 
-				<div id="js-wrapper-recipeCreate-ingredientBlocks">
+				<div id="js-wrapper-recipeEdit-ingredientBlocks">
 
-					<div id="recipeCreate-ingredientBlock-0" class="recipeCreate-ingredientBlock">
+					<div id="recipeEdit-ingredientBlock-0" class="recipeEdit-ingredientBlock">
 						<div class="wrapper-ingredientBlock-svg-remove">
 							<img src="resources/icons/close.svg" class="svg-ingredientBlock-remove" alt="Remove ingredient.">
 						</div>
 
 						<div class="wrapper-input wrapper-ingredientBlock-name">
-							<input id="js-input-recipeCreate-ingredientBlock-0-name" type="text" title="Ingredient name." aria-label="ingredient name" required>
-							<label id="js-label-recipeCreate-ingredientBlock-0-name" class="typo-body-small typo-color-orange">Ingredient Name</label>
+							<input id="js-input-recipeEdit-ingredientBlock-0-name" class="js-input-ingredientBlock-name" type="text" title="Ingredient name." aria-label="ingredient name" required>
+							<label id="js-label-recipeEdit-ingredientBlock-0-name" class="typo-body-small typo-color-orange">Ingredient Name</label>
 						</div>
 
 						<div class="wrapper-input wrapper-ingredientBlock-amount">
-							<input id="js-input-recipeCreate-ingredientBlock-0-amount" type="number" min="0" title="Ingredient amount." aria-label="ingredient amount" required>
-							<label id="js-input-recipeCreate-ingredientBlock-0-amount" class="typo-body-small typo-color-orange">Ingredient Amount</label>
+							<input id="js-input-recipeEdit-ingredientBlock-0-amount" class="js-input-ingredientBlock-amount" type="number" min="0" step="any" title="Ingredient amount." aria-label="ingredient amount" required>
+							<label id="js-label-recipeEdit-ingredientBlock-0-amount" class="typo-body-small typo-color-orange">Ingredient Amount</label>
 						</div>
 
 						<div class="wrapper-input wrapper-ingredientBlock-measurementUnit">
-							<input id="js-input-recipeCreate-ingredientBlock-0-measurementUnit" type="text" title="Ingredient measurement unit." aria-label="ingredient measurement unit" required>
-							<label id="js-input-recipeCreate-ingredientBlock-0-measurementUnit" class="typo-body-small typo-color-orange">Measurement Unit</label>
-						</div>
-
-						<div class="wrapper-input wrapper-ingredientBlock-abv">
-							<input id="js-input-recipeCreate-ingredientBlock-0-abv" type="number"  min="0" max="100" title="Ingredient ABV." aria-label="ingredient ABV">
-							<label id="js-input-recipeCreate-ingredientBlock-0-abv" class="typo-body-small typo-color-orange">ABV Percentage (Optional)</label>
+							<input id="js-input-recipeEdit-ingredientBlock-0-measurementUnit" class="js-input-ingredientBlock-measurementUnit" type="text" title="Ingredient measurement unit." aria-label="ingredient measurement unit" required>
+							<label id="js-label-recipeEdit-ingredientBlock-0-measurementUnit" class="typo-body-small typo-color-orange">Measurement Unit</label>
 						</div>
 					</div>
 
@@ -201,10 +197,13 @@
 				</div>
 
 				<!-- Add Ingredient Button -->
-				<button id="js-button-recipeCreate-addIngredientBlock" type="button" class="button-hollow typo-color-orange-dark">Add Ingredient</button>
+				<button id="js-button-recipeEdit-addIngredientBlock" type="button" class="button-hollow typo-color-orange-dark">Add Ingredient</button>
 
-				<!--Sumbit Button-->
-				<button id="js-button-recipeCreate-submit" type="submit" class="button-filled typo-color-gray">Save Recipe</button>
+				<!--Edit Mode Sumbit Button-->
+				<button id="js-button-recipeEdit-editModeSubmit" type="submit" class="button-filled typo-color-gray" style="display:none;" disabled>Save Changes</button>
+
+				<!--Create Mode Sumbit Button-->
+				<button id="js-button-recipeEdit-createModeSubmit" type="submit" class="button-filled typo-color-gray" style="display:none;" disabled>Create</button>
 
 			</form>
 		</section>
@@ -242,45 +241,13 @@
 
 
 
-		<!--Recipe Edit View-->
-		<section id="js-view-recipeEdit" class="view" role="region" style="display: none;">
-			<p>Recipe Edit View!</p>
-			<!--
-				Cocktail Name
-				Cocktail ABV
-				Cocktail Ingredient Names
-				Cocktail Creator
-				Cocktail Ingredients
-
-
-				INGREDIENT BLOCK
-
-					<div> .ingredient
-						<h1 id="COCKTAIL_NAME" class="typo-heading-large"
-						<p id="ABV" class="typo-body"
-						<h2 id="INGREDIENT_NAMES" class="typo-body-large"
-						<p id="CREATOR" class="typo-body-small"
-
-						<ol id="INGREDIENTS_LIST"
-							<li id="ingredient-#n" //Ex: #ingredient-#4
-								<span class="INGREDIENT_AMOUNT">
-								<span class="INGREDIENT_UNIT"
-								<span class="INGREDIENT_NAME"
-								(optional) <span class="INGREDIENT_ABV"
-							...
-			 -->
-			 <button id="js-button-recipeEdit-submit" type="button" class="button-filled typo-color-dark2">Save Changes</button>
-		</section>
-
-
-
 	</main>
 
 	<!--#region SCRIPTS-->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"
 		integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
 		crossorigin="anonymous"></script>
-	<script src="js/ui-refactor.js"></script>
+	<script src="js/ui.js"></script>
 	<script src="js/client.js"></script>
    <!--#endregion-->
 

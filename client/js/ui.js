@@ -1,1140 +1,1392 @@
+"use strict";
+
 const ui = {
-   //#region jQuery Pointers
-      $view_landing: $("#js-view-landing"),
-         $headerButton_signIn: $("#js-headerButton-signIn"),
-         $button_goToRegisterView: $("#js-landing-button-register"),
-
-      $view_signIn: $("#js-view-signIn"),
-         $headerButton_registerInstead: $("#js-headerButton-registerInstead"),
-         $text_signInFormFeedback: $("#js-signIn-formFeedback"),
-         $input_signInUsername: $("#js-signIn-input-username"),
-         $label_signInUsername: $("#js-signIn-label-username"),
-         $input_signInPassword: $("#js-signIn-input-password"),
-         $label_signInPassword: $("#js-signIn-label-password"),
-         $button_signInFormSubmit: $("#js-signIn-button-submit"),
-
-      $view_register: $("#js-view-register"),
-         $headerButton_signInInstead: $("#js-headerButton-signInInstead"),
-         $text_registerFormFeedback: $("#js-register-formFeedback"),
-         $input_registerUsername: $("#js-register-input-username"),
-         $label_registerUsername: $("#js-register-label-username"),
-         $input_registerEmail: $("#js-register-input-email"),
-         $label_registerEmail: $("#js-label-register-email"),
-         $input_registerPassword: $("#js-register-input-password"),
-         $label_registerPassword: $("#js-register-label-password"),
-         $input_registerConfirmPassword: $("#js-register-input-confirmPassword"),
-         $label_registerConfirmPassword: $("#js-register-label-confirmPassword"),
-         $button_registerFormSubmit: $("#js-register-button-submit"),
-
-      $view_userHome: $("#js-view-userHome"),
-         $headerButton_signOut: $("#js-headerButton-signOut"),
-         $headerButton_addRecipe: $("#js-headerButton-addRecipe"),
-         $text_activeUser: $("#js-userHome-text-currentUser"),
-         $text_recipeCount: $("#js-userHome-text-recipeCount"),
-
-      $view_recipeCreate: $("#js-view-recipeCreate"),
-         $headerButton_cancelRecipeCreate: $("#js-headerButton-recipeCreateCancel"),
-
-         $input_recipeCreateCocktailName: $("#js-input-recipeCreate-cocktailName"),
-         $label_recipeCreateCocktailName: $("#js-label-recipeCreate-cocktailName"),
-         $form_recipeCreate: $("#js-form-recipeCreate"),
-         $button_addIngredientBlock: $("#js-button-recipeCreate-addIngredientBlock"),
-         $wrapper_recipeCreateIngredientBlocks: $("#js-wrapper-recipeCreate-ingredientBlocks"),
-         $button_recipeCreateFormSubmit: $("#js-button-recipeCreate-submit"),
-
-      $view_recipe: $("#js-view-recipe"),
-         $headerButton_recipeBack: $("#js-headerButton-recipeBack"),
-         $headerButton_editRecipe: $("#js-headerButton-recipeEdit"),
-
-      $view_recipeEdit: $("#js-view-recipeEdit"),
-         $headerButton_cancelRecipeEdit: $("#js-headerButton-recipeEditCancel"),
-         $button_saveEditedRecipe: $("js-button-recipeEdit-submit"),
+   //#region UI State Variables
+   currentView: null,
    //#endregion
 
-   //#region UI Variables
-      //UI State
-      $currentView: null,
-      userHomeViewScrollPosition: null,
-      existingRecipeCreateIngredientBlockIDs: [],
 
-      //Sign In Form Valid Field Flags
-      signInUsernameIsValid: false,
-      signInPasswordIsValid: false,
 
-      //Register Form Valid Field Flags
-      registerUsernameIsValid: false,
-      registerEmailIsValid: true,
-      registerPasswordIsValid: false,
-      registerPasswordConfirmationIsValid: false,
-
-      //Recipe Create Form Valid Field Flags
-      recipeCreateCocktailNameIsValid: false,
-      recipeCreateIngredientBlocksAreValid: false,
-
-      //Initial Values
-         //Sign In Form
-         initialSignInFormFeedback: null,
-         initialSignInUsernameLabel: null,
-         initialSignInPasswordLabel: null,
-
-         //Register Form
-         initialRegisterFormFeedback: null,
-         initialRegisterUsernameLabel: null,
-         initialRegisterEmailLabel: null,
-         initialRegisterPasswordLabel: null,
-         initialRegisterPasswordConfirmationLabel: null,
-
-         //Recipe Create View
-         initialRecipeCreateIngredientBlocks: null,
-         initialRecipeCreateCocktailNameLabel: null,
-         initialIngredientBlockNameLabel: null,
-         initialIngredientBlockAmountLabel: null,
-         initialIngredientBlockUnitLabel: null,
-         initialIngredientBlockAbvLabel: null,
-   //#endregion
-
-   //#region Functions
-      //#region Setup Functions
-         setup: function() {
-            this.saveInitialValues();
-            this.configureEventListeners();
-         },
-
-         reset: function() {
-            ui.userHomeViewScrollPosition = null;
-         },
-
-         //Capture initial HTML values so that they can be restored when necessary
-         saveInitialValues: function() {
-            //Sign In Form
-            ui.initialSignInFormFeedback = ui.$text_signInFormFeedback.text();
-            ui.initialSignInUsernameLabel = ui.$label_signInUsername.text();
-            ui.initialSignInPasswordLabel = ui.$label_signInPassword.text();
-
-            //Register Form
-            ui.initialRegisterFormFeedback = ui.$text_registerFormFeedback.text();
-            ui.initialRegisterUsernameLabel = ui.$label_registerUsername.text();
-            ui.initialRegisterEmailLabel = ui.$label_registerEmail.text();
-            ui.initialRegisterPasswordLabel = ui.$label_registerPassword.text();
-            ui.initialRegisterPasswordConfirmationLabel = ui.$label_registerConfirmPassword.text();
-
-            //Recipe Create Form
-            ui.initialRecipeCreateCocktailNameLabel = ui.$label_recipeCreateCocktailName.text();
-            ui.initialRecipeCreateIngredientBlocks = ui.$wrapper_recipeCreateIngredientBlocks.html();
-         },
-
-         configureEventListeners: function() {
-            //DONE
-            //#region General Events
-            //If the user navigates with the mouse, style for accessibility accordingly
-            $(window).on("mousedown", function handleClick(e) {
-               if($("html").hasClass("user-navigating-with-keyboard")) {
-                  $("html").removeClass("user-navigating-with-keyboard");
-               }
-            });
-
-            //If the user navigates with the keybaord (tab key is pressed), style for accessibility accordingly
-            $(window).on("keydown", function handleTab(e) {
-               if($("html").hasClass("user-navigating-with-keyboard") == false) {
-                  if (e.keyCode === 9) {
-                     $("html").addClass("user-navigating-with-keyboard");
-                  }
-               }
-            });
-            //#endregion
-
-            //DONE
-            //#region Landing View
-            ui.$headerButton_signIn.on("click", async function(e) {
-               await ui.hideCurrentView("fadeOutLeft");
-               ui.showSignInView("fadeInRight");
-            });
-
-            ui.$button_goToRegisterView.on("click", async function(e) {
-               await ui.hideCurrentView("fadeOutLeft");
-               ui.showRegisterView("fadeInRight");
-            });
-            //#endregion
-
-            //DONE
-            //#region Sign In View
-            ui.$headerButton_registerInstead.on("click", async function(e) {
-               await ui.hideCurrentView("fadeOutRight");
-               ui.showRegisterView("fadeInLeft");
-            });
-
-            $("#form-signIn").on("submit", function(e) {
-               //Prevents unnecessary refreshing behavior.
-               //The form's submit button interprets the submit event on behalf of the form element.
-               e.preventDefault();
-            });
-
-            ui.$input_signInUsername.on("input", function(e) {
-               ui.validateSignInFormUsername();
-               ui.validateSignInForm();
-            });
-
-            ui.$input_signInPassword.on("input", function(e) {
-               ui.validateSignInFormPassword();
-               ui.validateSignInForm();
-            });
-
-            ui.$button_signInFormSubmit.on("click", async function(e) {
-               ui.setSignInFormFeedback("Signing in...");
-               await ui.signIn(ui.$input_signInUsername.val(), ui.$input_signInPassword.val());
-            });
-            //#endregion
-
-            //DONE
-            //#region Register View
-            ui.$headerButton_signInInstead.on("click", async function(e) {
-               await ui.hideCurrentView("fadeOutLeft");
-               ui.showSignInView("fadeInRight");
-            });
-
-            $("#form-register").on("submit", function(e) {
-               //Prevents unnecessary refreshing behavior.
-               //The form's submit button interprets the submit event on behalf of the form element.
-               e.preventDefault();
-            });
-
-            ui.$input_registerUsername.on("input", function(e) {
-               ui.validateRegisterFormUsername();
-               ui.validateRegisterForm();
-            });
-
-            ui.$input_registerEmail.on("input", function(e) {
-               ui.validateRegisterFormEmail();
-               ui.validateRegisterForm();
-            });
-
-            ui.$input_registerPassword.on("input", function(e) {
-               ui.validateRegisterFormPassword();
-               ui.validateRegisterForm();
-            });
-
-            ui.$input_registerConfirmPassword.on("input", function(e) {
-               ui.validateRegisterFormPasswordConfirmation();
-               ui.validateRegisterForm();
-            });
-
-            ui.$button_registerFormSubmit.on("click", async function(e) {
-               ui.setRegisterFormFeedback("Registering...");
-               await ui.createUser(ui.$input_registerUsername.val(), ui.$input_registerPassword.val(), ui.$input_registerEmail.val());
-            });
-            //#endregion
-
-            //DONE
-            //#region User Home View
-            ui.$headerButton_signOut.on("click", function(e) {
-               ui.signOut();
-            });
-
-            ui.$headerButton_addRecipe.on("click", async function(e) {
-               ui.saveUserHomeViewScrollPosition();
-               await ui.hideCurrentView("fadeOutLeft");
-               ui.showRecipeCreateView("fadeInRight");
-            });
-
-            ui.$view_userHome.on("click", ".recipe-card", async function(e) {
-               //Isolates 'n' from the element id 'recipe-card-n'
-               recipeCardId = e.currentTarget.id.replace("recipe-card-", "");
-               appSession.activeCocktail = appSession.userCocktails[recipeCardId];
-
-               console.log("Clicked Recipe:", appSession.activeCocktail.name);
-               ui.saveUserHomeViewScrollPosition();
-
-               await ui.hideCurrentView("fadeOutLeft");
-               ui.showRecipeView("fadeInRight");
-            });
-            //#endregion
-
-            //#region Recipe Create View
-            ui.$headerButton_cancelRecipeCreate.on("click", async function(e) {
-               await ui.hideCurrentView("fadeOutRight");
-               ui.showUserHomeView("fadeInLeft");
-            });
-
-            ui.$form_recipeCreate.on("submit", function(e) {
-               //Prevents unnecessary refreshing behavior.
-               //The form's submit button interprets the submit event on behalf of the form element.
-               e.preventDefault();
-            });
-
-            ui.$form_recipeCreate.on("input", function(e) {
-               ui.validateRecipeCreateForm();
-            });
-
-            ui.$input_recipeCreateCocktailName.on("input", function(e) {
-               ui.validateRecipeName();
-            });
-
-            ui.$wrapper_recipeCreateIngredientBlocks.on("click", ".wrapper-ingredientBlock-svg-remove", async function(e) {
-               targetedIngredientBlock = e.currentTarget.parentElement;
-               $(targetedIngredientBlock).slideUp(400, function() {
-                  this.remove();
-               });
-            });
-
-            ui.$wrapper_recipeCreateIngredientBlocks.on("input", ".recipeCreate-ingredientBlock", function(e) {
-               ui.validateIngredientBlocks();
-            });
-
-            ui.$button_addIngredientBlock.on("click", function(e) {
-               ui.recipeCreate_addIngredientBlock();
-            });
-
-            ui.$button_recipeCreateFormSubmit.on("click", function(e) {
-               ui.buildRecipeCreateRequest();
-            });
-            //#endregion
-
-            //#region Recipe View
-            ui.$headerButton_recipeBack.on("click", async function(e) {
-               await ui.hideCurrentView("fadeOutRight");
-               ui.showUserHomeView("fadeInLeft");
-            });
-
-            ui.$headerButton_editRecipe.on("click", async function(e) {
-               await ui.hideCurrentView("fadeOut");
-               ui.showRecipeEditView(appSession.activeCocktail, "fadeIn");
-            });
-            //#endregion
-
-            //#region Recipe Edit View
-            ui.$headerButton_cancelRecipeEdit.on("click", async function(e) {
-               await ui.hideCurrentView("fadeOut");
-               ui.showRecipeView("fadeIn");
-            });
-
-            ui.$button_saveEditedRecipe.on("click", function(e) {
-               console.log("saving edited recipe");
-               ui.updateRecipe();
-            });
-            //#endregion
-         },
+   //#region UI Views
+   landingView: {
+      //#region Element jQuery Selectors
+      $view: $("#js-view-landing"),
+      $headerButtons: {
+         $signIn: $("#js-headerButton-signIn")
+      },
+      $registerButton: $("#js-landing-button-register"),
       //#endregion
 
-
-
-      //DONE
-      //#region Landing View Functions
-         beforeShowingLandingView: function() {
-            return new Promise((resolve, reject)=> {
-               //Things...
-               resolve();
-            });
-         },
-
-         showLandingView: async function(showAnimation) {
-            ui.validateShowAnimation(showAnimation);
-            await ui.beforeShowingLandingView();
-            ui.showView(ui.$view_landing, showAnimation, ui.$headerButton_signIn);
-         },
-      //#endregion
-
-      //DONE
-      //#region Sign In View Functionss
-         beforeShowingSignInView: async function() {
-            return new Promise((resolve, reject)=> {
-               ui.resetSignInForm();
-               resolve();
-            });
-         },
-
-         showSignInView: async function(showAnimation) {
-            ui.validateShowAnimation(showAnimation);
-            await ui.beforeShowingSignInView();
-            ui.showView(ui.$view_signIn, showAnimation, ui.$headerButton_registerInstead);
-         },
-
-         setSignInFormFeedback: function(feedback, isProblematic=false) {
-            ui.$text_signInFormFeedback.text(feedback);
-            isProblematic ?
-               ui.$text_signInFormFeedback.css("color", "#FF8A80")
-               : ui.$text_signInFormFeedback.css("color", "");
-         },
-
-         validateSignInForm: function() {
-            (ui.signInUsernameIsValid && ui.signInPasswordIsValid) ?
-               ui.enableSignInSubmitButton()
-               : ui.disableSignInSubmitButton();
-         },
-
-         resetSignInForm: function() {
-            ui.setSignInFormFeedback(ui.initialSignInFormFeedback);
-            ui.resetSignInUsernameField();
-            ui.resetSignInPasswordField();
-            ui.disableSignInSubmitButton();
-         },
-
-         validateSignInFormUsername: function() {
-            const enteredUsername = this.$input_signInUsername.val();
-            ui.signInUsernameIsValid = false;
-
-            if(enteredUsername == "") {
-               ui.$label_signInUsername.addClass("invalid");
-               ui.$label_signInUsername.text("Username is blank.");
-            }
-
-            else if(enteredUsername.trim().length != enteredUsername.length) {
-               ui.$label_signInUsername.addClass("invalid");
-               ui.$label_signInUsername.text("Username begins/ends in whitespace.");
-            }
-
-            else {
-               ui.$label_signInUsername.removeClass("invalid");
-               ui.$label_signInUsername.text(ui.initialSignInUsernameLabel);
-               ui.signInUsernameIsValid = true;
-            }
-         },
-
-         resetSignInUsernameField: function() {
-            ui.$input_signInUsername.val("");
-            ui.$label_signInUsername.val(ui.initialSignInUsernameLabel);
-            ui.signInUsernameIsValid = false;
-            ui.disableSignInSubmitButton();
-         },
-
-         validateSignInFormPassword: function() {
-            const enteredPassword = this.$input_signInPassword.val();
-            ui.signInPasswordIsValid = false;
-
-            if(enteredPassword == "") {
-               ui.$label_signInPassword.addClass("invalid");
-               ui.$label_signInPassword.text("Password is blank.");
-            }
-
-            else {
-               ui.$label_signInPassword.removeClass("invalid");
-               ui.$label_signInPassword.text(ui.initialSignInPasswordLabel);
-               ui.signInPasswordIsValid = true;
-            }
-         },
-
-         resetSignInPasswordField: function() {
-            ui.$input_signInPassword.val("");
-            ui.$label_signInPassword.val(ui.initialSignInPasswordLabel);
-            ui.signInPasswordIsValid = false;
-            ui.disableSignInSubmitButton();
-         },
-
-         disableSignInSubmitButton: function() {
-            ui.$button_signInFormSubmit.prop("disabled", true);
-         },
-
-         enableSignInSubmitButton: function() {
-            ui.$button_signInFormSubmit.prop("disabled", false);
-         },
-
-         //API Call
-         signIn: async function(username, password) {
-            return new Promise((resolve, reject)=> {
-               $.ajax({
-                  method: "POST",
-                  url: "/api/auth/sign-in",
-                  contentType: "application/json",
-                  data: JSON.stringify({
-                     username: username,
-                     password: password
-                  })
-               })
-               .then(async ()=> {
-                  ui.setSignInFormFeedback("Success!");
-                  appSession.user = getCookieValue("user");
-                  await pause(700); //So that the 'Success!" message can be parsed by the user
-
-                  await ui.hideCurrentView("fadeOutLeft")
-                  ui.showUserHomeView("fadeInRight");
-                  resolve();
-               })
-               .catch((returnedData)=> {
-                  const errorStatus = returnedData.status;
-                  const response = returnedData.responseJSON;
-                  const errorType = response.errorType;
-                  console.error("ERROR:", errorStatus, response);
-
-                  switch(errorType) {
-                     case "SessionAlreadyActive":
-                        alert("ERROR: SessionAlreadyActive");
-                        break;
-                     case "MissingField":
-                        alert("ERROR: MissingField");
-                        break;
-                     case "UnexpectedDataType":
-                        alert("ERROR: UnexpectedDataType");
-                        break;
-                     case "MissingField":
-                        alert("ERROR: MissingField");
-                        break;
-                     case "UntrimmedString":
-                        alert("ERROR: UntrimmedString");
-                        break;
-                     case "NoSuchUser":
-                        ui.setSignInFormFeedback("No such account.", true);
-                        ui.resetSignInPasswordField();
-                        break;
-                     default:
-                        alert(`ERROR: signIn() enountered unexpected error '${errorType}'.`, );
-                        break;
-                  }
-               });
-            });
-         },
-      //#endregion
-
-      //DONE
-      //#region Register View Functions
-         beforeShowingRegisterView: async function() {
-            return new Promise((resolve, reject)=> {
-               ui.resetRegisterForm();
-               resolve();
-            });
-         },
-
-         showRegisterView: async function(showAnimation) {
-            ui.validateShowAnimation(showAnimation);
-            await ui.beforeShowingRegisterView();
-            ui.showView(ui.$view_register, showAnimation, ui.$headerButton_signInInstead);
-
-            window.scrollTo(0, 0);
-         },
-
-         setRegisterFormFeedback: function(feedback, isProblematic=false) {
-            ui.$text_registerFormFeedback.text(feedback);
-            (isProblematic) ?
-               ui.$text_signInFormFeedback.css("color", "#FF8A80")
-               : ui.$text_signInFormFeedback.css("color", "");
-         },
-
-         validateRegisterForm: function() {
-            (ui.registerUsernameIsValid && ui.registerEmailIsValid && ui.registerPasswordIsValid && ui.registerPasswordConfirmationIsValid) ?
-               ui.enableRegisterSubmitButton()
-               : ui.disableRegisterSubmitButton();
-         },
-
-         resetRegisterForm: function() {
-            ui.setRegisterFormFeedback(ui.initialRegisterFormFeedback);
-            ui.resetRegisterUsernameField();
-            ui.resetRegisterEmailField();
-            ui.resetRegisterPasswordField();
-            ui.resetRegisterPasswordConfirmationField();
-            ui.disableRegisterSubmitButton();
-         },
-
-         validateRegisterFormUsername: function() {
-            const enteredUsername = this.$input_registerUsername.val();
-            ui.registerUsernameIsValid = false;
-
-            if(!enteredUsername) {
-               ui.$label_registerUsername.addClass("invalid");
-               ui.$label_registerUsername.text("Username is blank.");
-            }
-
-            else if(enteredUsername.trim().length != enteredUsername.length) {
-               ui.$label_registerUsername.addClass("invalid");
-               ui.$label_registerUsername.text("Username begins or ends with whitspace.");
-            }
-
-            else {
-               ui.$label_registerUsername.removeClass("invalid");
-               ui.$label_registerUsername.text(ui.initialRegisterUsernameLabel);
-               ui.registerUsernameIsValid = true;
-            }
-         },
-
-         resetRegisterUsernameField: function() {
-            ui.$input_registerUsername.val("");
-            ui.$label_registerUsername.val(ui.initialRegisterUsernameLabel);
-            ui.registerUsernameIsValid = false;
-            ui.disableRegisterSubmitButton();
-         },
-
-         validateRegisterFormEmail: function() {
-            const enteredEmail = this.$input_registerEmail.val();
-            const emailRegex = /[0-9a-zA-Z!#$%&'"*/=.?^_+\-`{|}~]+@{1}[^@\s]+/;
-
-            if(enteredEmail!="" && enteredEmail != enteredEmail.match(emailRegex)) {
-               ui.$label_registerEmail.addClass("invalid");
-               ui.$label_registerEmail.text("Email is invalid.");
-               ui.registerEmailIsValid = false;
-            }
-
-            else {
-               ui.$label_registerEmail.removeClass("invalid");
-               ui.$label_registerEmail.text(ui.initialRegisterEmailLabel);
-               ui.registerEmailIsValid = true;
-            }
-         },
-
-         resetRegisterEmailField: function() {
-            ui.$input_registerEmail.val("");
-            ui.$label_registerEmail.val(ui.initialRegisterEmailLabel);
-            ui.registerEmailIsValid = true;
-            ui.disableRegisterSubmitButton();
-         },
-
-         validateRegisterFormPassword: function() {
-            const enteredPassword = this.$input_registerPassword.val();
-            ui.signInPasswordIsValid = false;
-
-            if(enteredPassword == "") {
-               ui.$label_registerPassword.addClass("invalid");
-               ui.$label_registerPassword.text("Password is blank.");
-            }
-
-            else if(enteredPassword.length < 10) {
-               ui.$label_registerPassword.addClass("invalid");
-               ui.$label_registerPassword.text("Password must be at least 10 characters.");
-            }
-
-            else {
-               ui.$label_registerPassword.removeClass("invalid");
-               ui.$label_registerPassword.text(ui.initialRegisterPasswordLabel);
-               ui.registerPasswordIsValid = true;
-            }
-
-            //Changes to this field after the password has been confirmed cause re-test the validity of the confimed password.
-            if(enteredPassword != ui.$input_registerConfirmPassword.val()) {
-               ui.$label_registerConfirmPassword.addClass("invalid");
-               ui.$label_registerConfirmPassword.text("Passwords do not match.");
-               ui.registerPasswordConfirmationIsValid = false;
-            }
-
-            else {
-               ui.$label_registerConfirmPassword.removeClass("invalid");
-               ui.$label_registerConfirmPassword.text(ui.initialRegisterPasswordConfirmationLabel);
-               ui.registerPasswordConfirmationIsValid = true;
-            }
-         },
-
-         resetRegisterPasswordField: function() {
-            ui.$input_registerPassword.val("");
-            ui.$label_registerPassword.val(ui.initialRegisterPasswordLabel);
-            ui.registerPasswordIsValid = false;
-            ui.disableRegisterSubmitButton();
-         },
-
-         validateRegisterFormPasswordConfirmation: function() {
-            const enteredPasswordConfirmation = this.$input_registerConfirmPassword.val();
-            ui.registerPasswordConfirmationIsValid = false;
-
-            if(enteredPasswordConfirmation == "") {
-               ui.$label_registerConfirmPassword.addClass("invalid");
-               ui.$label_registerConfirmPassword.text("Confirm your password.");
-            }
-
-            else if(enteredPasswordConfirmation != ui.$input_registerPassword.val()) {
-               ui.$label_registerConfirmPassword.addClass("invalid");
-               ui.$label_registerConfirmPassword.text("Passwords do not match.");
-            }
-
-            else {
-               ui.$label_registerConfirmPassword.removeClass("invalid");
-               ui.$label_registerConfirmPassword.text(ui.initialRegisterPasswordConfirmationLabel);
-               ui.registerPasswordConfirmationIsValid = true;
-            }
-         },
-
-         resetRegisterPasswordConfirmationField: function() {
-            ui.$input_registerConfirmPassword.val("");
-            ui.$label_registerConfirmPassword.val(ui.initialRegisterPasswordConfirmationLabel);
-            ui.registerPasswordConfirmationIsValid= false;
-            ui.disableRegisterSubmitButton();
-         },
-
-         disableRegisterSubmitButton: function() {
-            this.$button_registerFormSubmit.prop("disabled", true);
-         },
-
-         enableRegisterSubmitButton: function() {
-            this.$button_registerFormSubmit.prop("disabled", false);
-         },
-
-         //API Call
-         createUser: async function(username, password, email) {
-            return new Promise((resolve, reject)=> {
-               let requestData = {};
-               requestData.username = username;
-               requestData.password = password;
-               if(email) { requestData.email = email; }
-
-               $.ajax({
-                  method: "POST",
-                  url: "/api/user/create",
-                  contentType: "application/json",
-                  data: JSON.stringify(requestData)
-               })
-               .then(async ()=> {
-                  ui.setRegisterFormFeedback("Success!");
-                  appSession.user = getCookieValue("user");
-                  await pause(700); //So that the 'Success!" message can be understood
-
-                  await ui.hideCurrentView("fadeOutLeft");
-                  ui.showUserHomeView("fadeInRight");
-                  resolve();
-               })
-               .catch((returnedData)=> {
-                  const response = returnedData.responseJSON;
-                  const errorType = response.errorType;
-                  console.error("ERROR:", response);
-
-                  switch(errorType) {
-                     case "UsernameNotUnique":
-                        ui.$label_registerUsername.addClass("invalid");
-                        ui.$label_registerUsername.text("Username already in use.");
-                        ui.$input_registerUsername.val("");
-                        ui.disableRegisterSubmitButton();
-                        break;
-                     case "EmailNotUnique":
-                        ui.$label_registerEmail.addClass("invalid");
-                        ui.$label_registerEmail.text("Email address already in use.");
-                        ui.$input_registerEmail.val("");
-                        ui.disableRegisterSubmitButton();
-                        break;
-                     default:
-                        alert("ERROR: createUser() enountered an unexpected error.");
-                        break;
-                  }
-               });
-            });
-         },
-      //#endregion
-
-      //DONE
-      //#region User Home View Functions
-         beforeShowingUserHomeView: async function() {
-            return new Promise(async (resolve, reject)=> {
-               let userInformation = await ui.getUserInformation(appSession.user);
-                  console.log("fetched userInformation:", userInformation);
-               const cocktailCount = userInformation.createdCocktails.length;
-               const cocktails = userInformation.createdCocktails;
-
-               //Set active username
-               ui.$text_activeUser.text(appSession.user);
-
-               //Set recipe count
-               if (cocktailCount === 1) {
-                  ui.$text_recipeCount.text("1 Recipe");
-               }
-               else {
-                  ui.$text_recipeCount.text(`${userInformation.createdCocktails.length} Recipes`)
-               }
-
-               //Render cocktail recipe cards
-               ui.renderCocktailRecipeCards(cocktails);
-
-               resolve();
-            });
-         },
-
-         showUserHomeView: async function(showAnimation) {
-            ui.validateShowAnimation(showAnimation);
-            await ui.beforeShowingUserHomeView();
-            ui.showView(ui.$view_userHome, showAnimation, $("#js-headerButton-signOut, #js-headerButton-addRecipe"));
-
-            window.scrollTo(0, ui.userHomeViewScrollPosition || 0);
-         },
-
-         //API Call
-         getUserInformation: function(targetUsername) {
-            return new Promise((resolve, reject)=> {
-               $.ajax({
-                  method: "GET",
-                  url: `/api/user/${targetUsername}`
-               })
-               .then((userInformation)=> {
-                  appSession.userCocktails = userInformation.createdCocktails;
-                  resolve(userInformation);
-               })
-               .catch(async (error)=> {
-                  const errorStatus = error.status;
-                  const response = error.responseJSON;
-                  const errorType = response.errorType;
-                  console.error("ERROR:", errorStatus, response);
-
-                  switch(errorType) {
-                     case "NoSuchUser":
-                        alert("ERROR: NoSuchUser");
-                        //The user is both signed in, and nonexistent. This can only happen if the user tampers with their cookies, so the session is deemed invalid and the user is forcibly 'signed out', clearing any active cookies.
-                        ui.signOut();
-                        break;
-                     default:
-                        alert("ERROR: Get User Information enountered an unexpected error.");
-                        break;
-                  }
-               });
-            });
-         },
-
-         buildCocktailRecipeCard: function(cardIndex, cocktailRecipeName, ingredientNames) {
-            return `
-               <div id="recipe-card-${cardIndex}" class="recipe-card">
-                  <h3 id="recipe-card-name" class="recipe-name typo-heading-small typo-color-orange">${cocktailRecipeName}</h3>
-                  <p id="recipe-card-ingredientNames" class="ingredients-list typo-body-small">${ingredientNames}</p>
-                  <img src="resources/icons/chevron_right.svg" class="svg-icon svg-show-recipe-chevron" alt="View cocktail recipe...">
-               </div>`;
-         },
-
-         renderCocktailRecipeCards: function(cocktails) {
-            builtCocktails = [];
-            cocktails.forEach((cocktail, index)=> {
-               //Compose a comma-separated list of ingredient names
-               cocktail.ingredientNames = cocktail.ingredients.map((ingredient)=> {return ingredient.name}).join(", ");
-               builtCocktails.push( ui.buildCocktailRecipeCard(index, cocktail.name, cocktail.ingredientNames) )
-            });
-
-            $("#js-userHome-wrapper-recipeCards").html(builtCocktails.join(""));
-         },
-
-         //API Call
-         signOut: function() {
-            return new Promise((resolve, reject)=> {
-               $.ajax({
-                  method: "GET",
-                  url: "/api/auth/sign-out"
-               })
-               .then(()=> {
-                  appSession.reset();
-                  ui.reset();
-
-                  ui.hideCurrentView("fadeOutRight")
-                  .then(()=> {
-                     ui.showLandingView("fadeInLeft");
-                     resolve();
-                  });
-               });
-            });
-         },
-
-         saveUserHomeViewScrollPosition: function() {
-            ui.userHomeViewScrollPosition = window.scrollY;
-         },
-      //#endregion
-
-      //#region Recipe Create View
-      beforeShowingRecipeCreateView: async function() {
+      configureEventListeners: function() {
+         ui.landingView.$headerButtons.$signIn.on("click", async function(e) {
+            await ui.hideCurrentView("fadeOutLeft");
+            ui.signInView.show("fadeInRight");
+         });
+
+         ui.landingView.$registerButton.on("click", async function(e) {
+            await ui.hideCurrentView("fadeOutLeft");
+            ui.registerView.show("fadeInRight");
+         });
+      },
+      beforeShow: function() {
          return new Promise((resolve, reject)=> {
-            ui.resetRecipeCreateView();
+            //No functionality required yet
             resolve();
          });
       },
-
-      resetRecipeCreateView: function() {
-         ui.resetCocktailNameField();
-         ui.resetRecipeCreateIngredientBlocks();
-      },
-
-      resetCocktailNameField: function() {
-         ui.$input_recipeCreateCocktailName.val("");
-         ui.$label_recipeCreateCocktailName.text(ui.initialRecipeCreateCocktailNameLabel);
-      },
-
-      resetRecipeCreateIngredientBlocks: function() {
-         ui.$wrapper_recipeCreateIngredientBlocks.html(ui.initialRecipeCreateIngredientBlocks);
-      },
-
-      showRecipeCreateView: async function(showAnimation) {
+      show: async function(showAnimation="fadeIn") {
          ui.validateShowAnimation(showAnimation);
-         await ui.beforeShowingRecipeCreateView();
-         ui.showView(ui.$view_recipeCreate, showAnimation, ui.$headerButton_cancelRecipeCreate);
-         window.scrollTo(0, 0);
+         await ui.landingView.beforeShow();
+         ui.showView(ui.landingView, showAnimation);
+      },
+   },
+
+   registerView: {
+      //#region jQuery Selectors
+      $view: $("#js-view-register"),
+      $headerButtons: {
+         $signInInstead: $("#js-headerButton-signInInstead")
       },
 
-      recipeCreate_addIngredientBlock: async function() {
-         //The new block's index begins as the number of existing ingredientBlocks
-         let newBlockIndex = $(".recipeCreate-ingredientBlock").length;
+      //Form Elements
+      $form: $("#form-register"),
+      $formFeedback: $("#js-register-formFeedback"),
+      $usernameInput: $("#js-register-input-username"),
+      $usernameLabel: $("#js-register-label-username"),
+      $emailInput: $("#js-register-input-email"),
+      $emailLabel: $("#js-label-register-email"),
+      $passwordInput: $("#js-register-input-password"),
+      $passwordLabel: $("#js-register-label-password"),
+      $confirmPasswordInput: $("#js-register-input-confirmPassword"),
+      $confirmPasswordLabel: $("#js-register-label-confirmPassword"),
+      $submitButton: $("#js-register-button-submit"),
+      //#endregion
 
-         //However, depending on how the user has added and deleted blocks, an ingredientBlock with that index may already exist
-         while( $(`#recipeCreate-ingredientBlock-${newBlockIndex}`).length ) {
-            console.log(`#recipeCreate-ingredientBlock-${newBlockIndex} already exists. Incrementing ID and trying again.`)
-            newBlockIndex++;
+      //#region Initial Values
+      initialFormFeedback: $("#js-register-formFeedback").text(),
+      initialUsernameLabel: $("#js-register-label-username").text(),
+      initialEmailLabel: $("#js-label-register-email").text(),
+      initialPasswordLabel: $("#js-register-label-confirmPassword").text(),
+      initialConfirmPasswordLabel: $("#js-register-label-confirmPassword").text(),
+      //#endregion
+
+      //#region State Variables
+      usernameInputIsValid: false,
+      emailInputIsValid: true,
+      passwordInputIsValid: false,
+      confirmPasswordInputIsValid: false,
+      //#endregion
+
+      configureEventListeners: function() {
+         ui.registerView.$headerButtons.$signInInstead.on("click", async function(e) {
+            await ui.hideCurrentView("fadeOutLeft");
+            ui.signInView.show("fadeInRight");
+         });
+
+         ui.registerView.$form.on("submit", function(e) {
+            //Prevents unnecessary refreshing behavior.
+            //The form's submit button interprets the submit event on behalf of the form element.
+            e.preventDefault();
+         });
+
+         ui.registerView.$usernameInput.on("input", function(e) {
+            ui.registerView.validateUsernameInput();
+            ui.registerView.validateForm();
+         });
+
+         ui.registerView.$emailInput.on("input", function(e) {
+            ui.registerView.validateEmailInput();
+            ui.registerView.validateForm();
+         });
+
+         ui.registerView.$passwordInput.on("input", function(e) {
+            ui.registerView.validatePasswordInput();
+            ui.registerView.validateForm();
+         });
+
+         ui.registerView.$confirmPasswordInput.on("input", function(e) {
+            ui.registerView.validateConfirmPasswordInput();
+            ui.registerView.validateForm();
+         });
+
+         ui.registerView.$submitButton.on("click", async function(e) {
+            ui.registerView.setFormFeedback("Registering...");
+            await ui.registerView.createUser(
+               ui.registerView.$usernameInput.val(),
+               ui.registerView.$passwordInput.val(),
+               ui.registerView.$emailInput.val()
+            );
+         });
+      },
+      beforeShow: function() {
+         return new Promise((resolve, reject)=> {
+            ui.registerView.reset();
+            resolve();
+         });
+      },
+      show: async function(showAnimation="fadeIn") {
+         ui.validateShowAnimation(showAnimation);
+         await ui.registerView.beforeShow();
+         ui.showView(ui.registerView, showAnimation);
+      },
+      reset: function() {
+         //With only one call, this reset method is hard to justify, but it maintains consistency with other views that have more complex reset behaviors.
+         ui.registerView.resetForm();
+      },
+
+      setFormFeedback: function(feedback, isError=false) {
+         ui.registerView.$formFeedback.text(feedback);
+         (isError) ?
+            ui.registerView.$formFeedback.css("color", "#FF8A80")
+            : ui.registerView.$formFeedback.css("color", "");
+      },
+      enableSubmitButton: function() {
+         ui.registerView.$submitButton.prop("disabled", false);
+      },
+      disableSubmitButton: function() {
+         ui.registerView.$submitButton.prop("disabled", true);
+      },
+      resetUsernameField: function() {
+         ui.registerView.$usernameInput.val("");
+         ui.registerView.$usernameLabel.text(ui.registerView.initialUsernameLabel);
+         ui.registerView.$usernameLabel.removeClass("invalid");
+         ui.registerView.usernameInputIsValid = false;
+         ui.registerView.disableSubmitButton();
+      },
+      resetEmailField: function() {
+         ui.registerView.$emailInput.val("");
+         ui.registerView.$emailLabel.text(ui.registerView.initialEmailLabel);
+         ui.registerView.$emailLabel.removeClass("invalid");
+         ui.registerView.emailInputIsValid = true;
+         ui.registerView.disableSubmitButton();
+      },
+      resetPasswordField: function() {
+         ui.registerView.$passwordInput.val("");
+         ui.registerView.$passwordLabel.text(ui.registerView.initialPasswordLabel);
+         ui.registerView.$passwordLabel.removeClass("invalid");
+         ui.registerView.passwordInputIsValid = false;
+         ui.registerView.disableSubmitButton();
+      },
+      resetConfirmPasswordField: function() {
+         ui.registerView.$confirmPasswordInput.val("");
+         ui.registerView.$confirmPasswordLabel.text(ui.registerView.initialConfirmPasswordLabel);
+         ui.registerView.$confirmPasswordLabel.removeClass("invalid");
+         ui.registerView.confirmPasswordInputIsValid = false;
+         ui.registerView.disableSubmitButton();
+      },
+      resetForm: function() {
+         ui.registerView.setFormFeedback(ui.registerView.initialFormFeedback);
+         ui.registerView.resetUsernameField();
+         ui.registerView.resetEmailField();
+         ui.registerView.resetPasswordField();
+         ui.registerView.resetConfirmPasswordField();
+         ui.registerView.disableSubmitButton();
+      },
+
+      validateUsernameInput: function() {
+         const enteredUsername = ui.registerView.$usernameInput.val();
+         ui.registerView.usernameInputIsValid = false;
+
+         if(!enteredUsername) {
+            ui.registerView.$usernameLabel.addClass("invalid");
+            ui.registerView.$usernameLabel.text("Username is blank.");
          }
 
-         ingredientBlockTemplate = `
-            <div id="recipeCreate-ingredientBlock-${newBlockIndex}" class="recipeCreate-ingredientBlock" style="display:none;">
+         else if(enteredUsername.trim().length != enteredUsername.length) {
+            ui.registerView.$usernameLabel.addClass("invalid");
+            ui.registerView.$usernameLabel.text("Username begins/ends with whitespace.");
+         }
 
+         else {
+            ui.registerView.$usernameLabel.removeClass("invalid");
+            ui.registerView.$usernameLabel.text(ui.registerView.initialUsernameLabel);
+            ui.registerView.usernameInputIsValid = true;
+         }
+      },
+      validateEmailInput: function() {
+         const enteredEmail = ui.registerView.$emailInput.val();
+         const emailRegex = /[0-9a-zA-Z!#$%&'"*/=.?^_+\-`{|}~]+@{1}[^@\s]+/;
+
+         //If a en email has been entered, but it does not adhere to the provided regular expression
+         if(enteredEmail!="" && enteredEmail!=enteredEmail.match(emailRegex)) {
+            ui.registerView.$emailLabel.addClass("invalid");
+            ui.registerView.$emailLabel.text("Email is invalid.");
+            ui.registerView.emailInputIsValid = false;
+         }
+
+         else {
+            ui.registerView.$emailLabel.removeClass("invalid");
+            ui.registerView.$emailLabel.text(ui.registerView.initialEmailLabel);
+            ui.registerView.emailInputIsValid = true;
+         }
+      },
+      validatePasswordInput: function() {
+         const enteredPassword = ui.registerView.$passwordInput.val();
+         ui.registerView.passwordInputIsValid = false;
+
+         if(enteredPassword == "") {
+            ui.registerView.$passwordLabel.addClass("invalid");
+            ui.registerView.$passwordLabel.text("Password is blank.");
+         }
+
+         else if(enteredPassword.length < 10) {
+            ui.registerView.$passwordLabel.addClass("invalid");
+            ui.registerView.$passwordLabel.text("Password must be at least 10 characters.");
+         }
+
+         else {
+            ui.registerView.$passwordLabel.removeClass("invalid");
+            ui.registerView.$passwordLabel.text(ui.registerView.initialPasswordLabel);
+            ui.registerView.passwordInputIsValid = true;
+         }
+
+         //Changes to this field cause a re-test of the validity of the confimed password.
+         if(enteredPassword != ui.registerView.$confirmPasswordInput.val()) {
+            ui.registerView.$confirmPasswordLabel.addClass("invalid");
+            ui.registerView.$confirmPasswordLabel.text("Passwords do not match.");
+            ui.registerView.confirmPasswordInputIsValid = false;
+         }
+
+         else {
+            ui.registerView.$confirmPasswordLabel.removeClass("invalid");
+            ui.registerView.$confirmPasswordLabel.text(ui.registerView.initialConfirmPasswordLabel);
+            ui.registerView.confirmPasswordInputIsValid = true;
+         }
+      },
+      validateConfirmPasswordInput: function() {
+         const enteredConfirmPassword = ui.registerView.$confirmPasswordInput.val();
+         ui.registerView.confirmPasswordInputIsValid = false;
+
+         if(enteredConfirmPassword == "") {
+            ui.registerView.$confirmPasswordLabel.addClass("invalid");
+            ui.registerView.$confirmPasswordLabel.text("Confirm your password.");
+         }
+
+         else if(enteredConfirmPassword != ui.registerView.$passwordInput.val()) {
+            ui.registerView.$confirmPasswordLabel.addClass("invalid");
+            ui.registerView.$confirmPasswordLabel.text("Passwords do not match.");
+         }
+
+         else {
+            ui.registerView.$confirmPasswordLabel.removeClass("invalid");
+            ui.registerView.$confirmPasswordLabel.text(ui.registerView.initialConfirmPasswordLabel);
+            ui.registerView.confirmPasswordInputIsValid = true;
+         }
+      },
+      validateForm: function() {
+         if (
+            ui.registerView.usernameInputIsValid
+            && ui.registerView.emailInputIsValid
+            && ui.registerView.passwordInputIsValid
+            && ui.registerView.confirmPasswordInputIsValid
+         ) {
+            ui.registerView.enableSubmitButton();
+         }
+         else {
+            ui.registerView.disableSubmitButton();
+         }
+      },
+
+      //API Call
+      createUser: async function(username, password, email) {``
+         return new Promise((resolve, reject)=> {
+            let requestData = {};
+            requestData.username = username;
+            requestData.password = password;
+            if(email) { requestData.email = email; }
+
+            $.ajax({
+               method: "POST",
+               url: "/api/user/create",
+               contentType: "application/json",
+               data: JSON.stringify(requestData)
+            })
+            .then(async ()=> {
+               ui.registerView.setFormFeedback("Success!");
+               appSession.user = getCookieValue("user");
+               appSession.sessionToken = getCookieValue("session");
+
+               await pause(700); //So that the 'Success!" message can be interpreted by the user
+               await ui.hideCurrentView("fadeOutLeft");
+               ui.userHomeView.show("fadeInRight");
+               resolve();
+            })
+            .catch((returnedData)=> {
+               const response = returnedData.responseJSON;
+               const errorType = response.errorType;
+               console.error("ERROR:", response);
+
+               switch(errorType) {
+                  case "UsernameNotUnique":
+                     ui.registerView.$usernameLabel.addClass("invalid");
+                     ui.registerView.$usernameLabel.text("Username already in use.");
+                     break;
+                  case "EmailNotUnique":
+                     ui.registerView.$emailLabel.addClass("invalid");
+                     ui.registerView.$emailLabel.text("Email address already in use.");
+                     break;
+                  default:
+                     alert("ERROR: createUser() enountered an unexpected error.");
+                     break;
+               }
+               ui.registerView.setFormFeedback(ui.registerView.initialFormFeedback);
+               ui.registerView.disableSubmitButton();
+            });
+         });
+      }
+   },
+
+   signInView: {
+      //#region jQuery Seletors
+      $view: $("#js-view-signIn"),
+      $headerButtons: {
+         $registerInstead: $("#js-headerButton-registerInstead")
+      },
+
+      //Form Elements
+      $form: $("#form-signIn"),
+      $formFeedback: $("#js-signIn-formFeedback"),
+      $usernameInput: $("#js-signIn-input-username"),
+      $usernameLabel: $("#js-signIn-label-username"),
+      $passwordInput: $("#js-signIn-input-password"),
+      $passwordLabel: $("#js-signIn-label-password"),
+      $submitButton: $("#js-signIn-button-submit"),
+      //#endregion
+
+      //#region Initial Values
+      initialFormFeedback: $("#js-signIn-formFeedback").text(),
+      initialUsernameLabel: $("#js-signIn-label-username").text(),
+      initialPasswordLabel: $("#js-signIn-label-password").text(),
+      //#endregion
+
+      //#region State Variables
+      usernameInputIsValid: false,
+      passwordInputIsValid: false,
+      //#endregion
+
+      configureEventListeners: function() {
+         ui.signInView.$headerButtons.$registerInstead.on("click", async function(e) {
+            await ui.hideCurrentView("fadeOutRight");
+            ui.registerView.show("fadeInLeft");
+         });
+
+         ui.signInView.$form.on("submit", function(e) {
+            //Prevents unnecessary refreshing behavior.
+            //The form's submit button interprets the submit event on behalf of the form element.
+            e.preventDefault();
+         });
+
+         ui.signInView.$usernameInput.on("input", function(e) {
+            ui.signInView.validateUsernameInput();
+            ui.signInView.validateForm();
+         });
+
+         ui.signInView.$passwordInput.on("input", function(e) {
+            ui.signInView.validatePasswordInput();
+            ui.signInView.validateForm();
+         });
+
+         ui.signInView.$submitButton.on("click", async function(e) {
+            ui.signInView.setFormFeedback("Signing in...");
+            await ui.signInView.signIn(
+               ui.signInView.$usernameInput.val(),
+               ui.signInView.$passwordInput.val()
+            );
+         });
+      },
+      beforeShow: function() {
+         return new Promise((resolve, reject)=> {
+            ui.signInView.reset();
+            resolve();
+         });
+      },
+      show: async function(showAnimation="fadeIn") {
+         ui.validateShowAnimation(showAnimation);
+         await ui.signInView.beforeShow();
+         ui.showView(ui.signInView, showAnimation);
+      },
+      reset: function() {
+         ui.signInView.resetForm();
+      },
+
+      setFormFeedback: function(feedback, isError=false) {
+         ui.signInView.$formFeedback.text(feedback);
+         (isError) ?
+            ui.signInView.$formFeedback.css("color", "#FF8A80")
+            : ui.signInView.$formFeedback.css("color", "");
+      },
+      enableSubmitButton: function() {
+         ui.signInView.$submitButton.prop("disabled", false);
+      },
+      disableSubmitButton: function() {
+         ui.signInView.$submitButton.prop("disabled", true);
+      },
+      resetUsernameField: function() {
+         ui.signInView.$usernameInput.val("");
+         ui.signInView.$usernameLabel.text(ui.signInView.initialUsernameLabel);
+         ui.signInView.$usernameLabel.removeClass("invalid");
+         ui.signInView.usernameInputIsValid = false;
+         ui.signInView.disableSubmitButton();
+      },
+      resetPasswordField: function() {
+         ui.signInView.$passwordInput.val("");
+         ui.signInView.$passwordLabel.text(ui.signInView.initialPasswordLabel);
+         ui.signInView.$passwordLabel.removeClass("invalid");
+         ui.signInView.passwordInputIsValid = false;
+         ui.signInView.disableSubmitButton();
+      },
+      resetForm: function() {
+         ui.signInView.setFormFeedback(ui.signInView.initialFormFeedback);
+         ui.signInView.resetUsernameField();
+         ui.signInView.resetPasswordField();
+         ui.signInView.disableSubmitButton();
+      },
+
+      validateUsernameInput: function() {
+         const enteredUsername = ui.signInView.$usernameInput.val();
+         ui.signInView.usernameInputIsValid = false;
+
+         if(enteredUsername == "") {
+            ui.signInView.$usernameLabel.addClass("invalid");
+            ui.signInView.$usernameLabel.text("Username is blank.");
+         }
+
+         else if(enteredUsername.trim().length != enteredUsername.length) {
+            ui.signInView.$usernameLabel.addClass("invalid");
+            ui.signInView.$usernameLabel.text("Username begins/ends with whitespace.");
+         }
+
+         else {
+            ui.signInView.$usernameLabel.removeClass("invalid");
+            ui.signInView.$usernameLabel.text(ui.signInView.initialUsernameLabel);
+            ui.signInView.usernameInputIsValid = true;
+         }
+      },
+      validatePasswordInput: function() {
+         const enteredPassword = ui.signInView.$passwordInput.val();
+         ui.signInView.passwordInputIsValid = false;
+
+         if(enteredPassword == "") {
+            ui.signInView.$passwordLabel.addClass("invalid");
+            ui.signInView.$passwordLabel.text("Password is blank.");
+         }
+
+         else {
+            ui.signInView.$passwordLabel.removeClass("invalid");
+            ui.signInView.$passwordLabel.text(ui.signInView.initialPasswordLabel);
+            ui.signInView.passwordInputIsValid = true;
+         }
+      },
+      validateForm: function() {
+         (ui.signInView.usernameInputIsValid && ui.signInView.passwordInputIsValid) ?
+            ui.signInView.enableSubmitButton()
+            : ui.signInView.disableSubmitButton();
+
+      },
+
+      //API Call
+      signIn: async function(username, password) {
+         return new Promise((resolve, reject)=> {
+            $.ajax({
+               method: "POST",
+               url: "/api/auth/sign-in",
+               contentType: "application/json",
+               data: JSON.stringify({
+                  username: username,
+                  password: password
+               })
+            })
+            .then(async ()=> {
+               ui.signInView.setFormFeedback("Success!");
+               appSession.user = getCookieValue("user");
+               appSession.sessionToken = getCookieValue("session");
+
+               await pause(700); //So that the 'Success!" message can be parsed by the user
+
+               await ui.hideCurrentView("fadeOutLeft");
+               ui.userHomeView.show("fadeInRight");
+               resolve();
+            })
+            .catch((returnedData)=> {
+               const response = returnedData.responseJSON;
+               const errorType = response.errorType;
+               console.error("ERROR:", response);
+
+               switch(errorType) {
+                  case "SessionAlreadyActive":
+                     alert("ERROR: SessionAlreadyActive");
+                     break;
+                  case "MissingField":
+                     alert("ERROR: MissingField");
+                     break;
+                  case "UnexpectedDataType":
+                     alert("ERROR: UnexpectedDataType");
+                     break;
+                  case "MissingField":
+                     alert("ERROR: MissingField");
+                     break;
+                  case "UntrimmedString":
+                     alert("ERROR: UntrimmedString");
+                     break;
+                  case "NoSuchUser":
+                     ui.signInView.setFormFeedback("No such account.", true);
+                     ui.signInView.resetPasswordField();
+                     break;
+                  default:
+                     alert("ERROR: signIn() enountered an unexpected error.");
+                     break;
+               }
+            });
+         });
+      },
+   },
+
+   userHomeView: {
+      //#region jQuery Selectors
+      $view: $("#js-view-userHome"),
+      $headerButtons: {
+         $signOut: $("#js-headerButton-signOut"),
+         $addRecipe: $("#js-headerButton-addRecipe")
+      },
+
+      $activeUser: $("#js-userHome-text-currentUser"),
+      $recipeCount: $("#js-userHome-text-recipeCount"),
+      $recipeCardsWrapper: $("#js-userHome-wrapper-recipeCards"),
+      //#endregion
+
+      //#region State Variables
+      scrollPosition: null,
+      //#endregion
+
+      //#region Initial Values
+      initialActiveUserText: $("#js-userHome-text-currentUser").text(),
+      initialRecipeCountText: $("#js-userHome-text-recipeCount").text(),
+      //#endregion
+
+      configureEventListeners: function() {
+         ui.userHomeView.$headerButtons.$signOut.on("click", function(e) {
+            ui.userHomeView.signOut();
+         });
+
+         ui.userHomeView.$headerButtons.$addRecipe.on("click", async function(e) {
+            ui.userHomeView.cacheScrollPosition();
+            await ui.hideCurrentView("fadeOutLeft");
+            ui.recipeEditView.show("CREATE", "fadeInRight");
+         });
+
+         ui.userHomeView.$recipeCardsWrapper.on("click", ".recipe-card", async function(e) {
+            //Isolates 'n' from the element id 'recipe-card-n'
+            const selectedCardId = e.currentTarget.id.replace("recipe-card-", "");
+
+            appSession.activeCocktail = appSession.userCocktails[selectedCardId];
+            ui.userHomeView.cacheScrollPosition();
+
+            await ui.hideCurrentView("fadeOutLeft");
+            ui.recipeView.show("fadeInRight");
+         });
+      },
+      beforeShow: function() {
+         return new Promise(async (resolve, reject)=> {
+            //Collect information about the current session user
+            let userInformation = await ui.userHomeView.getUserInformation(appSession.user);
+
+            //Set the active username display
+            ui.userHomeView.$activeUser.text(appSession.user);
+
+            //Set recipe count display
+            if (userInformation.createdCocktails.length === 1) {
+               ui.userHomeView.$recipeCount.text("1 Recipe");
+            }
+            else {
+               ui.userHomeView.$recipeCount.text(`${userInformation.createdCocktails.length} Recipes`)
+            }
+
+            //Render the users cocktail recipes as cards
+            ui.userHomeView.renderRecipeCards( userInformation.createdCocktails );
+
+            resolve();
+         });
+      },
+      show: async function(showAnimation="fadeIn") {
+         ui.validateShowAnimation(showAnimation);
+         await ui.userHomeView.beforeShow();
+         ui.showView(ui.userHomeView, showAnimation);
+         window.scrollTo(0, ui.userHomeView.priorScrollPosition||0);
+      },
+      reset: function() {
+         ui.userHomeView.scrollPosition = null;
+         ui.userHomeView.$activeUser.text(ui.userHomeView.initialActiveUserText);
+         ui.userHomeView.$recipeCount.text(ui.userHomeView.initialRecipeCountText);
+      },
+
+      buildRecipeCard: function(cardIndex, recipeName, ingredientNames) {
+         return `
+            <div id="recipe-card-${cardIndex}" class="recipe-card">
+               <h3 id="recipe-card-name" class="recipe-name typo-heading-small typo-color-orange">${recipeName}</h3>
+               <p id="recipe-card-ingredientNames" class="ingredients-list typo-body-small">${ingredientNames}</p>
+               <img src="resources/icons/chevron_right.svg" class="svg-icon svg-show-recipe-chevron" alt="View cocktail recipe...">
+            </div>`;
+      },
+      renderRecipeCards: function(recipesToRender) {
+         let constructedRecipeCards = [];
+
+         recipesToRender.forEach((currentRecipe, index)=> {
+            //Compose a comma-separated list of recipe ingredient names
+            const ingredientNames = currentRecipe.ingredients.map((ingredient)=> {return ingredient.name}).join(", ");
+            //Build Recipe Card
+            const recipeCard = ui.userHomeView.buildRecipeCard(index, currentRecipe.name, ingredientNames);
+            //Push constructed recipe card to storage array
+            constructedRecipeCards.push( recipeCard );
+         });
+
+         //.join("") combines the array of independed HTML elements into a large HTML chunk that can be inserted at once.
+         ui.userHomeView.$recipeCardsWrapper.html( constructedRecipeCards.join("") );
+      },
+      cacheScrollPosition: function() {
+         ui.userHomeView.scrollPosition = window.scrollY;
+      },
+
+      //API Calls
+      getUserInformation: function(targetUsername) {
+         return new Promise((resolve, reject)=> {
+            $.ajax({
+               method: "GET",
+               url: `/api/user/${targetUsername}`
+            })
+            .then((userInformation)=> {
+               appSession.userCocktails = userInformation.createdCocktails;
+               resolve(userInformation);
+            })
+            .catch(async (error)=> {
+               const response = error.responseJSON;
+               const errorType = response.errorType;
+               console.error("ERROR:", response);
+
+               switch(errorType) {
+                  case "NoSuchUser":
+                     alert("ERROR: NoSuchUser");
+                     //The user is both signed in, and nonexistent. This can only happen if the user tampers with their cookies, so the session is deemed invalid and the user is forcibly 'signed out', clearing all active cookies.
+                     ui.userHomeView.signOut();
+                     break;
+                  default:
+                     alert("ERROR: Get User Information enountered an unexpected error.");
+                     break;
+               }
+            });
+         });
+      },
+      signOut: function() {
+         return new Promise((resolve, reject)=> {
+            $.ajax({
+               method: "GET",
+               url: "/api/auth/sign-out"
+            })
+            .then(async ()=> {
+               appSession.reset();
+               ui.reset();
+
+               await ui.hideCurrentView("fadeOutRight")
+               ui.landingView.show("fadeInLeft");
+
+               resolve();
+            });
+         });
+      },
+   },
+
+
+
+
+
+
+
+
+
+
+   recipeEditView: {
+      //#region jQuery Selectors
+      $view: $("#js-view-recipeEdit"),
+      $headerButtons: {
+         $cancel: $("#js-headerButton-recipeEditCancel"),
+      },
+
+      //Form Elements
+      $form: $("#js-view-recipeEdit"),
+      $formFeedback: $("#js-recipeEdit-formFeedback"),
+      $cocktailNameInput: $("#js-input-recipeEdit-cocktailName"),
+      $cocktailNameLabel: $("#js-label-recipeEdit-cocktailName"),
+      $ingredientBlocksWrapper: $("#js-wrapper-recipeEdit-ingredientBlocks"),
+      $addIngredientBlockButton: $("#js-button-recipeEdit-addIngredientBlock"),
+
+      $editModeSubmitButton: $("#js-button-recipeEdit-editModeSubmit"),
+      $createModeSubmitButton: $("#js-button-recipeEdit-createModeSubmit"),
+      //#endregion
+
+      //#region Initial Values
+      initialFormFeedback: $("#js-recipeEdit-formFeedback").text(),
+      initialCocktailNameLabel: $("#js-label-recipeEdit-cocktailName").text(),
+      initialIngredientBlocksWrapper: $("#js-wrapper-recipeEdit-ingredientBlocks").html(),
+      initialIngredientNameLabel: $("#js-label-recipeEdit-ingredientBlock-0-name").text(),
+      initialIngredientAmountLabel: $("#js-label-recipeEdit-ingredientBlock-0-amount").text(),
+      initialIngredientMeasurementUnitLabel: $("#js-label-recipeEdit-ingredientBlock-0-measurementUnit").text(),
+      //#endregion
+
+      //#region State Variables
+      mode: null, //'EDIT' or 'CREATE'
+      $activeSubmitButton: null,
+      editModeTargetId: null,
+
+      cocktailNameInputIsValid: false,
+      ingredientBlockValidityFlags: [
+         {
+            nameIsValid: false,
+            amountIsValid: false,
+            measurementUnitIsValid: false
+         }
+      ],
+      //#endregion
+
+      configureEventListeners: function() {
+         //Inputs wait a certain number of milliseconds before validating themselves to allow for user input to complete
+         //Each input event handler deliberately shares this one timer
+         let validationDelayTimer;
+         const validationDelay = 250; //ms
+
+         ui.recipeEditView.$headerButtons.$cancel.on("click", async function(e) {
+            //The 'mode' view variable is reset in the view's reset() method, so its current value is cached here to be used in the conditional below
+            const mode = ui.recipeEditView.mode;
+
+            await ui.hideCurrentView("fadeOutRight");
+            ui.recipeEditView.reset();
+
+            if (mode == "CREATE") {
+               ui.userHomeView.show("fadeInLeft");
+            }
+            else if (mode == "EDIT") {
+               ui.recipeView.show("fadeInLeft");
+            }
+         });
+
+         ui.recipeEditView.$form.on("submit", function(e) {
+            //Prevents unnecessary refreshing behavior.
+            //The form's submit button interprets the submit event on behalf of the form element.
+            e.preventDefault();
+         });
+
+         ui.recipeEditView.$cocktailNameInput.on("input", function(e) {
+            clearTimeout(validationDelayTimer);
+            validationDelayTimer = setTimeout(function() {
+               ui.recipeEditView.validateCocktailNameField(e.target.id);
+            }, validationDelay);
+         });
+
+         ui.recipeEditView.$ingredientBlocksWrapper.on("input", ".js-input-ingredientBlock-name", function(e) {
+            clearTimeout(validationDelayTimer);
+            validationDelayTimer = setTimeout(function() {
+               ui.recipeEditView.validateIngredientNameField(e.target.id);
+            }, validationDelay);
+         });
+
+         ui.recipeEditView.$ingredientBlocksWrapper.on("input", ".js-input-ingredientBlock-amount", function(e) {
+            clearTimeout(validationDelayTimer);
+            validationDelayTimer = setTimeout(function() {
+               ui.recipeEditView.validateIngredientAmountField(e.target.id);
+            }, validationDelay);
+         });
+
+         ui.recipeEditView.$ingredientBlocksWrapper.on("input", ".js-input-ingredientBlock-measurementUnit", function(e) {
+            clearTimeout(validationDelayTimer);
+            validationDelayTimer = setTimeout(function() {
+               ui.recipeEditView.validateIngredientMeasurementUnitField(e.target.id);
+            }, validationDelay);
+         });
+
+         ui.recipeEditView.$addIngredientBlockButton.on("click", function(e) {
+            ui.recipeEditView.addIngredientBlock();
+         });
+
+         ui.recipeEditView.$ingredientBlocksWrapper.on("click", ".wrapper-ingredientBlock-svg-remove", function(e) {
+            const targetedIngredientBlock = e.currentTarget.parentElement;
+            const targetedIngredientBlockIndex = e.currentTarget.parentElement.id.replace("recipeEdit-ingredientBlock-", "");
+
+            //Slide-up and remove the 'closed' ingredientBlock
+            $(targetedIngredientBlock).slideUp(400, function() {
+               this.remove();
+            });
+            //Nullify its validity flags
+            ui.recipeEditView.ingredientBlockValidityFlags[targetedIngredientBlockIndex] = null;
+         });
+
+         ui.recipeEditView.$editModeSubmitButton.on("click", function(e) {
+            //TODO: $editModeSubmitButton
+            alert("Edit Mode Submit Detected");
+         });
+
+         ui.recipeEditView.$createModeSubmitButton.on("click", function(e) {
+            //TODO $createModeSubmitButton
+            alert("Create Mode Submit Detected");
+         });
+      },
+      beforeShow: function(mode) {
+         return new Promise((resolve, reject)=> {
+            //Reset the view
+            ui.recipeEditView.reset();
+
+            //Sterilize and format the provided 'mode'
+            mode = mode.toUpperCase().trim();
+
+            //Set the mode flag
+            ui.recipeEditView.mode = mode;
+
+            //Prepare Edit Mode
+            if (mode=="EDIT") {
+               ui.recipeEditView.setFormFeedback("Edit Recipe");
+               ui.recipeEditView.$createModeSubmitButton.hide();
+               ui.recipeEditView.$activeSubmitButton = ui.recipeEditView.$editModeSubmitButton;
+               ui.recipeEditView.$editModeSubmitButton.show();
+               ui.recipeEditView.populateWithRecipe(appSession.activeCocktail);
+            }
+
+            //Prepare Create Mode
+            else if (mode=="CREATE") {
+               ui.recipeEditView.setFormFeedback("Create New Recipe");
+               ui.recipeEditView.$editModeSubmitButton.hide();
+               ui.recipeEditView.$activeSubmitButton = ui.recipeEditView.$createModeSubmitButton;
+               ui.recipeEditView.$createModeSubmitButton.show();
+            }
+
+            //Invalid Mode
+            else {
+               ui.recipeEditView.mode = null;
+               console.trace();
+               throw Error(`What? Invalid mode '${mode}' attempted.`);
+            }
+
+            resolve();
+         });
+      },
+      show: async function(mode, showAnimation="fadeIn") {
+         ui.validateShowAnimation(showAnimation);
+         await ui.recipeEditView.beforeShow(mode);
+         ui.showView(ui.recipeEditView, showAnimation);
+      },
+      reset: function() {
+         ui.recipeEditView.mode = null;
+         ui.recipeEditView.editModeTargetId = null;
+         ui.recipeEditView.resetForm();
+      },
+
+      setFormFeedback: function(feedback, isError=false) {
+         ui.recipeEditView.$formFeedback.text(feedback);
+         (isError) ?
+            ui.recipeEditView.$formFeedback.css("color", "#FF8A80")
+            : ui.recipeEditView.$formFeedback.css("color", "");
+      },
+      populateWithRecipe: function(recipe) {
+         //TODO: populateWithRecipe()
+         console.log(`> Populating recipeEditView with:`, recipe);
+
+         //Do things...
+      },
+      buildIngredientBlock: function(blockIndex) {
+         return `
+            <div id="recipeEdit-ingredientBlock-${blockIndex}" class="recipeEdit-ingredientBlock" style="display:none;">
                <div class="wrapper-ingredientBlock-svg-remove">
                   <img src="resources/icons/close.svg" class="svg-ingredientBlock-remove" alt="Remove ingredient.">
                </div>
 
                <div class="wrapper-input wrapper-ingredientBlock-name">
-                  <input id="js-input-recipeCreate-ingredientBlock-${newBlockIndex}-name" type="text" title="Ingredient name." aria-label="ingredient name" required>
-                  <label id="js-label-recipeCreate-ingredientBlock-${newBlockIndex}-name" class="typo-body-small typo-color-orange">Ingredient Name</label>
+                  <input id="js-input-recipeEdit-ingredientBlock-${blockIndex}-name" class="js-input-ingredientBlock-name" type="text" title="Ingredient name." aria-label="ingredient name" required>
+                  <label id="js-label-recipeEdit-ingredientBlock-${blockIndex}-name" class="typo-body-small typo-color-orange">Ingredient Name</label>
                </div>
 
                <div class="wrapper-input wrapper-ingredientBlock-amount">
-                  <input id="js-input-recipeCreate-ingredientBlock-${newBlockIndex}-amount" type="number" min="0" title="Ingredient amount." aria-label="ingredient amount" required>
-                  <label id="js-input-recipeCreate-ingredientBlock-${newBlockIndex}-amount" class="typo-body-small typo-color-orange">Ingredient Amount</label>
+                  <input id="js-input-recipeEdit-ingredientBlock-${blockIndex}-amount" class="js-input-ingredientBlock-amount" type="number" min="0" step="any" title="Ingredient amount." aria-label="ingredient amount" required>
+                  <label id="js-label-recipeEdit-ingredientBlock-${blockIndex}-amount" class="typo-body-small typo-color-orange">Ingredient Amount</label>
                </div>
 
                <div class="wrapper-input wrapper-ingredientBlock-measurementUnit">
-                  <input id="js-input-recipeCreate-ingredientBlock-${newBlockIndex}-measurementUnit" type="text" title="Ingredient measurement unit." aria-label="ingredient measurement unit" required>
-                  <label id="js-input-recipeCreate-ingredientBlock-${newBlockIndex}-measurementUnit" class="typo-body-small typo-color-orange">Measurement Unit</label>
-               </div>
-
-               <div class="wrapper-input wrapper-ingredientBlock-abv">
-                  <input id="js-input-recipeCreate-ingredientBlock-${newBlockIndex}-abv" type="number" min="0" max="100" title="Ingredient ABV Percentage." aria-label="ingredient ABV">
-                  <label id="js-input-recipeCreate-ingredientBlock-${newBlockIndex}-abv" class="typo-body-small typo-color-orange">ABV Percentage (Optional)</label>
+                  <input id="js-input-recipeEdit-ingredientBlock-${blockIndex}-measurementUnit" class="js-input-ingredientBlock-measurementUnit" type="text" title="Ingredient measurement unit." aria-label="ingredient measurement unit" required>
+                  <label id="js-label-recipeEdit-ingredientBlock-${blockIndex}-measurementUnit" class="typo-body-small typo-color-orange">Measurement Unit</label>
                </div>
             </div>
          `;
+      },
+      addIngredientBlock: function() {
+         const slideDownAnimationDuration = 400; //ms
 
-         ui.$wrapper_recipeCreateIngredientBlocks.append(ingredientBlockTemplate);
-         $(`#recipeCreate-ingredientBlock-${newBlockIndex}`).slideDown(400);
-         ui.scrollToBottom(400);
+         let newBlockIndex = 0;
+         //Depending on how the user has added and deleted blocks, an ingredientBlock with that index may already exist
+         //Existence is determined by checking if the ingredientBlock has a 'length' property
+         while( $(`#recipeEdit-ingredientBlock-${newBlockIndex}`).length ) {
+            newBlockIndex++;
+         }
+
+         //Create and add the new ingredientBlock
+         const createdIngredientBlock = ui.recipeEditView.buildIngredientBlock(newBlockIndex);
+         ui.recipeEditView.$ingredientBlocksWrapper.append(createdIngredientBlock);
+
+         //Create a validity flag index for the new ingredientBlock
+         ui.recipeEditView.ingredientBlockValidityFlags[newBlockIndex] = {
+            nameIsValid: false,
+            amountIsValid: false,
+            measurementUnitIsValid: false
+         };
+
+         //Reveal the new ingredientBlock
+         $(`#recipeEdit-ingredientBlock-${newBlockIndex}`).slideDown(slideDownAnimationDuration);
+         //Ensure the view is scrolled such that the new ingredientBlock is made immediately available
+         ui.scrollToBottom(slideDownAnimationDuration);
       },
 
-      validateRecipeName: function() {
-         const cocktailName = ui.$input_recipeCreateCocktailName.val();
-         ui.recipeCreateCocktailNameIsValid = false;
+      enableActiveSubmitButton: function() {
+         ui.recipeEditView.$activeSubmitButton.prop("disabled", false);
+      },
+      disableActiveSubmitButton: function() {
+         ui.recipeEditView.$activeSubmitButton.prop("disabled", true);
+      },
+
+      validateCocktailNameField: function() {
+         const cocktailName = ui.recipeEditView.$cocktailNameInput.val();
+         const initialState = ui.recipeEditView.cocktailNameInputIsValid;
 
          if(!cocktailName) {
-            ui.$label_recipeCreateCocktailName.addClass("invalid");
-            ui.$label_recipeCreateCocktailName.text("Cocktail Name is blank.");
+            ui.recipeEditView.$cocktailNameLabel.addClass("invalid");
+            ui.recipeEditView.$cocktailNameLabel.text("Cocktail Name is blank.");
+            ui.recipeEditView.cocktailNameInputIsValid = false;
          }
          else if(cocktailName.trim().length != cocktailName.length) {
-            ui.$label_recipeCreateCocktailName.addClass("invalid");
-            ui.$label_recipeCreateCocktailName.text("Cocktail Name begins/ends in whitespace.");
+            ui.recipeEditView.$cocktailNameLabel.addClass("invalid");
+            ui.recipeEditView.$cocktailNameLabel.text("Cocktail Name begins/ends in whitespace.");
+            ui.recipeEditView.cocktailNameInputIsValid = false;
          }
          else {
-            ui.$label_recipeCreateCocktailName.removeClass("invalid");
-            ui.$label_recipeCreateCocktailName.text(ui.initialRecipeCreateCocktailNameLabel);
-            ui.recipeCreateCocktailNameIsValid = true;
+            ui.recipeEditView.$cocktailNameLabel.removeClass("invalid");
+            ui.recipeEditView.$cocktailNameLabel.text(ui.recipeEditView.initialCocktailNameLabel);
+            ui.recipeEditView.cocktailNameInputIsValid = true;
+         }
+
+         //If the validity of the field has changed
+         if (initialState != ui.recipeEditView.cocktailNameInputIsValid) {
+            ui.recipeEditView.validateForm();
+         }
+      },
+      validateIngredientNameField: function(fieldId) {
+         const field = $("#"+fieldId);
+         const label = $("#"+field.siblings("label")[0].id);
+
+         const ingredientName = field.val();
+         //Get the 'id' of the containing ingredientBlock, and pull the index number out of it
+         const index = field.closest(".recipeEdit-ingredientBlock").attr("id").replace("recipeEdit-ingredientBlock-", "");
+         const initialState = ui.recipeEditView.ingredientBlockValidityFlags[index].nameIsValid;
+
+         //Blank
+         if(!ingredientName) {
+            label.addClass("invalid");
+            label.text("Ingredient Name is blank.");
+            ui.recipeEditView.ingredientBlockValidityFlags[index].nameIsValid = false;
+         }
+         //Whitespace
+         else if(ingredientName.trim().length != ingredientName.length) {
+            label.addClass("invalid");
+            label.text("Ingredient Name begins/ends in whitespace.");
+            ui.recipeEditView.ingredientBlockValidityFlags[index].nameIsValid = false;
+         }
+         //Valid
+         else {
+            label.removeClass("invalid");
+            label.text(ui.recipeEditView.initialIngredientNameLabel);
+            ui.recipeEditView.ingredientBlockValidityFlags[index].nameIsValid = true;
+         }
+
+         //If the validity of the field has changed
+         if (initialState != ui.recipeEditView.ingredientBlockValidityFlags[index].nameIsValid) {
+            ui.recipeEditView.validateForm();
+         }
+      },
+      validateIngredientAmountField: function(fieldId) {
+         const field = $("#"+fieldId);
+         const label = $("#"+field.siblings("label")[0].id);
+
+         const ingredientAmount = field.val();
+         //Get the 'id' of the containing ingredientBlock, and pull the index number out of it
+         const index = field.closest(".recipeEdit-ingredientBlock").attr("id").replace("recipeEdit-ingredientBlock-", "");
+         const initialState = ui.recipeEditView.ingredientBlockValidityFlags[index].amountIsValid;
+
+         //Whitespace
+         if(ingredientAmount.trim().length != ingredientAmount.length) {
+            label.addClass("invalid");
+            label.text("Cocktail Amount begins/ends in whitespace.");
+            ui.recipeEditView.ingredientBlockValidityFlags[index].amountIsValid = false;
+         }
+         //Value
+         else if(ingredientAmount <= 0) {
+            label.addClass("invalid");
+            label.text("Cocktail Amount is less than or equal to 0.");
+            ui.recipeEditView.ingredientBlockValidityFlags[index].amountIsValid = false;
+         }
+         //Erroneous Entry
+         else if(!field[0].validity.valid) {
+            label.addClass("invalid");
+            label.text("Cocktail Amount is invalid.");
+            ui.recipeEditView.ingredientBlockValidityFlags[index].amountIsValid = false;
+         }
+         //Blank
+         else if(!ingredientAmount) {
+            label.addClass("invalid");
+            label.text("Cocktail Amount is blank.");
+            ui.recipeEditView.ingredientBlockValidityFlags[index].amountIsValid = false;
+         }
+         //Valid
+         else {
+            label.removeClass("invalid");
+            label.text(ui.recipeEditView.initialIngredientAmountLabel);
+            ui.recipeEditView.ingredientBlockValidityFlags[index].amountIsValid = true;
+         }
+
+         //If the validity of the field has changed
+         if (initialState != ui.recipeEditView.ingredientBlockValidityFlags[index].amountIsValid) {
+            ui.recipeEditView.validateForm();
+         }
+      },
+      validateIngredientMeasurementUnitField: function(fieldId) {
+         const field = $("#"+fieldId);
+         const label = $("#"+field.siblings("label")[0].id);
+
+         const measurementUnit = field.val();
+         //Get the 'id' of the containing ingredientBlock, and pull the index number out of it
+         const index = field.closest(".recipeEdit-ingredientBlock").attr("id").replace("recipeEdit-ingredientBlock-", "");
+         const initialState = ui.recipeEditView.ingredientBlockValidityFlags[index].measurementUnitIsValid;
+
+         //Blank
+         if(!measurementUnit) {
+            label.addClass("invalid");
+            label.text("Measurement Unit is blank.");
+            ui.recipeEditView.ingredientBlockValidityFlags[index].measurementUnitIsValid = false;
+         }
+         //Whitespace
+         else if(measurementUnit.trim().length != measurementUnit.length) {
+            label.addClass("invalid");
+            label.text("Measurement Unit begins/ends in whitespace.");
+            ui.recipeEditView.ingredientBlockValidityFlags[index].measurementUnitIsValid = false;
+         }
+         //Valid
+         else {
+            label.removeClass("invalid");
+            label.text(ui.recipeEditView.initialIngredientMeasurementUnitLabel);
+            ui.recipeEditView.ingredientBlockValidityFlags[index].measurementUnitIsValid = true;
+         }
+
+         //If the validity of the field has changed
+         if (initialState != ui.recipeEditView.ingredientBlockValidityFlags[index].measurementUnitIsValid) {
+            ui.recipeEditView.validateForm();
+         }
+      },
+      validateForm: function() {
+         const flagsArray = ui.recipeEditView.ingredientBlockValidityFlags;
+         let formIsValid = false;
+
+         //No ingredientBlock's
+         if(!flagsArray.length) {
+            console.warn("validateForm() flagsArray is empty.");
+            formIsValid = false;
+         }
+
+         //No non-null values
+         else if(flagsArray.length==1 && flagsArray[0]==null) {
+            console.warn("validateForm() flagsArray only contains one 'null' value.");
+            formIsValid = false;
+         }
+
+         //Otherwise, test the flagsArray for validity
+         else {
+            formIsValid = flagsArray.every((currentFlag)=> {
+               //A flag is valid if it's the remnant of a now-deleted ingredientBlock (null), or 'true'
+               return(
+                  currentFlag.nameIsValid===true
+                  && currentFlag.amountIsValid===true
+                  && currentFlag.measurementUnitIsValid===true
+               );
+            }) && ui.recipeEditView.cocktailNameInputIsValid
+         }
+
+         (formIsValid) ?
+            ui.recipeEditView.enableActiveSubmitButton()
+            : ui.recipeEditView.disableActiveSubmitButton();
+      },
+      buildRecipeFromForm: function() {
+         //TODO: buildRecipeFromForm()
+         return {
+            name: /*UPDATE*/null,
+            ingredients: /*UPDATE*/[
+               {
+                  name: /*UPDATE*/null,
+                  amount: /*UPDATE*/null,
+                  measurementUnit: /*UPDATE*/null,
+               },
+            ],
+            description: /*UPDATE*/null,
          }
       },
 
-      validateIngredientBlocks: function() {
-         //TODO: validateIngredientBlock()
-         const ingredientBlocks = [];
+      resetCocktailNameField: function() {
+         ui.recipeEditView.$cocktailNameInput.val("");
+         ui.recipeEditView.$cocktailNameLabel.text(ui.recipeEditView.initialCocktailNameLabel);
+         ui.recipeEditView.$cocktailNameLabel.removeClass("invalid");
+         ui.recipeEditView.cocktailNameInputIsValid = false;
+         //It is possible that this method is called before $activeSubmitButton has been set
+         if(ui.recipeEditView.$activeSubmitButton) {ui.recipeEditView.disableActiveSubmitButton();}
 
-         //Create array of present ingredientBlock id's to be used as reference
-         $(".recipeCreate-ingredientBlock").each((index, element)=> {
-            ingredientBlocks.push("#"+element.id);
-         });
-
-
-            // let currentIngredientName = $(`js-input-recipeCreate-ingredientBlock-${ingredientBlockIdIndex}-name`).val();
-            // let currentIngredientAmount = $(`js-input-recipeCreate-ingredientBlock-${ingredientBlockIdIndex}-amount`).val();
-            // let currentIngredientMeasurementUnit = $(`js-input-recipeCreate-ingredientBlock-${ingredientBlockIdIndex}-measurementUnit`).val();
-            // let currentIngredientAbv = $(`js-input-recipeCreate-ingredientBlock-${ingredientBlockIdIndex}-abv`).val();
-
-            // console.log({
-            //    currentIngredientName,
-            //    currentIngredientAmount,
-            //    currentIngredientMeasurementUnit,
-            //    currentIngredientAbv
-            // })
-
-         console.log("located blocks:", ingredientBlocks);
+      },
+      resetIngredientBlocks: function() {
+         ui.recipeEditView.$ingredientBlocksWrapper.html(ui.recipeEditView.initialIngredientBlocksWrapper);
+         ui.recipeEditView.ingredientBlockInputsAreValid = false;
+         //It is possible that this method is called before $activeSubmitButton has been set
+         if(ui.recipeEditView.$activeSubmitButton) {ui.recipeEditView.disableActiveSubmitButton();}
+      },
+      resetForm: function() {
+         ui.recipeEditView.setFormFeedback(ui.recipeEditView.initialFormFeedback);
+         ui.recipeEditView.$ingredientBlocksWrapper.html(ui.recipeEditView.initialIngredientBlocksWrapper);
+         ui.recipeEditView.resetCocktailNameField();
+         ui.recipeEditView.resetIngredientBlocks();
+         ui.recipeEditView.ingredientBlockValidityFlags = [{nameIsValid: false,amountIsValid: false,measurementUnitIsValid: false}];
+         ui.recipeEditView.$editModeSubmitButton.hide();
+         ui.recipeEditView.$createModeSubmitButton.hide();
       },
 
-      validateRecipeCreateForm: function() {
-         (ui.recipeCreateCocktailNameIsValid && ui.recipeCreateIngredientBlocksAreValid) ?
-         ui.enableRecipeCreateSubmitButton()
-         : ui.disableRecipeCreateSubmitButton();
-      },
-
-      disableRecipeCreateSubmitButton: function() {
-         this.$button_recipeCreateFormSubmit.prop("disabled", true);
-      },
-
-      enableRecipeCreateSubmitButton: function() {
-         this.$button_recipeCreateFormSubmit.prop("disabled", false);
-      },
-
-      buildRecipeCreateRequest: function() {
-         //TODO: buildRecipeCreateRequest()
-         const presentIngredientBlocks = $(".recipeCreate-ingredientBlock");
-            console.log("Detected Ingredient Blocks:", presentIngredientBlocks);
-         let cocktail = {};
-
-         //Build cocktail from name and ingredient blocks...
-
-         ui.createCocktail(cocktail);
-      },
-
-      //API Call
-      createCocktail: function(cocktail) {
+      //API Calls
+      createCocktail: function(cocktailData) {
          //TODO: createCocktail()
       },
-      //#endregion
+      updateCocktail: function(targetId, updateData) {
+         //TODO: updateCocktail(targetId, updateData)
+      }
+   },
 
-      //#region Recipe View
-      beforeShowingRecipeView: function() {
-         return new Promise(async (resolve, reject)=> {
-            ui.resetRecipeView();
-            ui.renderRecipeView(appSession.activeCocktail);
-            resolve();
-         });
+
+
+
+
+
+
+
+
+
+   recipeView: {
+      configureEventListeners: function() {
+         console.log(`> ui.recipeView.configureEventListeners()`);
       },
-
-      resetRecipeView: function() {
-         //TODO: resetRecipeView()
-      },
-
-      renderRecipeView: function() {
-         console.log("renderRecipeView():", appSession.activeCocktail.name);
-         //TODO: renderRecipeView()
-      },
-
-      showRecipeView: async function(showAnimation) {
-         ui.validateShowAnimation(showAnimation);
-         await ui.beforeShowingRecipeView();
-         ui.showView(ui.$view_recipe, showAnimation, $("#js-headerButton-recipeEdit, #js-headerButton-recipeBack"));
-      },
-      //#endregion
-
-      //#region Recipe Edit View
-      beforeShowingRecipeEditView: async function(recipe) {
+      beforeShow: function() {
          return new Promise((resolve, reject)=> {
-            ui.resetRecipeEditView();
-            ui.renderRecipeEditView(recipe);
+            console.log(`> ui.recipeView.beforeShow()`);
+            //Do things here...
             resolve();
          });
       },
-
-      resetRecipeEditView: function() {
-         //TODO: resetRecipeEditView()
-      },
-
-      renderRecipeEditView: function(recipe) {
-         console.log("renderRecipeEditView():", appSession.activeCocktail.name);
-         //TODO: renderRecipeEditView()
-      },
-
-      showRecipeEditView: async function(recipe, showAnimation) {
+      show: async function(recipe, showAnimation="fadeIn") {
+         console.log(`> ui.recipeView.show(${recipe}, ${showAnimation})`);
          ui.validateShowAnimation(showAnimation);
-         await ui.beforeShowingRecipeEditView(recipe);
-         ui.showView(ui.$view_recipeEdit, showAnimation, ui.$headerButton_cancelRecipeEdit);
+         await ui.recipeView.beforeShow();
+         ui.showView(ui.recipeView, showAnimation);
       },
-
-      //API Call
-      updateRecipe: function() {
-         //TODO: updateRecipe
+      reset: function() {
+         console.log(`> ui.recipeView.reset()`);
       },
-      //#endregion
-
-
-
-      //#region View-agnostic Functions
-      scrollToBottom: function(ms) {
-         $("html").stop(true).animate({
-            scrollTop: $(document).height()
-         }, ms);
-      },
-      //#endregion
-
-      //#region Animate.css Functions
-         hideCurrentView: function(hideAnimation) {
-            return new Promise((resolve, reject)=> {
-               ui.validateHideAnimation(hideAnimation);
-
-               //Hide all header buttons
-               $("#wrapper-header-rightArea button").delay(100).fadeOut(300);
-               //If there's an active view, hide it
-               if (ui.$currentView && hideAnimation) {
-                  ui.hideWithAnimation(ui.$currentView, hideAnimation)
-                  .then(()=> {
-                     resolve();
-                  });
-               }
-               else {
-                  resolve();
-               }
-            });
-         },
-
-         showView: async function($view, showAnimation, $headerButtons) {
-            ui.validateShowAnimation(showAnimation);
-
-            await ui.showWithAnimation($view, showAnimation);
-            if ($headerButtons) {
-               //'transition' disabled to prevent animation interactions
-               //'pointer-events' disabled to prevent erroneous clicks that confuse execution
-               $headerButtons.css({
-                  "pointer-events": "none",
-                  "transition": "none"
-               });
-               $headerButtons.fadeIn(200, function() {
-                  //Properties are cleared after the animation ends
-                  $headerButtons.css({
-                     "pointer-events": "",
-                     "transition": ""
-                  });
-               });
-            }
-            //Set the $currentView state variable to the new $view
-            ui.$currentView = $view;
-         },
-
-         hideWithAnimation: function($elementPointer, hideAnimation) {
-            return new Promise((resolve, reject)=> {
-               ui.validateHideAnimation(hideAnimation);
-
-               //If the targeted element is not already hidden...
-               if ($elementPointer.css("display") != "none") {
-                  const animationEndEventPolyfill = "webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend";
-
-                  //Register the animationEnd event handler
-                  $elementPointer.one(animationEndEventPolyfill, function() {
-                     //Add display:none to the element once it has finished animating
-                     $(this).hide(0);
-                     //Remove the animate.css classes from the element
-                     $(this).removeClass(`animated faster ${hideAnimation}`);
-                     resolve();
-                  });
-
-                  //Trigger the animationEnd event handler by applying the animate.css classes
-                  $elementPointer.addClass(`animated faster ${hideAnimation}`);
-               }
-               else {
-                  console.warn("hideWithAnimation() called on an already-hidden element.")
-                  resolve();
-               }
-
-            });
-         },
-
-         validateHideAnimation: function(hideAnimation) {
-            if (hideAnimation != "fadeOutLeft" && hideAnimation != "fadeOutRight" && hideAnimation != "fadeOut") {
-               throw Error(`Invalid hideAnimation value '${hideAnimation}'`);
-            }
-         },
-
-         showWithAnimation: function($elementPointer, showAnimation) {
-            return new Promise((resolve, reject)=> {
-
-               //If the targeted element is already hidden...
-               if ($elementPointer.css("display") == "none") {
-                  const animationEndEventPolyfill = "webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend";
-
-                  //Register the animationEnd event handler
-                  $elementPointer.one(animationEndEventPolyfill, function() {
-                     //Remove the animate.css classes from the element
-                     $(this).removeClass(`animated faster ${showAnimation}`);
-                     resolve();
-                  });
-
-                  //Trigger the animationEnd event handler by applying the animate.css classes
-                  $elementPointer.addClass(`animated faster ${showAnimation}`);
-                  //Remove display:none from the element as it begins animating
-                  $elementPointer.show(0);
-               }
-               else {
-                  console.warn("showWithAnimation() called on an already-shown element.");
-                  resolve();
-               }
-
-            });
-         },
-
-         validateShowAnimation: function(showAnimation) {
-            if (showAnimation != "fadeInLeft" && showAnimation != "fadeInRight" && showAnimation != "fadeIn") {
-               throw Error(`Invalid showAnimation value '${showAnimation}'`);
-            }
-         },
-      //#endregion
-
+   },
    //#endregion
-};
+
+
+
+   //#region UI Setup Functions
+   setup: function() {
+      ui.configureEventListeners();
+   },
+
+   configureEventListeners: function() {
+      //If the user is navigating with the mouse, hide unecessary accessibility styles
+      $(window).on("mousedown", function(e) {
+         if($("html").hasClass("user-navigating-with-keyboard")) {
+            console.log("Mouse navigation detected.");
+            $("html").removeClass("user-navigating-with-keyboard");
+         }
+      });
+
+      //If the user is navigating with the keyboard (specifically the tab key) and acessibility styles have been hidden, show necessary accessibility styles
+      $(window).on("keydown", function handleTab(e) {
+         if(e.key==="Tab" && !$("html").hasClass("user-navigating-with-keyboard")) {
+            console.log("Keyboard navigation detected.");
+            $("html").addClass("user-navigating-with-keyboard");
+         }
+      });
+
+      ui.landingView.configureEventListeners();
+      ui.signInView.configureEventListeners();
+      ui.registerView.configureEventListeners();
+      ui.userHomeView.configureEventListeners();
+      ui.recipeEditView.configureEventListeners();
+      ui.recipeView.configureEventListeners();
+   },
+   //#endregion
+
+
+
+   //#region General UI Functions
+   scrollToBottom: function(ms) {
+      $("html").stop(true)
+      .animate({
+         scrollTop: $("html").height()
+      }, ms);
+   },
+   reset: function() {
+      ui.signInView.reset();
+      ui.registerView.reset();
+      ui.userHomeView.reset();
+      ui.recipeEditView.reset();
+      ui.recipeView.reset();
+   },
+   //#endregion
+
+
+
+   //#region Animation Functions
+   validateHideAnimation: function(hideAnimation) {
+      const validHideAnimations = ["fadeOutLeft", "fadeOut", "fadeOutRight"];
+      if(!validHideAnimations.includes(hideAnimation)) {
+         throw Error(`Invalid showAnimation: '${hideAnimation}'`);
+      }
+   },
+   validateShowAnimation: function(showAnimation) {
+      const validShowAnimations = ["fadeInLeft", "fadeIn", "fadeInRight"];
+      if(!validShowAnimations.includes(showAnimation)) {
+         throw Error(`Invalid showAnimation: '${showAnimation}'`);
+      }
+   },
+
+   hideCurrentView: function(hideAnimation="fadeOut") {
+      const headerButtonHideDelay = 100; //ms
+      const headerButtonFadeOutDuration = 300; //ms
+
+      return new Promise(async (resolve)=> {
+         ui.validateHideAnimation(hideAnimation);
+
+         //Hide all header buttons.
+         //The wildcard selector is used in case additional, non-button elements are added to the header in the future.
+         $("#wrapper-header-rightArea button")
+         .css({
+            "pointer-events": "none",
+            "transition": "none"
+         })
+         .delay(headerButtonHideDelay)
+         .fadeOut(headerButtonFadeOutDuration)
+         .css({
+            "pointer-events": "",
+            "transition": ""
+         });
+
+         //If there's an active view, hide it
+         if (ui.currentView) {
+            await ui.hideWithAnimation(ui.currentView.$view, hideAnimation);
+            ui.currentView = null;
+         }
+         else {
+            console.error(`ui.hideCurrentView() called while ui.currentView is null with animation '${showAnimation}'.`);
+            console.trace();
+         }
+         resolve();
+      });
+   },
+   showView: function(targetView, showAnimation) {
+      const headerButtonFadeInDuration = 300; //ms
+
+      ui.validateShowAnimation(showAnimation);
+
+      //Prevent the new view's header buttons from being interactive before they have finished fading in
+      for (let $currentButton of Object.values(targetView.$headerButtons)) {
+         $currentButton.css({
+            "pointer-events": "none",
+            "transition": "none"
+         });
+      }
+
+      //Show the new view
+      ui.showWithAnimation(targetView.$view, showAnimation);
+
+      //Set the currentView UI variable to the new view
+      if (ui.currentView == null) {
+         ui.currentView = targetView;
+      }
+      else {
+         console.error(`ui.showView() called on already-shown view '${$targetView.$view}' with animation '${showAnimation}'.`);
+         console.trace();
+      }
+
+      //Show the new view's header buttons
+      for (let $currentButton of Object.values(targetView.$headerButtons)) {
+         $currentButton.fadeIn(headerButtonFadeInDuration, function() {
+            //Allow the new view's header buttons to be interactive now that they have finished fading in
+            $currentButton.css({
+               "pointer-events": "",
+               "transition": ""
+            });
+         });
+      }
+   },
+
+   hideWithAnimation: function($targetElement, hideAnimation="fadeOut") {
+      return new Promise((resolve, reject)=> {
+         //If the targeted element is not already hidden...
+         if ($targetElement.css("display") != "none") {
+            //Some of these events may be obsolete, but I am unsure where to find a up-to-date list of relevent vendor-specific 'animationend' events. As such, I have included all that I could find, obsolescence aside.
+            const animationEndEvents = "webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend";
+
+            //Register the 'animationend' event handler
+            $targetElement.one(animationEndEvents, function() {
+               //Add display:none to the element once it has finished animating
+               $(this).hide();
+               //Remove the animate.css classes from the element now that they have completed
+               $(this).removeClass(`animated faster ${hideAnimation}`);
+               resolve();
+            });
+
+            //Trigger the animation, and subsequently the 'animationend' event handler, by applying the animate.css classes
+            $targetElement.addClass(`animated faster ${hideAnimation}`);
+         }
+         else {
+            //Not entirely an error, but it should not occur under normal circumstances, so it is logged as an error.
+            console.error(`hideWithAnimation() called on already-hidden element '${$targetElement}' with animation '${hideAnimation}'.`);
+            console.trace();
+            resolve();
+         }
+
+      });
+   },
+   showWithAnimation: function($targetElement, showAnimation="fadeIn") {
+      return new Promise((resolve, reject)=> {
+         //If the targeted element is hidden...
+         if ($targetElement.css("display") == "none") {
+            //Some of these events may be obsolete, but I am unsure where to find a up-to-date list of relevent vendor-specific 'animationend' events. As such, I have included all that I could find, obsolescence aside.
+            const animationEndEvents = "webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend";
+
+            //Register the animationEnd event handler
+            $targetElement.one(animationEndEvents, function() {
+               //Remove the animate.css classes from the element now that they have completed
+               $(this).removeClass(`animated faster ${showAnimation}`);
+               resolve();
+            });
+
+            //Trigger the animation, and subsequently the 'animationend' event handler, by applying the animate.css classes
+            $targetElement.addClass(`animated faster ${showAnimation}`);
+            //Remove display:none from the element as it begins animating
+            $targetElement.show();
+         }
+         else {
+            //Not entirely an error, but it should not occur under normal circumstances, so it is logged as an error.
+            console.error(`showWithAnimation() called on already-shown element '${$targetElement}' with animation '${showAnimation}'.`);
+            console.trace();
+            resolve();
+         }
+
+      });
+   },
+   //#endregion
+}
