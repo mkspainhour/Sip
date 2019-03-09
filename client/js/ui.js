@@ -694,15 +694,6 @@ const ui = {
       },
    },
 
-
-
-
-
-
-
-
-
-
    recipeEditView: {
       //#region jQuery Selectors
       $view: $("#js-view-recipeEdit"),
@@ -715,6 +706,7 @@ const ui = {
       $formFeedback: $("#js-recipeEdit-formFeedback"),
       $cocktailNameInput: $("#js-input-recipeEdit-cocktailName"),
       $cocktailNameLabel: $("#js-label-recipeEdit-cocktailName"),
+      $directionsInput: $("#js-input-recipeEdit-directions"),
       $ingredientBlocksWrapper: $("#js-wrapper-recipeEdit-ingredientBlocks"),
       $addIngredientBlockButton: $("#js-button-recipeEdit-addIngredientBlock"),
 
@@ -750,7 +742,7 @@ const ui = {
          //Inputs wait a certain number of milliseconds before validating themselves to allow for user input to complete
          //Each input event handler deliberately shares this one timer
          let validationDelayTimer;
-         const validationDelay = 250; //ms
+         const validationDelay = 200; //ms
 
          ui.recipeEditView.$headerButtons.$cancel.on("click", async function(e) {
             //The 'mode' view variable is reset in the view's reset() method, so its current value is cached here to be used in the conditional below
@@ -812,6 +804,7 @@ const ui = {
             //Slide-up and remove the 'closed' ingredientBlock
             $(targetedIngredientBlock).slideUp(400, function() {
                this.remove();
+               ui.recipeEditView.validateForm();
             });
             //Nullify its validity flags
             ui.recipeEditView.ingredientBlockValidityFlags[targetedIngredientBlockIndex] = null;
@@ -823,8 +816,8 @@ const ui = {
          });
 
          ui.recipeEditView.$createModeSubmitButton.on("click", function(e) {
-            //TODO $createModeSubmitButton
-            alert("Create Mode Submit Detected");
+            const cocktailData = ui.recipeEditView.getDataFromForm();
+            ui.recipeEditView.createCocktail( cocktailData );
          });
       },
       beforeShow: function(mode) {
@@ -885,8 +878,6 @@ const ui = {
       populateWithRecipe: function(recipe) {
          //TODO: populateWithRecipe()
          console.log(`> Populating recipeEditView with:`, recipe);
-
-         //Do things...
       },
       buildIngredientBlock: function(blockIndex) {
          return `
@@ -933,16 +924,27 @@ const ui = {
             measurementUnitIsValid: false
          };
 
-         //Reveal the new ingredientBlock
-         $(`#recipeEdit-ingredientBlock-${newBlockIndex}`).slideDown(slideDownAnimationDuration);
-         //Ensure the view is scrolled such that the new ingredientBlock is made immediately available
-         ui.scrollToBottom(slideDownAnimationDuration);
+         ui.recipeEditView.validateForm();
+
+         //Slide the new ingredientBlock down, and run the specified callback
+         $(`#recipeEdit-ingredientBlock-${newBlockIndex}`).slideDown(slideDownAnimationDuration, function() {
+            const $button = ui.recipeEditView.$addIngredientBlockButton;
+            const viewPaddingTop = Number( $button.closest(".view").css("padding-top").replace("px", ""));
+
+            //Ensure the view is scrolled such that the new ingredientBlock is made immediately available
+            $("html, body").animate({
+               scrollTop: ($button.offset().top + $button.height() + viewPaddingTop - $(window).height())
+            }, 400);
+            //Formula: $button distance from the top of the page, plus its own height, plus the padding top of the view, minus the current height of the window.
+         });
       },
 
       enableActiveSubmitButton: function() {
+         console.log("SUBMIT ENABLED");
          ui.recipeEditView.$activeSubmitButton.prop("disabled", false);
       },
       disableActiveSubmitButton: function() {
+         console.log("SUBMIT DISABLED");
          ui.recipeEditView.$activeSubmitButton.prop("disabled", true);
       },
 
@@ -1026,7 +1028,7 @@ const ui = {
             ui.recipeEditView.ingredientBlockValidityFlags[index].amountIsValid = false;
          }
          //Erroneous Entry
-         else if(!field[0].validity.valid) {
+         else if(!field[0].validity.valid || Number(ingredientAmount)==="NaN") {
             label.addClass("invalid");
             label.text("Cocktail Amount is invalid.");
             ui.recipeEditView.ingredientBlockValidityFlags[index].amountIsValid = false;
@@ -1084,6 +1086,7 @@ const ui = {
       },
       validateForm: function() {
          const flagsArray = ui.recipeEditView.ingredientBlockValidityFlags;
+         let ingredientsAreValid = false;
          let formIsValid = false;
 
          //No ingredientBlock's
@@ -1100,33 +1103,46 @@ const ui = {
 
          //Otherwise, test the flagsArray for validity
          else {
-            formIsValid = flagsArray.every((currentFlag)=> {
-               //A flag is valid if it's the remnant of a now-deleted ingredientBlock (null), or 'true'
+            ingredientsAreValid = flagsArray.every((currentFlag)=> {
+               if(currentFlag===null) {
+                  //If the current flag is the remnant of a now-deleted ingredientBlock, it is also valid. This is tested for here, because the second test in the return statement below will throw an error when looking for validity properties on 'null'.
+                  return true;
+               }
                return(
                   currentFlag.nameIsValid===true
                   && currentFlag.amountIsValid===true
                   && currentFlag.measurementUnitIsValid===true
                );
-            }) && ui.recipeEditView.cocktailNameInputIsValid
+            })
          }
 
-         (formIsValid) ?
+         (ui.recipeEditView.cocktailNameInputIsValid && ingredientsAreValid) ?
             ui.recipeEditView.enableActiveSubmitButton()
             : ui.recipeEditView.disableActiveSubmitButton();
       },
-      buildRecipeFromForm: function() {
-         //TODO: buildRecipeFromForm()
-         return {
-            name: /*UPDATE*/null,
-            ingredients: /*UPDATE*/[
-               {
-                  name: /*UPDATE*/null,
-                  amount: /*UPDATE*/null,
-                  measurementUnit: /*UPDATE*/null,
-               },
-            ],
-            description: /*UPDATE*/null,
-         }
+      getDataFromForm: function() {
+         const name = ui.recipeEditView.$cocktailNameInput.val();
+         const ingredients = [];
+         const directions = ui.recipeEditView.$directionsInput.val();
+
+         //Collect recipe ingredients
+         $(".recipeEdit-ingredientBlock").each(function(index, element) {
+            const $currentBlock = $(element);
+            let composedIngredientBlock = {
+               name: $currentBlock.find(".js-input-ingredientBlock-name").val(),
+               amount: Number($currentBlock.find(".js-input-ingredientBlock-amount").val()),
+               measurementUnit: $currentBlock.find(".js-input-ingredientBlock-measurementUnit").val()
+            };
+            ingredients.push( composedIngredientBlock );
+         });
+
+         const returnObject = {
+            name: name,
+            ingredients: ingredients
+         };
+         if(directions) {returnObject.directions = directions}
+
+         return returnObject;
       },
 
       resetCocktailNameField: function() {
@@ -1157,6 +1173,50 @@ const ui = {
       //API Calls
       createCocktail: function(cocktailData) {
          //TODO: createCocktail()
+         return new Promise((resolve, reject)=> {
+            console.log("createCocktail() cocktailData:", cocktailData);
+
+            $.ajax({
+               method: "POST",
+               url: "/api/cocktail/create",
+               contentType: "application/json",
+               data: JSON.stringify(cocktailData)
+            })
+            .then(async ()=> {
+               await ui.hideCurrentView("fadeOutRight");
+               ui.userHomeView.show("fadeInLeft");
+               resolve();
+            })
+            .catch((returnedData)=> {
+               const response = returnedData.responseJSON;
+               const errorType = response.errorType;
+               console.error("ERROR:", response);
+
+               switch(errorType) {
+                  case "NoActiveSession":
+                     alert("ERROR: MissingField");
+                     break;
+                  case "ExpiredJWT":
+                     alert("ERROR: IncorrectDataType");
+                     break;
+                  case "MalformedJWT":
+                     alert("ERROR: UnexpectedDataType");
+                     break;
+                  case "MissingField":
+                     alert("ERROR: MissingField");
+                     break;
+                  case "IncorrectDataType":
+                     alert("ERROR: IncorrectDataType");
+                     break;
+                  case "InvalidFieldSize":
+                     alert("ERROR: UnexpectedDataType");
+                     break;
+                  default:
+                     alert("ERROR: createCocktail() enountered an unexpected error.");
+                     break;
+               }
+            });
+         });
       },
       updateCocktail: function(targetId, updateData) {
          //TODO: updateCocktail(targetId, updateData)
@@ -1173,12 +1233,36 @@ const ui = {
 
 
    recipeView: {
+      //#region jQuery Selectors
+      $view: $("#js-view-recipe"),
+      $headerButtons: {
+         $back: $("#js-headerButton-recipeBack"),
+         $edit: $("#js-headerButton-recipeEdit")
+      },
+      //#endregion
+
+      //#region Initial Values
+
+      //#endregion
+
+      //#region State Variables
+
+      //#endregion
+
       configureEventListeners: function() {
          console.log(`> ui.recipeView.configureEventListeners()`);
+
+         //ui.recipeView.$headerButtons.$back.on("click", function(e){
+         //
+         //});
+
+         //ui.recipeView.$headerButtons.$edit.on("click", function(e){
+         //
+         //});
       },
-      beforeShow: function() {
+      beforeShow: function(recipe) {
          return new Promise((resolve, reject)=> {
-            console.log(`> ui.recipeView.beforeShow()`);
+            console.log(`> ui.recipeView.beforeShow(recipe)`);
             //Do things here...
             resolve();
          });
@@ -1186,13 +1270,23 @@ const ui = {
       show: async function(recipe, showAnimation="fadeIn") {
          console.log(`> ui.recipeView.show(${recipe}, ${showAnimation})`);
          ui.validateShowAnimation(showAnimation);
-         await ui.recipeView.beforeShow();
+         await ui.recipeView.beforeShow(recipe);
          ui.showView(ui.recipeView, showAnimation);
       },
       reset: function() {
          console.log(`> ui.recipeView.reset()`);
       },
    },
+
+
+
+
+
+
+
+
+
+
    //#endregion
 
 
@@ -1231,10 +1325,13 @@ const ui = {
 
 
    //#region General UI Functions
-   scrollToBottom: function(ms) {
+   scrollToBottom: function($targetElement, ms) {
+      console.log("$targetElement:", $targetElement);
+      console.log("ms:", ms);
+
       $("html").stop(true)
       .animate({
-         scrollTop: $("html").height()
+         scrollTop: $targetElement.offset().top
       }, ms);
    },
    reset: function() {

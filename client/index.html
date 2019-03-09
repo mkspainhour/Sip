@@ -156,7 +156,7 @@
 
 
 
-		<!--Edit Recipe View-->
+		<!--Recipe Edit View-->
 		<section id="js-view-recipeEdit" class="view" role="region" style="display: none;">
 
 			<div class="wrapper-formFeedback">
@@ -165,7 +165,7 @@
 
 			<form id="js-form-recipeEdit" action="#" role="form">
 
-				<div id="wrapper-recipeEdit-cocktailName" class="wrapper-input">
+				<div id="wrapper-recipeEdit-cocktailName" class="wrapper-input" autofocus>
 					<input id="js-input-recipeEdit-cocktailName" type="text" title="Enter cocktail name." aria-label="cocktail name" required>
 					<label id="js-label-recipeEdit-cocktailName" for="js-input-recipeEdit-cocktailName" class="typo-body-small typo-color-orange">Cocktail Name</label>
 				</div>
@@ -199,11 +199,15 @@
 				<!-- Add Ingredient Button -->
 				<button id="js-button-recipeEdit-addIngredientBlock" type="button" class="button-hollow typo-color-orange-dark">Add Ingredient</button>
 
+				<!-- Recipe Directions -->
+				<textarea id="js-input-recipeEdit-directions" class="typo-body" rows="3" autocomplete="off" spellcheck="true"></textarea>
+				<label id="js-label-recipeEdit-directions" class="typo-body-small typo-color-orange">Cocktail Preparation Directions</label>
+
 				<!--Edit Mode Sumbit Button-->
 				<button id="js-button-recipeEdit-editModeSubmit" type="submit" class="button-filled typo-color-gray" style="display:none;" disabled>Save Changes</button>
 
 				<!--Create Mode Sumbit Button-->
-				<button id="js-button-recipeEdit-createModeSubmit" type="submit" class="button-filled typo-color-gray" style="display:none;" disabled>Create</button>
+				<button id="js-button-recipeEdit-createModeSubmit" type="submit" class="button-filled typo-color-gray" style="display:none;" disabled>Create Recipe</button>
 
 			</form>
 		</section>
@@ -215,10 +219,9 @@
 			<p>Recipe View!</p>
 			<!--
 				Cocktail Name
-				Cocktail ABV
-				Cocktail Ingredient Names
 				Cocktail Creator
 				Cocktail Ingredients
+				Cocktail Directions
 
 
 				INGREDIENT BLOCK

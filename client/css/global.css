@@ -433,6 +433,19 @@ header .button-hollow {
     margin-bottom: 1rem;
   }
 
+  #js-input-recipeEdit-directions {
+    resize: none;
+    background: var(--color-gray-extraLight);
+    border: none;
+    border-radius: 6px;
+    box-shadow: var(--box-shadow-inset-1dp);
+
+    color: var(--color-orange-light);
+
+    padding: 1em;
+    margin-top: 2rem;
+  }
+
   #js-button-recipeEdit-submit {
     margin-top: 2rem;
   }
