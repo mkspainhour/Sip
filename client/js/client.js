@@ -19,10 +19,10 @@ $(function entryPoint() {
 
    //Begin
    if (appSession.sessionToken && appSession.user) {
-      ui.userHomeView.show("fadeIn");
+      userHomeView.show("fadeIn");
    }
    else {
-      ui.landingView.show("fadeIn");
+      landingView.show("fadeIn");
    }
 });
 
