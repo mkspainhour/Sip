@@ -1170,7 +1170,6 @@ const ui = {
 
       //API Calls
       createCocktail: function(cocktailData) {
-         //TODO: createCocktail()
          return new Promise((resolve, reject)=> {
             console.log("createCocktail() cocktailData:", cocktailData);
 
@@ -1264,6 +1263,7 @@ const ui = {
 
          ui.recipeView.$headerButtons.$edit.on("click", async function(e){
             alert("Feature to be implemented soon.");
+            //TODO: recipeView.$headerButtons.$edit click()
             // await ui.hideCurrentView("fadeOutLeft");
             // ui.recipeEditView.show("EDIT", "fadeInRight");
          });
@@ -1282,9 +1282,10 @@ const ui = {
       },
       reset: function() {
          ui.recipeView.$cocktailName.text( ui.recipeView.initialCocktailName );
+         //TEMP
          // ui.recipeView.$creator.text( ui.recipeView.initialCreator );
          ui.recipeView.$ingredientsList.html( ui.recipeView.initialIngredientsList );
-         ui.recipeView.$directions.text( ui.recipeView.directions );
+         ui.recipeView.$directions.text( ui.recipeView.initialDirections );
       },
 
       renderActiveCocktailRecipe: function() {
@@ -1293,6 +1294,7 @@ const ui = {
          //Set cocktail name
          ui.recipeView.$cocktailName.text( activeCocktail.name );
 
+         //TEMP
          //Set cocktail creator
          // ui.recipeView.$creator.text( activeCocktail.creator );
 
