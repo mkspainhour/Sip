@@ -1238,7 +1238,6 @@ const ui = {
       },
 
       $cocktailName: $("#js-recipe-cocktailName"),
-      // $creator: $("#js-recipe-creator"),
       $ingredientsList: $("#js-recipe-ingredientsList"),
       $directions: $("#js-recipe-directions"),
       $directionsLabel: $("#recipe-directionsLabel"),
@@ -1246,13 +1245,8 @@ const ui = {
 
       //#region Initial Values
       initialCocktailName: $("#js-recipe-cocktailName").text(),
-      // initialCreator: $("#js-recipe-creator").text(),
       initialIngredientsList: $("#js-recipe-ingredientsList").text(),
       initialDirections: $("#js-recipe-directions").text(),
-      //#endregion
-
-      //#region State Variables
-
       //#endregion
 
       configureEventListeners: function() {
@@ -1262,7 +1256,7 @@ const ui = {
          });
 
          ui.recipeView.$headerButtons.$edit.on("click", async function(e){
-            alert("Feature to be implemented soon.");
+            alert("Feature to be implemented soon. 😘");
             //TODO: recipeView.$headerButtons.$edit click()
             // await ui.hideCurrentView("fadeOutLeft");
             // ui.recipeEditView.show("EDIT", "fadeInRight");
