@@ -454,6 +454,28 @@ header .button-hollow {
 
 
 
+/* #js-view-recipe {} */
+#js-recipe-cocktailName {
+  margin-bottom: 1rem;
+}
+/* #js-recipe-creator {
+  margin-bottom: 2rem;
+} */
+#recipe-ingredientsLabel {
+  margin-bottom: 0.267em;
+}
+#js-recipe-ingredientsList {
+  list-style: none;
+  margin-bottom: 1rem;
+}
+#recipe-directionsLabel {
+  margin-bottom: 0.267em;
+}
+
+
+
+
+
 @media (hover: none) {
   .button-hollow:active,
   header .button-hollow:active {

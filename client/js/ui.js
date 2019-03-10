@@ -940,11 +940,9 @@ const ui = {
       },
 
       enableActiveSubmitButton: function() {
-         console.log("SUBMIT ENABLED");
          ui.recipeEditView.$activeSubmitButton.prop("disabled", false);
       },
       disableActiveSubmitButton: function() {
-         console.log("SUBMIT DISABLED");
          ui.recipeEditView.$activeSubmitButton.prop("disabled", true);
       },
 
@@ -1239,10 +1237,19 @@ const ui = {
          $back: $("#js-headerButton-recipeBack"),
          $edit: $("#js-headerButton-recipeEdit")
       },
+
+      $cocktailName: $("#js-recipe-cocktailName"),
+      // $creator: $("#js-recipe-creator"),
+      $ingredientsList: $("#js-recipe-ingredientsList"),
+      $directions: $("#js-recipe-directions"),
+      $directionsLabel: $("#recipe-directionsLabel"),
       //#endregion
 
       //#region Initial Values
-
+      initialCocktailName: $("#js-recipe-cocktailName").text(),
+      // initialCreator: $("#js-recipe-creator").text(),
+      initialIngredientsList: $("#js-recipe-ingredientsList").text(),
+      initialDirections: $("#js-recipe-directions").text(),
       //#endregion
 
       //#region State Variables
@@ -1250,43 +1257,66 @@ const ui = {
       //#endregion
 
       configureEventListeners: function() {
-         console.log(`> ui.recipeView.configureEventListeners()`);
+         ui.recipeView.$headerButtons.$back.on("click", async function(e){
+            await ui.hideCurrentView("fadeOutRight");
+            ui.userHomeView.show("fadeInLeft");
+         });
 
-         //ui.recipeView.$headerButtons.$back.on("click", function(e){
-         //
-         //});
-
-         //ui.recipeView.$headerButtons.$edit.on("click", function(e){
-         //
-         //});
+         ui.recipeView.$headerButtons.$edit.on("click", async function(e){
+            alert("Feature to be implemented soon. Check back soon!");
+            // await ui.hideCurrentView("fadeOutLeft");
+            // ui.recipeEditView.show("EDIT", "fadeInRight");
+         });
       },
-      beforeShow: function(recipe) {
+      beforeShow: function() {
          return new Promise((resolve, reject)=> {
-            console.log(`> ui.recipeView.beforeShow(recipe)`);
-            //Do things here...
+            ui.recipeView.reset();
+            ui.recipeView.renderActiveCocktailRecipe();
             resolve();
          });
       },
-      show: async function(recipe, showAnimation="fadeIn") {
-         console.log(`> ui.recipeView.show(${recipe}, ${showAnimation})`);
+      show: async function(showAnimation="fadeIn") {
          ui.validateShowAnimation(showAnimation);
-         await ui.recipeView.beforeShow(recipe);
+         await ui.recipeView.beforeShow();
          ui.showView(ui.recipeView, showAnimation);
       },
       reset: function() {
-         console.log(`> ui.recipeView.reset()`);
+         ui.recipeView.$cocktailName.text( ui.recipeView.initialCocktailName );
+         // ui.recipeView.$creator.text( ui.recipeView.initialCreator );
+         ui.recipeView.$ingredientsList.html( ui.recipeView.initialIngredientsList );
+         ui.recipeView.$directions.text( ui.recipeView.directions );
+      },
+
+      renderActiveCocktailRecipe: function() {
+         const activeCocktail = appSession.activeCocktail;
+
+         //Set cocktail name
+         ui.recipeView.$cocktailName.text( activeCocktail.name );
+
+         //Set cocktail creator
+         // ui.recipeView.$creator.text( activeCocktail.creator );
+
+         //Build and add each ingredient
+         activeCocktail.ingredients.forEach((ingredient, index, array)=> {
+            const composedListItem = ui.recipeView.buildIngredientListItem(ingredient.amount, ingredient.measurementUnit, ingredient.name);
+            ui.recipeView.$ingredientsList.append( composedListItem );
+         });
+
+         //Set cocktail directions, if the cocktail includes them
+         if(activeCocktail) {
+            ui.recipeView.$directionsLabel.show();
+            ui.recipeView.$directions.text( activeCocktail.directions );
+         }
+         //Otherwise, hide the directions label
+         else {
+            ui.recipeView.$directionsLabel.hide();
+         }
+      },
+
+      buildIngredientListItem: function(amount, measurementUnit, name) {
+         return `<li class="ingredient typo-body"><span class="ingredientAmount">${amount}</span> <span class="ingredientMeasurementUnit">${measurementUnit}</span> — <span class=".ingredientName">${name}</span></li>`;
       },
    },
-
-
-
-
-
-
-
-
-
-
    //#endregion
 
 

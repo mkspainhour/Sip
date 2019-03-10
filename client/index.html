@@ -216,30 +216,18 @@
 
 		<!--Recipe View-->
 		<section id="js-view-recipe" class="view" role="region" style="display: none;">
-			<p>Recipe View!</p>
-			<!--
-				Cocktail Name
-				Cocktail Creator
-				Cocktail Ingredients
-				Cocktail Directions
+			<h1 id="js-recipe-cocktailName" class="typo-heading-large typo-color-orange">A Nice Glass of Water</h1>
+			<!-- <p id="js-recipe-creator" class="typo-body">mkspainhour</p> -->
 
+			<label id="recipe-ingredientsLabel" class="typo-body-small typo-color-orange">Ingredients</label>
+			<ul id="js-recipe-ingredientsList">
+				<!-- Inserted with JS:
+					<li class="ingredient typo-body"><span class="ingredientAmount">1</span> <span class="ingredientMeasurementUnit">part</span> — <span class=".ingredientName">Water</span></li>
+				-->
+			</ul>
 
-				INGREDIENT BLOCK
-
-					<div> .ingredient
-						<h1 id="COCKTAIL_NAME" class="typo-heading-large"
-						<p id="ABV" class="typo-body"
-						<h2 id="INGREDIENT_NAMES" class="typo-body-large"
-						<p id="CREATOR" class="typo-body-small"
-
-						<ol id="INGREDIENTS_LIST"
-							<li id="ingredient-#n" //Ex: #ingredient-#4
-								<span class="INGREDIENT_AMOUNT">
-								<span class="INGREDIENT_UNIT"
-								<span class="INGREDIENT_NAME"
-								(optional) <span class="INGREDIENT_ABV"
-							...
-			 -->
+			<label id="recipe-directionsLabel" class="typo-body-small typo-color-orange">Directions</label>
+			<p id="js-recipe-directions" class="typo-body">Add all ingredients and ice into tin, and stir until just before dilution is ideal. Strain into chilled rocks glass, and add a single ice cube.</p>
 		</section>
 
 
