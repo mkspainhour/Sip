@@ -197,6 +197,7 @@ label.invalid {
 
 
 input {
+  -webkit-appearance: none;
   background: var(--color-gray-extraLight);
   border: none;
   border-radius: 6px;

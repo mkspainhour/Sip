@@ -1263,7 +1263,7 @@ const ui = {
          });
 
          ui.recipeView.$headerButtons.$edit.on("click", async function(e){
-            alert("Feature to be implemented soon. Check back soon!");
+            alert("Feature to be implemented soon.");
             // await ui.hideCurrentView("fadeOutLeft");
             // ui.recipeEditView.show("EDIT", "fadeInRight");
          });
