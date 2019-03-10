@@ -59,7 +59,7 @@ const recipeEditView = {
             userHomeView.show("fadeInLeft");
          }
          else if (mode == "EDIT") {
-            ui.recipeView.show("fadeInLeft");
+            recipeView.show("fadeInLeft");
          }
       });
 

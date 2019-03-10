@@ -39,7 +39,7 @@ const userHomeView = {
          userHomeView.cacheScrollPosition();
 
          await ui.hideCurrentView("fadeOutLeft");
-         ui.recipeView.show("fadeInRight");
+         recipeView.show("fadeInRight");
       });
    },
    beforeShow: function() {

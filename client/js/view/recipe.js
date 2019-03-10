@@ -19,12 +19,12 @@ const recipeView = {
    //#endregion
 
    configureEventListeners: function() {
-      ui.recipeView.$headerButtons.$back.on("click", async function(e){
+      recipeView.$headerButtons.$back.on("click", async function(e){
          await ui.hideCurrentView("fadeOutRight");
          userHomeView.show("fadeInLeft");
       });
 
-      ui.recipeView.$headerButtons.$edit.on("click", async function(e){
+      recipeView.$headerButtons.$edit.on("click", async function(e){
          alert("Feature to be implemented soon. 😘");
          //TODO: recipeView.$headerButtons.$edit click()
          // await ui.hideCurrentView("fadeOutLeft");
@@ -33,48 +33,48 @@ const recipeView = {
    },
    beforeShow: function() {
       return new Promise((resolve, reject)=> {
-         ui.recipeView.reset();
-         ui.recipeView.renderActiveCocktailRecipe();
+         recipeView.reset();
+         recipeView.renderActiveCocktailRecipe();
          resolve();
       });
    },
    show: async function(showAnimation="fadeIn") {
       ui.validateShowAnimation(showAnimation);
-      await ui.recipeView.beforeShow();
-      ui.showView(ui.recipeView, showAnimation);
+      await recipeView.beforeShow();
+      ui.showView(recipeView, showAnimation);
    },
    reset: function() {
-      ui.recipeView.$cocktailName.text( ui.recipeView.initialCocktailName );
+      recipeView.$cocktailName.text( recipeView.initialCocktailName );
       //TEMP
-      // ui.recipeView.$creator.text( ui.recipeView.initialCreator );
-      ui.recipeView.$ingredientsList.html( ui.recipeView.initialIngredientsList );
-      ui.recipeView.$directions.text( ui.recipeView.initialDirections );
+      // recipeView.$creator.text( recipeView.initialCreator );
+      recipeView.$ingredientsList.html( recipeView.initialIngredientsList );
+      recipeView.$directions.text( recipeView.initialDirections );
    },
 
    renderActiveCocktailRecipe: function() {
       const activeCocktail = appSession.activeCocktail;
 
       //Set cocktail name
-      ui.recipeView.$cocktailName.text( activeCocktail.name );
+      recipeView.$cocktailName.text( activeCocktail.name );
 
       //TEMP
       //Set cocktail creator
-      // ui.recipeView.$creator.text( activeCocktail.creator );
+      // recipeView.$creator.text( activeCocktail.creator );
 
       //Build and add each ingredient
       activeCocktail.ingredients.forEach((ingredient, index, array)=> {
-         const composedListItem = ui.recipeView.buildIngredientListItem(ingredient.amount, ingredient.measurementUnit, ingredient.name);
-         ui.recipeView.$ingredientsList.append( composedListItem );
+         const composedListItem = recipeView.buildIngredientListItem(ingredient.amount, ingredient.measurementUnit, ingredient.name);
+         recipeView.$ingredientsList.append( composedListItem );
       });
 
       //Set cocktail directions, if the cocktail includes them
       if(activeCocktail) {
-         ui.recipeView.$directionsLabel.show();
-         ui.recipeView.$directions.text( activeCocktail.directions );
+         recipeView.$directionsLabel.show();
+         recipeView.$directions.text( activeCocktail.directions );
       }
       //Otherwise, hide the directions label
       else {
-         ui.recipeView.$directionsLabel.hide();
+         recipeView.$directionsLabel.hide();
       }
    },
    buildIngredientListItem: function(amount, measurementUnit, name) {

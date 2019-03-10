@@ -34,7 +34,7 @@ const ui = {
       registerView.configureEventListeners();
       userHomeView.configureEventListeners();
       recipeEditView.configureEventListeners();
-      ui.recipeView.configureEventListeners();
+      recipeView.configureEventListeners();
    },
    //#endregion
 
@@ -55,7 +55,7 @@ const ui = {
       registerView.reset();
       userHomeView.reset();
       recipeEditView.reset();
-      ui.recipeView.reset();
+      recipeView.reset();
    },
    //#endregion
 
