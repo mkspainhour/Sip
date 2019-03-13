@@ -195,43 +195,4 @@ describe("\n====Auth API====\n", function() {
 
   });
 
-  describe("GET /api/auth/sessionTest 🔒", function() {
-
-    it("Fail state: no 'session' cookie exists to test", function() {
-      return chai.request(app)
-      .get("/api/auth/sessionTest")
-      .then( function(res) {
-        expect(res).to.have.status(401);
-        expect(res.body).to.have.property("errorType").that.equals("NoActiveSession");
-      })
-    });
-
-    it("Fail state: 'session' cookie JWT is malformed", function() {
-      const sessionJwt = User.makeJwtFor(preexistingUser.username);
-
-      return chai.request(app)
-      .get("/api/auth/sessionTest")
-      .set("Cookie", `session=${sessionJwt.slice(0, -1)}`) //Break the JWT to trigger the intended error
-      .then( function(res) {
-        expect(res).to.have.status(401).and.to.be.json;
-        expect(res.body).to.be.an("object");
-        expect(res.body).to.have.property("errorType").that.equals("MalformedJWT");
-      })
-    });
-
-    it("Success: 'session' cookie exists and is a valid JWT", function() {
-      const sessionJwt = User.makeJwtFor(preexistingUser.username);
-
-      return chai.request(app)
-      .get("/api/auth/sessionTest")
-      .set("Cookie", `session=${sessionJwt}`)
-      .then(function(res) {
-        expect(res).to.have.status(200);
-        expect(res).to.have.cookie("session");
-        expect(res).to.have.cookie("user");
-      })
-    });
-
-  });
-
 });
