@@ -5,13 +5,9 @@ const express = require("express");
 const morgan = require("morgan");
 const mongoose = require("mongoose");
   mongoose.Promise = global.Promise;
-  mongoose.set("useFindAndModify", false); //TEMP: Avoids deprecation warnings.
-  mongoose.set("useCreateIndex", true); //TEMP: Avoids dperecation warnings.
-  const ObjectId = mongoose.Types.ObjectId;
+  mongoose.set("useFindAndModify", false); //Circumvents deprecation warnings
+  mongoose.set("useCreateIndex", true); //Circumvents dperecation warnings
 const cookieParser = require("cookie-parser");
-
-const {User} = require("./api/user");
-const {Cocktail} = require("./api/cocktail");
 
 //Express App Instantiation & Server-wide Middleware
 const app = express();

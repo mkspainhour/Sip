@@ -114,16 +114,6 @@ router.get("/sign-out", (req, res)=> {
   return res.status(204).send();
 });
 
-//TEMP: Development tool. Not intended for production.
-router.get("/sessionTest", authorize, (req, res)=> {
-  const sessionJwt = jwt.verify(req.cookies.session, JWT_SECRET);
-  return res.status(200).json({
-    message: "You're authorized!",
-    userCookie: req.cookies.user,
-    sessionCookie: sessionJwt
-  });
-});
-
 
 
 module.exports = {

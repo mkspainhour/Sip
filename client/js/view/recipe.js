@@ -45,8 +45,6 @@ const recipeView = {
    },
    reset: function() {
       recipeView.$cocktailName.text( recipeView.initialCocktailName );
-      //TEMP
-      // recipeView.$creator.text( recipeView.initialCreator );
       recipeView.$ingredientsList.html( recipeView.initialIngredientsList );
       recipeView.$directions.text( recipeView.initialDirections );
    },
@@ -56,10 +54,6 @@ const recipeView = {
 
       //Set cocktail name
       recipeView.$cocktailName.text( activeCocktail.name );
-
-      //TEMP
-      //Set cocktail creator
-      // recipeView.$creator.text( activeCocktail.creator );
 
       //Build and add each ingredient
       activeCocktail.ingredients.forEach((ingredient, index, array)=> {

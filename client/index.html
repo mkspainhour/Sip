@@ -22,6 +22,9 @@
 	<!--FAVICONS-->
 	<!--OPTN <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">-->
 	<!--OPTN <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">-->
+
+	<!--TODO-->
+	<!--Add ontouchstart="" or equivalent to relevant elements-->
 </head>
 <!--#endregion-->
 
@@ -41,30 +44,30 @@
 
 			<div id="wrapper-header-rightArea">
 				<!-- Landing -->
-				<button id="js-headerButton-signIn" type="button" class="button-hollow typo-color-orange-dark" style="display: none;">Sign In</button>
+				<button id="js-headerButton-signIn" type="button" class="button-hollow typo-color-orange-dark" style="display: none;" ontouchstart="">Sign In</button>
 
 				<!-- Register -->
-				<button id="js-headerButton-signInInstead" type="button" class="button-hollow typo-color-orange-dark" style="display: none;">Sign In Instead</button>
+				<button id="js-headerButton-signInInstead" type="button" class="button-hollow typo-color-orange-dark" style="display: none;" ontouchstart="">Sign In Instead</button>
 
 				<!-- Sign In -->
-				<button id="js-headerButton-registerInstead" type="button" class="button-hollow typo-color-orange-dark" style="display: none;">Register Instead</button>
+				<button id="js-headerButton-registerInstead" type="button" class="button-hollow typo-color-orange-dark" style="display: none;" ontouchstart="">Register Instead</button>
 
 				<!-- User Home -->
-				<button id="js-headerButton-signOut" type="button" class="button-hollow typo-color-orange-dark" style="display: none;">Sign Out</button>
+				<button id="js-headerButton-signOut" type="button" class="button-hollow typo-color-orange-dark" style="display: none;" ontouchstart="">Sign Out</button>
 
-				<button id="js-headerButton-addRecipe" type="button" class="button-hollow button-icon typo-color-orange-dark" style="display: none;">
+				<button id="js-headerButton-addRecipe" type="button" class="button-hollow button-icon typo-color-orange-dark" style="display: none;" ontouchstart="">
 					<img class="svg-icon" src="./resources/icons/add.svg" alt="+ Add Recipe">
 				</button>
 
 				<!-- Recipe -->
-				<button id="js-headerButton-recipeBack" type="button" class="button-hollow button-hollow-dark-bg typo-color-orange-dark" style="display: none;">Back</button>
+				<button id="js-headerButton-recipeBack" type="button" class="button-hollow button-hollow-dark-bg typo-color-orange-dark" style="display: none;" ontouchstart="">Back</button>
 
-				<button id="js-headerButton-recipeEdit" type="button" class="button-hollow button-icon button-hollow-dark-bg typo-color-orange-dark" style="display: none;">
+				<button id="js-headerButton-recipeEdit" type="button" class="button-hollow button-icon button-hollow-dark-bg typo-color-orange-dark" style="display: none;" ontouchstart="">
 					<img class="svg-icon" src="./resources/icons/edit.svg" alt="Edit Recipe">
 				</button>
 
 				<!-- Recipe Edit -->
-				<button id="js-headerButton-recipeEditCancel" type="button" class="button-hollow button-hollow-dark-bg typo-color-orange-dark" style="display: none;">Cancel</button>
+				<button id="js-headerButton-recipeEditCancel" type="button" class="button-hollow button-hollow-dark-bg typo-color-orange-dark" style="display: none;" ontouchstart="">Cancel</button>
 			</div>
 		</header>
 
@@ -74,7 +77,7 @@
 		<section id="js-view-landing" class="view" role="region" style="display: none;">
 			<h1 id="landing-usp" class="typo-heading-large typo-color-orange typo-center">Use Sip to save your favorite cocktail recipes.</h1>
 			<p id="landing-direction" class="typo-body typo-center">Sign in above, or quickly register below to get started.</p>
-			<button id="js-landing-button-register" type="button" class="button-filled typo-color-gray">Register</button>
+			<button id="js-landing-button-register" type="button" class="button-filled typo-color-gray" ontouchstart="">Register</button>
 		</section>
 
 
@@ -99,7 +102,7 @@
 				</div>
 
 				<!--Sign In Sumbit Button-->
-				<button id="js-signIn-button-submit" type="submit" class="button-filled typo-color-gray" disabled>Sign In</button>
+				<button id="js-signIn-button-submit" type="submit" class="button-filled typo-color-gray" disabled ontouchstart="">Sign In</button>
 			</form>
 		</section>
 
@@ -137,7 +140,7 @@
 				</div>
 
 				<!--Sumbit Button-->
-				<button id="js-register-button-submit" type="submit" class="button-filled typo-color-gray" disabled>Register</button>
+				<button id="js-register-button-submit" type="submit" class="button-filled typo-color-gray" disabled ontouchstart="">Register</button>
 			</form>
 		</section>
 
@@ -197,17 +200,17 @@
 				</div>
 
 				<!-- Add Ingredient Button -->
-				<button id="js-button-recipeEdit-addIngredientBlock" type="button" class="button-hollow typo-color-orange-dark">Add Ingredient</button>
+				<button id="js-button-recipeEdit-addIngredientBlock" type="button" class="button-hollow typo-color-orange-dark" ontouchstart="">Add Ingredient</button>
 
 				<!-- Recipe Directions -->
 				<textarea id="js-input-recipeEdit-directions" class="typo-body" rows="3" autocomplete="off" spellcheck="true"></textarea>
 				<label id="js-label-recipeEdit-directions" class="typo-body-small typo-color-orange">Cocktail Preparation Directions</label>
 
 				<!--Edit Mode Sumbit Button-->
-				<button id="js-button-recipeEdit-editModeSubmit" type="submit" class="button-filled typo-color-gray" style="display:none;" disabled>Save Changes</button>
+				<button id="js-button-recipeEdit-editModeSubmit" type="submit" class="button-filled typo-color-gray" style="display:none;" disabled ontouchstart="">Save Changes</button>
 
 				<!--Create Mode Sumbit Button-->
-				<button id="js-button-recipeEdit-createModeSubmit" type="submit" class="button-filled typo-color-gray" style="display:none;" disabled>Create Recipe</button>
+				<button id="js-button-recipeEdit-createModeSubmit" type="submit" class="button-filled typo-color-gray" style="display:none;" disabled ontouchstart="">Create Recipe</button>
 
 			</form>
 		</section>

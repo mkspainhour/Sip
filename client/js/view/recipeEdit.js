@@ -468,6 +468,7 @@ const recipeEditView = {
       recipeEditView.resetCocktailNameField();
       recipeEditView.resetIngredientBlocks();
       recipeEditView.ingredientBlockValidityFlags = [{nameIsValid: false,amountIsValid: false,measurementUnitIsValid: false}];
+      recipeEditView.$directionsInput.val("");
       recipeEditView.$editModeSubmitButton.hide();
       recipeEditView.$createModeSubmitButton.hide();
    },
