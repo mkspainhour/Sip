@@ -141,6 +141,7 @@ const recipeEditView = {
             recipeEditView.$createModeSubmitButton.hide();
             recipeEditView.$activeSubmitButton = recipeEditView.$editModeSubmitButton;
             recipeEditView.$editModeSubmitButton.show();
+            recipeEditView.editModeTargetId = appSession.activeCocktail.id;
             recipeEditView.populateWithRecipe(appSession.activeCocktail);
          }
 
@@ -182,6 +183,15 @@ const recipeEditView = {
    populateWithRecipe: function(recipe) {
       //TODO: populateWithRecipe()
       console.log(`> Populating recipeEditView with:`, recipe);
+
+      // recipe.name
+      // recipe.ingredients
+      // recipe.ingredients.length
+      //    recipe.ingredients[i].name
+      //    recipe.ingredients[i].amount
+      //    recipe.ingredients[i].measurementUnit
+      // recipe.directions
+
    },
    buildIngredientBlock: function(blockIndex) {
       return `
@@ -207,7 +217,7 @@ const recipeEditView = {
          </div>
       `;
    },
-   addIngredientBlock: function() {
+   addIngredientBlock: function(shouldAnimate) {
       const slideDownAnimationDuration = 400; //ms
 
       let newBlockIndex = 0;
@@ -230,17 +240,22 @@ const recipeEditView = {
 
       recipeEditView.validateForm();
 
-      //Slide the new ingredientBlock down, and run the specified callback
-      $(`#recipeEdit-ingredientBlock-${newBlockIndex}`).slideDown(slideDownAnimationDuration, function() {
-         const $button = recipeEditView.$addIngredientBlockButton;
-         const viewPaddingTop = Number( $button.closest(".view").css("padding-top").replace("px", ""));
+      if(shouldAnimate) {
+         //Slide the new ingredientBlock down, and run the specified callback
+         $(`#recipeEdit-ingredientBlock-${newBlockIndex}`).slideDown(slideDownAnimationDuration, function() {
+            const $button = recipeEditView.$addIngredientBlockButton;
+            const viewPaddingTop = Number( $button.closest(".view").css("padding-top").replace("px", ""));
 
-         //Ensure the view is scrolled such that the new ingredientBlock is made immediately available
-         $("html, body").animate({
-            scrollTop: ($button.offset().top + $button.height() + viewPaddingTop - $(window).height())
-         }, 400);
-         //Formula: $button distance from the top of the page, plus its own height, plus the padding top of the view, minus the current height of the window.
-      });
+            //Ensure the view is scrolled such that the new ingredientBlock is made immediately available
+            $("html, body").animate({
+               scrollTop: ($button.offset().top + $button.height() + viewPaddingTop - $(window).height())
+            }, 400);
+            //Formula: $button distance from the top of the page, plus its own height, plus the padding top of the view, minus the current height of the window.
+         });
+      }
+      else {
+         $(`#recipeEdit-ingredientBlock-${newBlockIndex}`).show();
+      }
    },
 
    enableActiveSubmitButton: function() {

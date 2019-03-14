@@ -19,16 +19,17 @@ const recipeView = {
    //#endregion
 
    configureEventListeners: function() {
-      recipeView.$headerButtons.$back.on("click", async function(e){
+      recipeView.$headerButtons.$back.on("click", async function(e) {
          await ui.hideCurrentView("fadeOutRight");
          userHomeView.show("fadeInLeft");
+         appSession.activeCocktail = null;
       });
 
-      recipeView.$headerButtons.$edit.on("click", async function(e){
-         alert("Feature to be implemented soon. 😘");
-         //TODO: recipeView.$headerButtons.$edit click()
-         // await ui.hideCurrentView("fadeOutLeft");
-         // recipeEditView.show("EDIT", "fadeInRight");
+      recipeView.$headerButtons.$edit.on("click", async function(e) {
+         alert("Feature under construction. Pardon the sawdust. 😘");
+
+         await ui.hideCurrentView("fadeOutLeft");
+         recipeEditView.show("EDIT", "fadeInRight");
       });
    },
    beforeShow: function() {
