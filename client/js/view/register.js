@@ -67,6 +67,7 @@ const registerView = {
       });
 
       registerView.$submitButton.on("click", async function(e) {
+         ui.scrollToTop();
          registerView.setFormFeedback("Registering...");
          await registerView.createUser(
             registerView.$usernameInput.val(),

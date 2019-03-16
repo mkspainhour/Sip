@@ -26,8 +26,7 @@ const recipeView = {
       });
 
       recipeView.$headerButtons.$edit.on("click", async function(e) {
-         alert("Feature under construction. Pardon the sawdust. 😘");
-
+         alert("Feature under construction.\nPardon the sawdust. 😘");
          await ui.hideCurrentView("fadeOutLeft");
          recipeEditView.show("EDIT", "fadeInRight");
       });

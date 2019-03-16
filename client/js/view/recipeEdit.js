@@ -30,7 +30,6 @@ const recipeEditView = {
    //#region State Variables
    mode: null, //'EDIT' or 'CREATE'
    $activeSubmitButton: null,
-   editModeTargetId: null,
 
    cocktailNameInputIsValid: false,
    ingredientBlockValidityFlags: [
@@ -141,7 +140,6 @@ const recipeEditView = {
             recipeEditView.$createModeSubmitButton.hide();
             recipeEditView.$activeSubmitButton = recipeEditView.$editModeSubmitButton;
             recipeEditView.$editModeSubmitButton.show();
-            recipeEditView.editModeTargetId = appSession.activeCocktail.id;
             recipeEditView.populateWithRecipe(appSession.activeCocktail);
          }
 
@@ -170,7 +168,6 @@ const recipeEditView = {
    },
    reset: function() {
       recipeEditView.mode = null;
-      recipeEditView.editModeTargetId = null;
       recipeEditView.resetForm();
    },
 
@@ -184,13 +181,14 @@ const recipeEditView = {
       //TODO: populateWithRecipe()
       console.log(`> Populating recipeEditView with:`, recipe);
 
-      // recipe.name
+      recipeEditView.$cocktailNameInput.val( recipe.name );
+      recipeEditView.$directionsInput.val( recipe.directions );
+
       // recipe.ingredients
       // recipe.ingredients.length
       //    recipe.ingredients[i].name
       //    recipe.ingredients[i].amount
       //    recipe.ingredients[i].measurementUnit
-      // recipe.directions
 
    },
    buildIngredientBlock: function(blockIndex) {
@@ -217,7 +215,7 @@ const recipeEditView = {
          </div>
       `;
    },
-   addIngredientBlock: function(shouldAnimate) {
+   addIngredientBlock: function(shouldAnimate=true) {
       const slideDownAnimationDuration = 400; //ms
 
       let newBlockIndex = 0;
@@ -247,7 +245,7 @@ const recipeEditView = {
             const viewPaddingTop = Number( $button.closest(".view").css("padding-top").replace("px", ""));
 
             //Ensure the view is scrolled such that the new ingredientBlock is made immediately available
-            $("html, body").animate({
+            $("body").animate({
                scrollTop: ($button.offset().top + $button.height() + viewPaddingTop - $(window).height())
             }, 400);
             //Formula: $button distance from the top of the page, plus its own height, plus the padding top of the view, minus the current height of the window.

@@ -49,6 +49,7 @@ const signInView = {
       });
 
       signInView.$submitButton.on("click", async function(e) {
+         ui.scrollToTop();
          signInView.setFormFeedback("Signing in...");
          await signInView.signIn(
             signInView.$usernameInput.val(),
