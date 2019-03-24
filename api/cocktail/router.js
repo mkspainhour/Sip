@@ -250,7 +250,8 @@ router.put("/update", authorize, (req, res)=> {
   if (req.body.newIngredients) {
     updateValues.ingredients = req.body.newIngredients;
   }
-  if (req.body.newDirections) {
+  //The purposeful deletion of directions is also accounted for
+  if (req.body.newDirections || req.body.newDirections=="") {
     updateValues.directions = req.body.newDirections;
   }
 
@@ -259,7 +260,7 @@ router.put("/update", authorize, (req, res)=> {
     if (!cocktailRecipe) {
       return res.status(404).json();
     }
-    return res.status(200).json(cocktailRecipe);
+    return res.status(200).json(cocktailRecipe.serialize());
   })
   .catch( (err)=> {
     console.error(`✖ ${err}`);

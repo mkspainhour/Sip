@@ -15,6 +15,7 @@ const recipeEditView = {
    $addIngredientBlockButton: $("#js-button-recipeEdit-addIngredientBlock"),
 
    $editModeSubmitButton: $("#js-button-recipeEdit-editModeSubmit"),
+   $deleteButton: $("#js-button-recipeEdit-delete"),
    $createModeSubmitButton: $("#js-button-recipeEdit-createModeSubmit"),
    //#endregion
 
@@ -113,14 +114,22 @@ const recipeEditView = {
          recipeEditView.ingredientBlockValidityFlags[targetedIngredientBlockIndex] = null;
       });
 
-      recipeEditView.$editModeSubmitButton.on("click", function(e) {
-         //TODO: $editModeSubmitButton
-         alert("Edit Mode Submit Detected");
-      });
-
       recipeEditView.$createModeSubmitButton.on("click", function(e) {
          const cocktailData = recipeEditView.getDataFromForm();
          recipeEditView.createCocktail( cocktailData );
+      });
+
+      recipeEditView.$editModeSubmitButton.on("click", function(e) {
+         const updateData = recipeEditView.getDataFromForm();
+         recipeEditView.updateCocktail(appSession.activeCocktail.id, updateData);
+      });
+
+      recipeEditView.$deleteButton.on("click", function(e) {
+         const deleteConfirmMessage = "Sip Says:\n\nAre you sure you want to delete this cocktail recipe?\nThis action cannot be undone.";
+
+         if( window.confirm(deleteConfirmMessage) ) {
+            recipeEditView.deleteCocktail( appSession.activeCocktail.id );
+         }
       });
    },
    beforeShow: function(mode) {
@@ -140,7 +149,9 @@ const recipeEditView = {
             recipeEditView.$createModeSubmitButton.hide();
             recipeEditView.$activeSubmitButton = recipeEditView.$editModeSubmitButton;
             recipeEditView.$editModeSubmitButton.show();
+            recipeEditView.$deleteButton.show();
             recipeEditView.populateWithRecipe(appSession.activeCocktail);
+            recipeEditView.enableActiveSubmitButton();
          }
 
          //Prepare Create Mode
@@ -149,6 +160,7 @@ const recipeEditView = {
             recipeEditView.$editModeSubmitButton.hide();
             recipeEditView.$activeSubmitButton = recipeEditView.$createModeSubmitButton;
             recipeEditView.$createModeSubmitButton.show();
+            recipeEditView.$deleteButton.hide();
          }
 
          //Invalid Mode
@@ -178,18 +190,35 @@ const recipeEditView = {
          : recipeEditView.$formFeedback.css("color", "");
    },
    populateWithRecipe: function(recipe) {
-      //TODO: populateWithRecipe()
-      console.log(`> Populating recipeEditView with:`, recipe);
+      //Begin with no ingredient blocks present so that iterating through the number of recipe ingredients can be as simple as possible.
+      recipeEditView.$ingredientBlocksWrapper.empty();
 
+      //Populate the recipe name
       recipeEditView.$cocktailNameInput.val( recipe.name );
+      recipeEditView.validateCocktailNameField();
+
+      //Populate the recipe ingredients
+      recipe.ingredients.forEach((ingredient, index, array)=> {
+         recipeEditView.addIngredientBlock(false);
+         const $ingredientName = $(".recipeEdit-ingredientBlock").last().find(".js-input-ingredientBlock-name");
+         const $ingredientAmount = $(".recipeEdit-ingredientBlock").last().find(".js-input-ingredientBlock-amount");
+         const $ingredientMeasurementUnit = $(".recipeEdit-ingredientBlock").last().find(".js-input-ingredientBlock-measurementUnit");
+
+         //Populate the ingredient name
+         $ingredientName.val( ingredient.name );
+         recipeEditView.validateIngredientNameField( $ingredientName.attr("id") );
+
+         //Populate the ingredient amount
+         $ingredientAmount.val( ingredient.amount );
+         recipeEditView.validateIngredientAmountField( $ingredientAmount.attr("id") );
+
+         //Populate the ingredient measurement unit
+         $ingredientMeasurementUnit.val( ingredient.measurementUnit );
+         recipeEditView.validateIngredientMeasurementUnitField( $ingredientMeasurementUnit.attr("id") );
+      });
+
+      //Populate the recipe directions
       recipeEditView.$directionsInput.val( recipe.directions );
-
-      // recipe.ingredients
-      // recipe.ingredients.length
-      //    recipe.ingredients[i].name
-      //    recipe.ingredients[i].amount
-      //    recipe.ingredients[i].measurementUnit
-
    },
    buildIngredientBlock: function(blockIndex) {
       return `
@@ -402,7 +431,6 @@ const recipeEditView = {
    validateForm: function() {
       const flagsArray = recipeEditView.ingredientBlockValidityFlags;
       let ingredientsAreValid = false;
-      let formIsValid = false;
 
       //No ingredientBlock's
       if(!flagsArray.length) {
@@ -489,8 +517,6 @@ const recipeEditView = {
    //API
    createCocktail: function(cocktailData) {
       return new Promise((resolve, reject)=> {
-         console.log("createCocktail() cocktailData:", cocktailData);
-
          $.ajax({
             method: "POST",
             url: "/api/cocktail/create",
@@ -509,13 +535,13 @@ const recipeEditView = {
 
             switch(errorType) {
                case "NoActiveSession":
-                  alert("ERROR: MissingField");
+                  alert("ERROR: NoActiveSession");
                   break;
                case "ExpiredJWT":
-                  alert("ERROR: IncorrectDataType");
+                  alert("ERROR: ExpiredJWT");
                   break;
                case "MalformedJWT":
-                  alert("ERROR: UnexpectedDataType");
+                  alert("ERROR: MalformedJWT");
                   break;
                case "MissingField":
                   alert("ERROR: MissingField");
@@ -524,7 +550,7 @@ const recipeEditView = {
                   alert("ERROR: IncorrectDataType");
                   break;
                case "InvalidFieldSize":
-                  alert("ERROR: UnexpectedDataType");
+                  alert("ERROR: InvalidFieldSize");
                   break;
                default:
                   alert("ERROR: createCocktail() enountered an unexpected error.");
@@ -534,6 +560,106 @@ const recipeEditView = {
       });
    },
    updateCocktail: function(targetId, updateData) {
-      //TODO: updateCocktail(targetId, updateData)
+      return new Promise((resolve, reject)=> {
+         const formattedUpdateData = {};
+         formattedUpdateData.newName = updateData.name;
+         formattedUpdateData.newIngredients = updateData.ingredients;
+         formattedUpdateData.newDirections = updateData.directions || "";
+         formattedUpdateData.targetId = targetId;
+
+         $.ajax({
+            method: "PUT",
+            url: "/api/cocktail/update",
+            contentType: "application/json",
+            data: JSON.stringify(formattedUpdateData)
+         })
+         .then(async (returnedData)=> {
+            appSession.activeCocktail = returnedData;
+
+            await ui.hideCurrentView("fadeOutRight");
+            recipeView.show("fadeInLeft");
+
+            resolve();
+         })
+         .catch((returnedData)=> {
+            const response = returnedData.responseJSON;
+            const errorType = response.errorType;
+            console.error("ERROR:", response);
+
+            switch(errorType) {
+               case "NoActiveSession":
+                  alert("ERROR: NoActiveSession");
+                  break;
+               case "ExpiredJWT":
+                  alert("ERROR: ExpiredJWT");
+                  break;
+               case "MalformedJWT":
+                  alert("ERROR: MalformedJWT");
+                  break;
+               case "MissingField":
+                  alert("ERROR: MissingField");
+                  break;
+               case "UnexpectedDataType":
+                  alert("ERROR: UnexpectedDataType");
+                  break;
+               case "NoActionableFields":
+                  alert("ERROR: NoActionableFields");
+                  break;
+               case "IncorrectDataType":
+                  alert("ERROR: IncorrectDataType");
+                  break;
+               case "InvalidFieldSize":
+                  alert("ERROR: InvalidFieldSize");
+                  break;
+               default:
+                  alert("ERROR: updateCocktail() enountered an unexpected error.");
+                  break;
+            }
+         });
+      });
+   },
+   deleteCocktail: function(targetId) {
+      return new Promise((resolve, reject)=> {
+         $.ajax({
+            method: "DELETE",
+            url: "/api/cocktail/delete",
+            contentType: "application/json",
+            data: JSON.stringify({targetId})
+         })
+         .then(async ()=> {
+            await ui.hideCurrentView("fadeOutRight");
+            userHomeView.show("fadeInLeft");
+            resolve();
+         })
+         .catch((returnedData)=> {
+            const response = returnedData.responseJSON;
+            const errorType = response.errorType;
+            console.error("ERROR:", response);
+
+            switch(errorType) {
+               case "NoActiveSession":
+                  alert("ERROR: NoActiveSession");
+                  break;
+               case "ExpiredJWT":
+                  alert("ERROR: ExpiredJWT");
+                  break;
+               case "MalformedJWT":
+                  alert("ERROR: MalformedJWT");
+                  break;
+               case "MissingField":
+                  alert("ERROR: MissingField");
+                  break;
+               case "InvalidObjectId":
+                  alert("ERROR: InvalidObjectId");
+                  break;
+               case "NoSuchCocktail":
+                  alert("ERROR: NoSuchCocktail");
+                  break;
+               default:
+                  alert("ERROR: createCocktail() enountered an unexpected error.");
+                  break;
+            }
+         });
+      });
    }
 };

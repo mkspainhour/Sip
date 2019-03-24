@@ -78,11 +78,11 @@ const userHomeView = {
 
    buildRecipeCard: function(cardIndex, recipeName, ingredientNames) {
       return `
-         <div id="recipe-card-${cardIndex}" class="recipe-card">
+         <button id="recipe-card-${cardIndex}" class="recipe-card" type="button">
             <h3 id="recipe-card-name" class="recipe-name typo-heading-small typo-color-orange">${recipeName}</h3>
             <p id="recipe-card-ingredientNames" class="ingredients-list typo-body-small">${ingredientNames}</p>
             <img src="resources/icons/chevron_right.svg" class="svg-icon svg-show-recipe-chevron" alt="View cocktail recipe...">
-         </div>`;
+         </button>`;
    },
    renderRecipeCards: function(recipesToRender) {
       let constructedRecipeCards = [];

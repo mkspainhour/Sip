@@ -145,13 +145,16 @@
 
 		<!--User Home View-->
 		<section id="js-view-userHome" class="view" role="region" style="display: none;">
+
 			<div id="wrapper-userHome-userInfo">
-				<p id="js-userHome-text-currentUser" class="typo-body typo-center">{ERROR}</p>
-				<p id="js-userHome-text-recipeCount" class="typo-body-small typo-center typo-color-orange">{ERROR}</p>
+				<p id="js-userHome-text-currentUser" class="typo-body typo-center"> <!--JS--> </p>
+				<p id="js-userHome-text-recipeCount" class="typo-body-small typo-center typo-color-orange"> <!--JS--> </p>
 			</div>
+
 			<div id="js-userHome-wrapper-recipeCards" aria-live="polite">
-				<!-- ui.js -->
+				<!-- JS -->
 			</div>
+
 		</section>
 
 
@@ -170,7 +173,7 @@
 					<label id="js-label-recipeEdit-cocktailName" for="js-input-recipeEdit-cocktailName" class="typo-body-small typo-color-orange">Cocktail Name</label>
 				</div>
 
-				<div id="js-wrapper-recipeEdit-ingredientBlocks">
+				<div id="js-wrapper-recipeEdit-ingredientBlocks" aria-live="polite">
 
 					<div id="recipeEdit-ingredientBlock-0" class="recipeEdit-ingredientBlock">
 						<div class="wrapper-ingredientBlock-svg-remove">
@@ -203,12 +206,14 @@
 				<textarea id="js-input-recipeEdit-directions" class="typo-body" rows="3" autocomplete="off" spellcheck="true"></textarea>
 				<label id="js-label-recipeEdit-directions" class="typo-body-small typo-color-orange">Cocktail Preparation Directions</label>
 
-				<!--Edit Mode Sumbit Button-->
-				<button id="js-button-recipeEdit-editModeSubmit" type="submit" class="button-filled typo-color-gray" style="display:none;" disabled ontouchstart="">Save Changes</button>
-
 				<!--Create Mode Sumbit Button-->
 				<button id="js-button-recipeEdit-createModeSubmit" type="submit" class="button-filled typo-color-gray" style="display:none;" disabled ontouchstart="">Create Recipe</button>
 
+				<!--Edit Mode Sumbit Button-->
+				<button id="js-button-recipeEdit-editModeSubmit" type="submit" class="button-filled typo-color-gray" style="display:none;" disabled ontouchstart="">Save Changes</button>
+
+				<!--Edit Mode Delete Button-->
+				<button id="js-button-recipeEdit-delete" type="button" class="button-hollow" style="display:none;" ontouchstart="">Delete Recipe</button>
 			</form>
 		</section>
 
@@ -216,18 +221,17 @@
 
 		<!--Recipe View-->
 		<section id="js-view-recipe" class="view" role="region" style="display: none;">
-			<h1 id="js-recipe-cocktailName" class="typo-heading-large typo-color-orange">A Nice Glass of Water</h1>
-			<!-- <p id="js-recipe-creator" class="typo-body">mkspainhour</p> -->
+
+			<h1 id="js-recipe-cocktailName" class="typo-heading-large typo-color-orange"></h1>
 
 			<label id="recipe-ingredientsLabel" class="typo-body-small typo-color-orange">Ingredients</label>
 			<ul id="js-recipe-ingredientsList">
-				<!-- Inserted with JS:
-					<li class="ingredient typo-body"><span class="ingredientAmount">1</span> <span class="ingredientMeasurementUnit">part</span> — <span class=".ingredientName">Water</span></li>
-				-->
+				<!-- JS -->
 			</ul>
 
 			<label id="recipe-directionsLabel" class="typo-body-small typo-color-orange">Directions</label>
-			<p id="js-recipe-directions" class="typo-body">Add all ingredients and ice into tin, and stir until just before dilution is ideal. Strain into chilled rocks glass, and add a single ice cube.</p>
+			<p id="js-recipe-directions" class="typo-body"></p>
+
 		</section>
 
 

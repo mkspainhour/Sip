@@ -26,7 +26,6 @@ const recipeView = {
       });
 
       recipeView.$headerButtons.$edit.on("click", async function(e) {
-         alert("Feature under construction.\nPardon the sawdust. 😘");
          await ui.hideCurrentView("fadeOutLeft");
          recipeEditView.show("EDIT", "fadeInRight");
       });
@@ -62,13 +61,15 @@ const recipeView = {
       });
 
       //Set cocktail directions, if the cocktail includes them
-      if(activeCocktail) {
+      if(activeCocktail.directions) {
          recipeView.$directionsLabel.show();
+         recipeView.$directions.show();
          recipeView.$directions.text( activeCocktail.directions );
       }
       //Otherwise, hide the directions label
       else {
          recipeView.$directionsLabel.hide();
+         recipeView.$directions.hide();
       }
    },
    buildIngredientListItem: function(amount, measurementUnit, name) {

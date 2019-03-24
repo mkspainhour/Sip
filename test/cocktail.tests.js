@@ -105,7 +105,6 @@ describe("\n\n====Cocktail API====\n", function() {
         directions: "Just mix the dang thing."
       })
       .then( function(res) {
-        console.log("ERROR", res.body);
         expect(res).to.have.status(422).and.to.be.json;
         expect(res.body).to.be.an("object");
         expect(res.body).to.have.property("errorType").to.be.a("string").that.equals("MissingField");
@@ -877,7 +876,7 @@ describe("\n\n====Cocktail API====\n", function() {
       .then( function(res) {
         expect(res).to.have.status(200).and.to.be.json;
         expect(res.body).to.be.an("object");
-        expect(res.body).to.have.property("_id").that.equals(updateData.targetId.toString());
+        expect(res.body).to.have.property("id").that.equals(updateData.targetId.toString());
         expect(res.body).to.have.property("name").that.equals(updateData.newName);
         expect(res.body).to.have.property("creator").that.equals(jwt.decode(sessionJwt).sub);
         expect(res.body).to.have.property("ingredients").and.to.deep.equal(updateData.newIngredients);
@@ -972,8 +971,6 @@ describe("\n\n====Cocktail API====\n", function() {
       .then( function(res) {
         expect(res).to.have.status(200).and.to.be.json;
         expect(res.body).to.be.an("object");
-        //TODO: Test Improvement: /api/cocktail/delete
-        //Attempt to GET deleted cocktail recipe and ensure that it's deleted
       });
     });
 
