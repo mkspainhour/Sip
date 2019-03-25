@@ -7,6 +7,7 @@ const mongoose = require("mongoose");
 
 
 
+//Model Description
 const cocktailSchema = mongoose.Schema({
   name: {type: String, required: true, trim: true},
   creator: {type: String, required: true, trim: true},
@@ -26,6 +27,7 @@ const cocktailSchema = mongoose.Schema({
 
 
 
+//Static Model Methods
 cocktailSchema.methods.serialize = function() {
   return {
     id: this._id,
@@ -38,6 +40,7 @@ cocktailSchema.methods.serialize = function() {
 
 
 
+//Model Finalization
 const Cocktail = mongoose.model("Cocktail", cocktailSchema);
 
 

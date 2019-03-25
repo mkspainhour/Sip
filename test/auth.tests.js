@@ -12,14 +12,14 @@ const { TEST_DATABASE_URL } = require("../config");
 const { app, startServer, stopServer } = require("../server");
 const { User } = require("../api/user");
 const { Cocktail } = require("../api/cocktail");
-//#endregion
+
+
 
 let preexistingUser = {
   username: "seedUsername",
   hashedPassword: bcrypt.hashSync("seedPassword", 12),
   email: "seedEmail@domain.tld"
 }
-
 const preexistingCocktail = {
   name: "Database Seeding Negroni",
   creator: "seedUsername",
@@ -42,6 +42,7 @@ const preexistingCocktail = {
   ],
   directions: "Just mix the dang thing."
 }
+//#endregion
 
 
 

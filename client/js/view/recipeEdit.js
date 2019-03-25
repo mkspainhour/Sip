@@ -223,9 +223,9 @@ const recipeEditView = {
    buildIngredientBlock: function(blockIndex) {
       return `
          <div id="recipeEdit-ingredientBlock-${blockIndex}" class="recipeEdit-ingredientBlock" style="display:none;">
-            <div class="wrapper-ingredientBlock-svg-remove">
+            <button type="button" class="wrapper-ingredientBlock-svg-remove">
                <img src="resources/icons/close.svg" class="svg-ingredientBlock-remove" alt="Remove ingredient.">
-            </div>
+            </button>
 
             <div class="wrapper-input wrapper-ingredientBlock-name">
                <input id="js-input-recipeEdit-ingredientBlock-${blockIndex}-name" class="js-input-ingredientBlock-name" type="text" title="Ingredient name." aria-label="ingredient name" required>

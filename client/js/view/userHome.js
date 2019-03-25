@@ -8,6 +8,7 @@ const userHomeView = {
 
    $activeUser: $("#js-userHome-text-currentUser"),
    $recipeCount: $("#js-userHome-text-recipeCount"),
+   $addFirstRecipeButton: $("#js-button-userHome-addFirstRecipe"),
    $recipeCardsWrapper: $("#js-userHome-wrapper-recipeCards"),
    //#endregion
 
@@ -31,6 +32,12 @@ const userHomeView = {
          recipeEditView.show("CREATE", "fadeInRight");
       });
 
+      userHomeView.$addFirstRecipeButton.on("click", async function(e) {
+         userHomeView.cacheScrollPosition();
+         await ui.hideCurrentView("fadeOutLeft");
+         recipeEditView.show("CREATE", "fadeInRight");
+      });
+
       userHomeView.$recipeCardsWrapper.on("click", ".recipe-card", async function(e) {
          //Isolates 'n' from the element id 'recipe-card-n'
          const selectedCardId = e.currentTarget.id.replace("recipe-card-", "");
@@ -49,6 +56,14 @@ const userHomeView = {
 
          //Set the active username display
          userHomeView.$activeUser.text(appSession.user);
+
+         //Show Add First Recipe button if applicable
+         if (userInformation.createdCocktails.length === 0) {
+            userHomeView.$addFirstRecipeButton.show();
+         }
+         else {
+            userHomeView.$addFirstRecipeButton.hide();
+         }
 
          //Set recipe count display
          if (userInformation.createdCocktails.length === 1) {
@@ -139,8 +154,8 @@ const userHomeView = {
             url: "/api/auth/sign-out"
          })
          .then(async ()=> {
-            appSession.reset();
             ui.reset();
+            appSession.reset();
 
             await ui.hideCurrentView("fadeOutRight")
             landingView.show("fadeInLeft");

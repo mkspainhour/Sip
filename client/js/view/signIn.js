@@ -48,10 +48,10 @@ const signInView = {
          signInView.validateForm();
       });
 
-      signInView.$submitButton.on("click", async function(e) {
+      signInView.$submitButton.on("click", function(e) {
          ui.scrollToTop();
          signInView.setFormFeedback("Signing in...");
-         await signInView.signIn(
+         signInView.signIn(
             signInView.$usernameInput.val(),
             signInView.$passwordInput.val()
          );

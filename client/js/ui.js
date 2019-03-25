@@ -5,13 +5,10 @@ const ui = {
 	currentView: null,
 	//#endregion
 
-
-
 	//#region UI Setup Functions
 	setup: function() {
 		ui.configureEventListeners();
 	},
-
 	configureEventListeners: function() {
 		//If the user is navigating with the mouse, hide unecessary accessibility styles
 		$(window).on("mousedown", function(e) {
@@ -38,11 +35,9 @@ const ui = {
 	},
 	//#endregion
 
-
-
 	//#region General UI Functions
 	scrollToTop: function(ms=400) {
-		//The jQuery .animate() function already defaults to 400ms. The default parameter is present for understandability
+		//The jQuery .animate() function already defaults to 400ms. The parameter is is set for understandability
 		$("html")
 		.animate({
 			scrollTop: 0
@@ -56,8 +51,6 @@ const ui = {
 		recipeView.reset();
 	},
 	//#endregion
-
-
 
 	//#region Animation Functions
 	validateHideAnimation: function(hideAnimation) {

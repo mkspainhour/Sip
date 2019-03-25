@@ -13,44 +13,6 @@ const { User } = require("../user");
 
 
 
-//Middleware
-const authorize = function(req, res, next) {
-  //Ensure that a session cookie accompanies the request
-  if (!req.cookies.session) {
-    return res.status(401).json({
-      errorType: "NoActiveSession",
-    });
-  }
-
-  //Verify that the session cookie JWT is not expired or malformed
-  let sessionUser;
-  try {
-    sessionUser = jwt.verify(req.cookies.session, JWT_SECRET).sub;
-  }
-  catch(err) {
-    res.clearCookie("session");
-    if (err.name == "TokenExpiredError") {
-      return res.status(401).json({
-        errorType: "ExpiredJWT",
-        message: "Session cleared."
-      });
-    }
-    //JWT is generally malformed
-    return res.status(401).json({
-      errorType: "MalformedJWT",
-      message: "Session cleared."
-    });
-  }
-
-  //The session is valid. Extend its expiry by another day.
-  res.cookie("session", User.makeJwtFor(sessionUser), {expires: COOKIE_EXPIRY});
-  res.cookie("user", sessionUser, {expires: COOKIE_EXPIRY});
-
-  next();
-}
-
-
-
 router.post("/sign-in", (req, res)=> {
   //#region Request Validation
     //A session must not already be active
@@ -96,7 +58,7 @@ router.post("/sign-in", (req, res)=> {
     });
   })
   .catch( (err)=> {
-    console.error(`❗Server Error:\n${err}`);
+    console.error("❗Server Error:", err);
     return res.status(500).json({
       errorType: "InternalServerError"
     });

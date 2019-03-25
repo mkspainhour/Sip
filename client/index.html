@@ -35,7 +35,7 @@
 		<header role="banner">
 			<div id="wrapper-header-leftArea">
 				<div class="wrapper-logoText">
-					<h2 class="typo-heading-small typo-color-orange">Sip</h2>
+					<h2 class="typo-logo typo-color-orange">Sip</h2>
 				</div>
 			</div>
 
@@ -53,14 +53,14 @@
 				<button id="js-headerButton-signOut" type="button" class="button-hollow typo-color-orange-dark" style="display: none;" ontouchstart="">Sign Out</button>
 
 				<button id="js-headerButton-addRecipe" type="button" class="button-hollow button-icon typo-color-orange-dark" style="display: none;" ontouchstart="">
-					<img class="svg-icon" src="./resources/icons/add.svg" alt="+ Add Recipe">
+					<img class="svg-icon" src="./resources/icons/add.svg" alt="+ Add Recipe">Add Recipe
 				</button>
 
 				<!-- Recipe -->
 				<button id="js-headerButton-recipeBack" type="button" class="button-hollow button-hollow-dark-bg typo-color-orange-dark" style="display: none;" ontouchstart="">Back</button>
 
 				<button id="js-headerButton-recipeEdit" type="button" class="button-hollow button-icon button-hollow-dark-bg typo-color-orange-dark" style="display: none;" ontouchstart="">
-					<img class="svg-icon" src="./resources/icons/edit.svg" alt="Edit Recipe">
+					<img class="svg-icon" src="./resources/icons/edit.svg" alt="Edit Recipe">Edit Recipe
 				</button>
 
 				<!-- Recipe Edit -->
@@ -151,6 +151,9 @@
 				<p id="js-userHome-text-recipeCount" class="typo-body-small typo-center typo-color-orange"> <!--JS--> </p>
 			</div>
 
+			<!--Add First Recipe Button-->
+			<button id="js-button-userHome-addFirstRecipe" type="submit" class="button-filled typo-color-gray" style="display:none;" ontouchstart="">Add First Recipe</button>
+
 			<div id="js-userHome-wrapper-recipeCards" aria-live="polite">
 				<!-- JS -->
 			</div>
@@ -176,9 +179,9 @@
 				<div id="js-wrapper-recipeEdit-ingredientBlocks" aria-live="polite">
 
 					<div id="recipeEdit-ingredientBlock-0" class="recipeEdit-ingredientBlock">
-						<div class="wrapper-ingredientBlock-svg-remove">
+						<button type="button" class="wrapper-ingredientBlock-svg-remove">
 							<img src="resources/icons/close.svg" class="svg-ingredientBlock-remove" alt="Remove ingredient.">
-						</div>
+						</button>
 
 						<div class="wrapper-input wrapper-ingredientBlock-name">
 							<input id="js-input-recipeEdit-ingredientBlock-0-name" class="js-input-ingredientBlock-name" type="text" title="Ingredient name." aria-label="ingredient name" required>
@@ -222,15 +225,17 @@
 		<!--Recipe View-->
 		<section id="js-view-recipe" class="view" role="region" style="display: none;">
 
-			<h1 id="js-recipe-cocktailName" class="typo-heading-large typo-color-orange"></h1>
+			<div id="recipe-wrapper">
+				<h1 id="js-recipe-cocktailName" class="typo-heading-large typo-color-orange"></h1>
 
-			<label id="recipe-ingredientsLabel" class="typo-body-small typo-color-orange">Ingredients</label>
-			<ul id="js-recipe-ingredientsList">
-				<!-- JS -->
-			</ul>
+				<label id="recipe-ingredientsLabel" class="typo-body-small typo-color-orange">Ingredients</label>
+				<ul id="js-recipe-ingredientsList">
+					<!-- JS -->
+				</ul>
 
-			<label id="recipe-directionsLabel" class="typo-body-small typo-color-orange">Directions</label>
-			<p id="js-recipe-directions" class="typo-body"></p>
+				<label id="recipe-directionsLabel" class="typo-body-small typo-color-orange">Directions</label>
+				<p id="js-recipe-directions" class="typo-body"></p>
+			</div>
 
 		</section>
 

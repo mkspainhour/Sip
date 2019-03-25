@@ -107,7 +107,7 @@ router.post("/create", (req, res)=> {
       });
     }
     //Catch server errors
-    console.error(`❗Server Error:\n${err}\n`);
+    console.error("❗Server Error:", err);
     return res.status(500).json({
       errorType: "InternalServerError"
     });
@@ -151,7 +151,7 @@ router.get("/:username", (req,res)=> {
     })
   })
   .catch((err)=> {
-    console.error(`❗Server Error:\n${err}\n`);
+    console.error("❗Server Error:", err);
     return res.status(500).json({
       errorType: "InternalServerError"
     });

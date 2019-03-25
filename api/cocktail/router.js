@@ -8,15 +8,14 @@ const mongoose = require("mongoose");
   const ObjectId = mongoose.Types.ObjectId;
 const jwt = require("jsonwebtoken");
 
-const { JWT_SECRET, COOKIE_EXPIRY } = require("../../config");
-const { Cocktail } = require("./models");
 const { User } = require("../user/models");
+const { Cocktail } = require("./models");
+const { JWT_SECRET, COOKIE_EXPIRY } = require("../../config");
 //#endregion
 
 
-
 //Middleware
-const authorize = function(req, res, next) {
+function authorize(req, res, next) {
   //Ensure that a session cookie accompanies the request
   if (!req.cookies.session) {
     return res.status(401).json({
@@ -133,7 +132,7 @@ router.post("/create", authorize, (req, res)=> {
   //Cocktail Recipe creation
   Cocktail.create({
     name: req.body.name,
-    //Decoding instead of verifying as the jwt authorize middleware has already validated it.
+    //Decoding instead of verifying as the 'authorize' middleware has already validated it.
     creator: jwt.decode(req.cookies.session).sub,
     ingredients: req.body.ingredients,
     directions: req.body.directions
@@ -142,7 +141,7 @@ router.post("/create", authorize, (req, res)=> {
     return res.status(201).json(newCocktailRecipe.serialize());
   })
   .catch((err)=> {
-    console.error(`❗Server Error:\n${err}\n`);
+    console.error("❗Server Error:", err);
     return res.status(500).send();
   });
 });

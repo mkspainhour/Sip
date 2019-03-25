@@ -1,8 +1,8 @@
 {
   "name": "node-jwt-auth",
   "version": "1.0.0",
-  "description": "Cocktail recipe storage and sharing platform.",
-  "keywords": [],
+  "description": "Simple cocktail recipe storage service.",
+  "keywords": ["cocktail", "web app", "recipe"],
   "main": "index.js",
   "scripts": {
     "start": "node server.js",
