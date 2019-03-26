@@ -15,7 +15,6 @@ const app = express();
 app.use( morgan("dev") );
 app.use( express.json() );
 app.use( cookieParser() );
-//TODO: finalize maxAge duration for production environment. 1 week?
 app.use( express.static("client", {maxAge: "1d"}));
 
 //CORS Header Settings
