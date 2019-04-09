@@ -5,7 +5,7 @@
   font-size: 15px;
 
   --color-orange: hsl(20, 100%, 80%);
-  --color-orange-dark: hsl(20, 100%, 70%);
+  --color-orange-dark: #ff9865;
   --color-orange-light: hsl(20, 100%, 90%);
 
   --color-red: hsl(0, 100%, 72.5%);

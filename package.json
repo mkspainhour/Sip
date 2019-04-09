@@ -1,7 +1,7 @@
 {
-  "name": "node-jwt-auth",
+  "name": "Sip",
   "version": "1.0.0",
-  "description": "Simple cocktail recipe storage service.",
+  "description": "Quickly save and recall cocktail recipes.",
   "keywords": ["cocktail", "web app", "recipe"],
   "main": "index.js",
   "scripts": {
