@@ -1,5 +1,5 @@
 {
-  "name": "node-jwt-auth",
+  "name": "sip",
   "version": "1.0.0",
   "description": "Simple cocktail recipe storage service.",
   "keywords": ["cocktail", "web app", "recipe"],
