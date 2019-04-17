@@ -1,9 +1,9 @@
 {
-  "name": "Sip",
+  "name": "sip",
   "version": "1.0.0",
   "description": "Quickly save and recall cocktail recipes.",
   "keywords": ["cocktail", "web app", "recipe"],
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "test": "mocha --exit"
@@ -13,7 +13,6 @@
     "url": "https://github.com/mkspainhour/sip.git"
   },
   "author": "Marshall Spainhour",
-  "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.3",
