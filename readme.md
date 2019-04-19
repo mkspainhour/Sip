@@ -5,17 +5,11 @@ It also lets you:
 - Edit that recipe when you learn your friend is not great at making cocktails.
 - Delete that recipe it when you decide that you're better off starting from scratch.
 
-<br>
-
 ## Tools
 HTML & CSS, JavaScript, jQuery, Mongoose & MongoDB, Express, Node, Mocha & Chai, Git, and NPM.
 
-<br>
-
 ## Author
 Designed & Developed by Marshall Spainhour
-
-<br>
 
 ## API Outline
 Note: the 🔒icon indicates that a valid 'session' cookie is required to access the associated endpoint.
@@ -48,9 +42,6 @@ Note: the 🔒icon indicates that a valid 'session' cookie is required to access
    - Response: -->
 
    ## Remainder In progress...
-
-<br>
-<br>
 
 ## Screenshots
 <p align="center">
