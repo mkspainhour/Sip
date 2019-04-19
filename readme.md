@@ -18,8 +18,8 @@ Designed & Developed by Marshall Spainhour
 
 <br>
 
-## API Outline
-The 🔒icon indicates that a valid 'session' cookie is required to access the associated endpoint.
+## API Structure
+The 🔒icon indicates that the endpoint requires a valid 'session' cookie.
 
 ### User Authorization
 - POST /api/auth/sign-in
