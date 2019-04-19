@@ -1,13 +1,58 @@
 # [Sip](https://pacific-castle-68250.herokuapp.com/) lets you efficiently manage your favorite cocktail recipes.
 It also lets you:
-- Save the cocktail recipe you told your friend you would try sometime. This time, you insist to them, you wont forget.
+- Save the cocktail recipe you told your friend you would try sometime.
 - Pull up that cocktail recipe when you're finally in the mood for something experimental.
-- Edit that recipe when you remember that your friend isn't that great at making cocktails. You don't think it makes any sense to use xpeanut butter with gin. You're probably right.
-- Delete that recipe it when you decide that you're better off building one from scratch.
+- Edit that recipe when you learn your friend is not great at making cocktails.
+- Delete that recipe it when you decide that you're better off starting from scratch.
+
+<br>
+
+## Tools
+HTML & CSS, JavaScript, jQuery, Mongoose & MongoDB, Express, Node, Mocha & Chai, Git, and NPM.
+
+<br>
+
+## Author
+Designed & Developed by Marshall Spainhour
+
+<br>
+
+## API Outline
+Note: the 🔒icon indicates that a valid 'session' cookie is required to access the associated endpoint.
+
+### User Authorization
+- POST /api/auth/sign-in
+   - Request: 'username', 'password'
+   - Response: 'session' and 'user' cookies are set
+- GET /api/auth/sign-out
+   - Response: 'session' and 'user' cookies are cleared
+
+### Cocktails
+- POST /api/cocktail/create 🔒
+   - Request: 'name', 'ingredients', optionally 'directions'
+   - Response: new cocktail recipe
+- PUT /api/cocktail/update 🔒
+   - Request: 'targetId', at least one of ('newName', 'newIngredients,' 'newDirections')
+   - Response: updated cocktail recipe
+- DELETE /api/cocktail/delete 🔒
+   - Request: 'targetId'
+   - Response: the cocktail recipe that was deleted
+- GET /api/cocktail/:targetId
+   - Response: requested cocktail recipe
+
+<!-- ### Users
+- POST /api/user/create
+   - Request:
+   - Response:
+- GET /api/user/:username
+   - Response: -->
+
+   ## Remainder In progress...
 
 <br>
 <br>
 
+## Screenshots
 <p align="center">
    <img src="readme resources/landing.png">
 </p>
@@ -20,11 +65,3 @@ It also lets you:
 <p align="center">
    <img src="readme resources/recipeEdit.png">
 </p>
-
-<!-- TODO: ## API Documentation -->
-
-## Tools
-JavaScript, jQuery, HTML & CSS, Mongoose & MongoDB, Express, Node, Mocha & Chai, Git, and NPM
-
-## Credit
-Designed & Developed by Marshall Spainhour

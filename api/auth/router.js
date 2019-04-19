@@ -4,10 +4,9 @@
 const router = require("express").Router();
 const mongoose = require("mongoose");
   mongoose.Promise = global.Promise;
-const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
-const { JWT_SECRET, COOKIE_EXPIRY } = require("../../config");
+const { COOKIE_EXPIRY } = require("../../config");
 const { User } = require("../user");
 //#endregion
 
@@ -66,7 +65,7 @@ router.post("/sign-in", (req, res)=> {
 });
 
 router.get("/sign-out", (req, res)=> {
-  //There is no situation in which only one cookie is present, but this seems more responsible
+  //There is no situation in which only one cookie is present, so the following don't necessarily have be checked separately
   if(req.cookies.session) {
     res.clearCookie("session");
   }
