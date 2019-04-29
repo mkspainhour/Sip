@@ -22,17 +22,17 @@ const userHomeView = {
    //#endregion
 
    configureEventListeners: function() {
-      userHomeView.$headerButtons.$signOut.on("click", function(e) {
+      userHomeView.$headerButtons.$signOut.on("click", function() {
          userHomeView.signOut();
       });
 
-      userHomeView.$headerButtons.$addRecipe.on("click", async function(e) {
+      userHomeView.$headerButtons.$addRecipe.on("click", async function() {
          userHomeView.cacheScrollPosition();
          await ui.hideCurrentView("fadeOutLeft");
          recipeEditView.show("CREATE", "fadeInRight");
       });
 
-      userHomeView.$addFirstRecipeButton.on("click", async function(e) {
+      userHomeView.$addFirstRecipeButton.on("click", async function() {
          userHomeView.cacheScrollPosition();
          await ui.hideCurrentView("fadeOutLeft");
          recipeEditView.show("CREATE", "fadeInRight");
@@ -50,7 +50,7 @@ const userHomeView = {
       });
    },
    beforeShow: function() {
-      return new Promise(async (resolve, reject)=> {
+      return new Promise(async (resolve)=> {
          //Collect information about the current session user
          let userInformation = await userHomeView.getUserInformation(appSession.user);
 
@@ -120,7 +120,7 @@ const userHomeView = {
 
    //API
    getUserInformation: function(targetUsername) {
-      return new Promise((resolve, reject)=> {
+      return new Promise((resolve)=> {
          $.ajax({
             method: "GET",
             url: `/api/user/${targetUsername}`
@@ -132,7 +132,6 @@ const userHomeView = {
          .catch(async (error)=> {
             const response = error.responseJSON;
             const errorType = response.errorType;
-            console.error("ERROR:", response);
 
             switch(errorType) {
                case "NoSuchUser":
@@ -148,7 +147,7 @@ const userHomeView = {
       });
    },
    signOut: function() {
-      return new Promise((resolve, reject)=> {
+      return new Promise((resolve)=> {
          $.ajax({
             method: "GET",
             url: "/api/auth/sign-out"

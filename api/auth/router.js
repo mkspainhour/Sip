@@ -1,4 +1,4 @@
-//#region SETUP
+//SECTION: Setup
 "use strict";
 
 const router = require("express").Router();
@@ -8,46 +8,47 @@ const bcrypt = require("bcryptjs");
 
 const { COOKIE_EXPIRY } = require("../../config");
 const { User } = require("../user");
-//#endregion
 
 
 
+
+
+//SECTION: Routes
 router.post("/sign-in", (req, res)=> {
-  //#region Request Validation
-    //A session must not already be active
-    if(req.cookies.session) {
-      console.error("It is not possible to sign in while a user session is already active.");
-      return res.status(400).json({
-        errorType: "SessionAlreadyActive",
-      })
-    }
+  //Request Validation
 
-    //Required fields must be present and non-empty
-    for(let requiredField of ["username", "password"]) {
-      if (!req.body[requiredField]) {
-        console.error(`Request body is missing the '${requiredField}' field.`);
-        return res.status(422).json({
-          errorType: "MissingField",
-        });
-      }
-    }
+  //A session must not already be active
+  if(req.cookies.session) {
+    return res.status(400).json({
+      errorType: "SessionAlreadyActive",
+    })
+  }
 
-    //The username and password fields are Strings
-    for(let stringField of ["username", "password"]) {
-      if(req.body.hasOwnProperty(stringField) && typeof req.body[stringField] != "string") {
-        console.error(`The '${stringField}' field in the request body must be a String.`);
-        return res.status(422).json({
-          errorType: "UnexpectedDataType",
-        });
-      }
+  //Required fields must be present and non-empty
+  for(let requiredField of ["username", "password"]) {
+    if (!req.body[requiredField]) {
+      return res.status(422).json({
+        errorType: "MissingField",
+      });
     }
-  //#endregion
+  }
+
+  //The username and password fields must be Strings
+  for(let stringField of ["username", "password"]) {
+    if(req.body.hasOwnProperty(stringField) && typeof req.body[stringField] != "string") {
+      return res.status(422).json({
+        errorType: "UnexpectedDataType",
+      });
+    }
+  }
 
   return User.findOne({username: req.body.username})
   .then((locatedUser)=> {
-    //If there is a user with the provided username, and the provided password is correct
+    //If a user was found with the provided username, and the provided password is valid
     if(locatedUser && bcrypt.compareSync(req.body.password, locatedUser.hashedPassword)) {
+      //Set the 'session' JWT cookie
       res.cookie("session", User.makeJwtFor(req.body.username), {expires: COOKIE_EXPIRY});
+      //Set the 'username' cookie
       res.cookie("user", req.body.username, {expires: COOKIE_EXPIRY});
       return res.status(204).send();
     }
@@ -56,8 +57,7 @@ router.post("/sign-in", (req, res)=> {
       errorType: "NoSuchUser",
     });
   })
-  .catch( (err)=> {
-    console.error("❗Server Error:", err);
+  .catch(()=> {
     return res.status(500).json({
       errorType: "InternalServerError"
     });
@@ -65,7 +65,7 @@ router.post("/sign-in", (req, res)=> {
 });
 
 router.get("/sign-out", (req, res)=> {
-  //There is no situation in which only one cookie is present, so the following don't necessarily have be checked separately
+  //Clear any present cookies
   if(req.cookies.session) {
     res.clearCookie("session");
   }
@@ -74,6 +74,8 @@ router.get("/sign-out", (req, res)=> {
   }
   return res.status(204).send();
 });
+
+
 
 
 

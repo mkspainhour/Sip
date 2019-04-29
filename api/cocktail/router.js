@@ -1,4 +1,4 @@
-//#region SETUP
+//SECTION: Setup
 "use strict";
 
 const express = require("express");
@@ -11,8 +11,6 @@ const jwt = require("jsonwebtoken");
 const { User } = require("../user/models");
 const { Cocktail } = require("./models");
 const { JWT_SECRET, COOKIE_EXPIRY } = require("../../config");
-//#endregion
-
 
 //Middleware
 function authorize(req, res, next) {
@@ -52,283 +50,268 @@ function authorize(req, res, next) {
 
 
 
+
+
+//SECTION: Routes
 router.post("/create", authorize, (req, res)=> {
-  //#region Request Validation
-    //Required Fields
-    for (let field of ["name", "ingredients"]) {
-      if (!req.body[field]) {
-        console.error(`Request is missing the '${field}' field.`);
+  //Request Validation
+
+  //Required Fields
+  for (let field of ["name", "ingredients"]) {
+    if (!req.body[field]) {
+      return res.status(422).json({
+        errorType: "MissingField"
+      });
+    }
+  }
+
+  //String Types
+  for(let stringField of ["name", "directions"]) {
+    if(req.body[stringField] && typeof req.body[stringField] != "string") {
+      return res.status(422).json({
+        errorType: "IncorrectDataType"
+      });
+    }
+  }
+
+  //Array Types
+  for(let arrayField of ["ingredients"]) {
+    if(!Array.isArray(req.body[arrayField])) {
+      return res.status(422).json({
+        errorType: "IncorrectDataType"
+      });
+    }
+  }
+
+  //Required Ingredient Fields
+  for (let ingredient of req.body.ingredients) {
+    for (let requiredField of ["name", "measurementUnit", "amount"]) {
+      if (!ingredient[requiredField]) {
         return res.status(422).json({
           errorType: "MissingField"
         });
       }
-    };
-
-    //String Types
-    for(let stringField of ["name", "directions"]) {
-      if(req.body[stringField] && typeof req.body[stringField] != "string") {
-        console.error(`${stringField} field must be a String.`);
-        return res.status(422).json({
-          errorType: "IncorrectDataType"
-        });
-      }
     }
+  }
 
-    //Array Types
-    for(let arrayField of ["ingredients"]) {
-      if(!Array.isArray(req.body[arrayField])) {
-        console.error(`'${arrayField}' field must be an Array.`);
-        return res.status(422).json({
-          errorType: "IncorrectDataType"
-        });
-      }
+  //Ingredient Field Data Types
+  for (let ingredient of req.body.ingredients) {
+    if (typeof ingredient.name != "string") {
+      return res.status(422).json({
+        errorType: "IncorrectDataType"
+      });
     }
-
-    //Required Ingredient Fields
-    for (let ingredient of req.body.ingredients) {
-      for (let requiredField of ["name", "measurementUnit", "amount"]) {
-        if (!ingredient[requiredField]) {
-          console.error(`Ingredient is missing the '${requiredField}' field.`);
-          return res.status(422).json({
-            errorType: "MissingField"
-          });
-        }
-      }
-    };
-
-    //Ingredient Field Data Types
-    for (let ingredient of req.body.ingredients) {
-      if (typeof ingredient.name != "string") {
-        console.error(`Ingredient 'name' fields must be Strings.`)
-        return res.status(422).json({
-          errorType: "IncorrectDataType"
-        });
-      }
-      if (typeof ingredient.measurementUnit != "string") {
-        console.error(`Ingredient 'measurementUnit' fields must be Strings.`);
-        return res.status(422).json({
-          errorType: "IncorrectDataType"
-        });
-      }
-      if (typeof ingredient.amount != "number") {
-        console.error(`Ingredient 'amount' fields must be a number.`);
-        return res.status(422).json({
-          errorType: "IncorrectDataType"
-        });
-      }
+    if (typeof ingredient.measurementUnit != "string") {
+      return res.status(422).json({
+        errorType: "IncorrectDataType"
+      });
     }
-
-    //Ingredient Field sizing
-    for(let ingredient of req.body.ingredients) {
-      if(ingredient.amount <= 0) {
-        console.error(`Ingredient 'amount' field must be larger than 0.`);
-        return res.status(422).json({
-          errorType: "InvalidFieldSize"
-        });
-      }
+    if (typeof ingredient.amount != "number") {
+      return res.status(422).json({
+        errorType: "IncorrectDataType"
+      });
     }
-  //#endregion
+  }
+
+  //Ingredient Field sizing
+  for(let ingredient of req.body.ingredients) {
+    if(ingredient.amount <= 0) {
+      return res.status(422).json({
+        errorType: "InvalidFieldSize"
+      });
+    }
+  }
 
   //Cocktail Recipe creation
   Cocktail.create({
     name: req.body.name,
-    //Decoding instead of verifying as the 'authorize' middleware has already validated it.
-    creator: jwt.decode(req.cookies.session).sub,
+    //Decoding instead of verifying as the 'authorize' middleware has already validated the JWT.
+    creator: jwt.decode( req.cookies.session ).sub,
     ingredients: req.body.ingredients,
     directions: req.body.directions
   })
   .then((newCocktailRecipe)=> {
-    return res.status(201).json(newCocktailRecipe.serialize());
+    return res.status(201).json( newCocktailRecipe.serialize() );
   })
-  .catch((err)=> {
-    console.error("❗Server Error:", err);
+  .catch(()=> {
     return res.status(500).send();
   });
 });
 
 router.put("/update", authorize, (req, res)=> {
-  //#region Request Validation
-    //'targetId' must be present
-    if (!req.body.targetId) {
-      console.error(`No 'targetId' present in the request body.`);
-      return res.status(422).json({
-        errorType: "MissingField"
-      });
-    }
+  //Request Validation
 
-    //'targetId' must be a valid ObjectId
-    if(!ObjectId.isValid(req.body.targetId)) {
-      console.error(`The provided cocktail 'targetId' is an invalid ObjectId.`);
-      return res.status(422).json({
-        errorType: "UnexpectedDataType"
-      });
-    }
+  //'targetId' must be present
+  if (!req.body.targetId) {
+    return res.status(422).json({
+      errorType: "MissingField"
+    });
+  }
 
-    //Either 'newName', 'newIngredients', or 'newDirections' must be present
-    if (!req.body.newName && !req.body.newIngredients && !req.body.newDirections)
-    {
-      console.error(`No actionable fields provided in the request body.`);
-      return res.status(422).json({
-        errorType: "NoActionableFields"
-      });
-    }
+  //'targetId' must be a valid ObjectId
+  if(!ObjectId.isValid(req.body.targetId)) {
+    return res.status(422).json({
+      errorType: "UnexpectedDataType"
+    });
+  }
 
-    //'newName', if present, must be a String
-    if(req.body.newName && typeof req.body.newName != "string") {
-      console.error(`'name' field must be a string.`);
-      return res.status(422).json({
-        errorType: "UnexpectedDataType"
-      });
-    }
+  //Either 'newName', 'newIngredients', or 'newDirections' must be present
+  if (!req.body.newName && !req.body.newIngredients && !req.body.newDirections)
+  {
+    return res.status(422).json({
+      errorType: "NoActionableFields"
+    });
+  }
 
-    //newIngredients, if present, must be an Array
-    if(req.body.newIngredients && !Array.isArray(req.body.newIngredients)) {
-      console.error(`'ingredients' field must be an Array.`);
-      return res.status(422).json({
-        errorType: "UnexpectedDataType"
-      });
-    }
+  //'newName', if present, must be a String
+  if(req.body.newName && typeof req.body.newName != "string") {
+    return res.status(422).json({
+      errorType: "UnexpectedDataType"
+    });
+  }
 
-    //Required ingredient fields are present
-    for (let ingredient of req.body.newIngredients) {
-      for (let requiredField of ["name", "measurementUnit", "amount"]) {
-        if (!ingredient[requiredField]) {
-          console.error(`Ingredient is missing the '${requiredField}' field.`);
-          return res.status(422).json({
-            errorType: "MissingField"
-          });
-        }
-      }
-    }
+  //newIngredients, if present, must be an Array
+  if(req.body.newIngredients && !Array.isArray(req.body.newIngredients)) {
+    return res.status(422).json({
+      errorType: "UnexpectedDataType"
+    });
+  }
 
-    //Ingredient field data types are as expected
-    for (let ingredient of req.body.newIngredients) {
-      if (typeof ingredient.name != "string") {
-        console.error(`Ingredient 'name' fields must be Strings.`)
+  //Required ingredient fields are present
+  for (let ingredient of req.body.newIngredients) {
+    for (let requiredField of ["name", "measurementUnit", "amount"]) {
+      if (!ingredient[requiredField]) {
         return res.status(422).json({
-          errorType: "IncorrectDataType"
-        });
-      }
-      if (typeof ingredient.measurementUnit != "string") {
-        console.error(`Ingredient 'measurementUnit' fields must be Strings.`);
-        return res.status(422).json({
-          errorType: "IncorrectDataType"
-        });
-      }
-      if (typeof ingredient.amount != "number") {
-        console.error(`Ingredient 'amount' field must be a number.`);
-        return res.status(422).json({
-          errorType: "IncorrectDataType"
+          errorType: "MissingField"
         });
       }
     }
+  }
 
-    //Ingredient fields adhere to model-specified sizing requirements
-    for (let ingredient of req.body.newIngredients) {
-      if(ingredient.amount <= 0) {
-        console.error(`Ingredient 'amount' field must be larger than 0.`);
-        return res.status(422).json({
-          errorType: "InvalidFieldSize"
-        });
-      }
-    }
-
-    //'newDirections', if present, is a String
-    if(req.body.newDirections && typeof req.body.newName != "string") {
-      console.error(`'newDirections' field must be a String.`);
+  //Ingredient field data types are as expected
+  for (let ingredient of req.body.newIngredients) {
+    if (typeof ingredient.name != "string") {
       return res.status(422).json({
-        errorType: "UnexpectedDataType"
+        errorType: "IncorrectDataType"
       });
     }
-  //#endregion
+    if (typeof ingredient.measurementUnit != "string") {
+      return res.status(422).json({
+        errorType: "IncorrectDataType"
+      });
+    }
+    if (typeof ingredient.amount != "number") {
+      return res.status(422).json({
+        errorType: "IncorrectDataType"
+      });
+    }
+  }
 
+  //Ingredient fields adhere to model-specified sizing requirements
+  for (let ingredient of req.body.newIngredients) {
+    if(ingredient.amount <= 0) {
+      return res.status(422).json({
+        errorType: "InvalidFieldSize"
+      });
+    }
+  }
+
+  //'newDirections', if present, is a String
+  if(req.body.newDirections && typeof req.body.newName != "string") {
+    return res.status(422).json({
+      errorType: "UnexpectedDataType"
+    });
+  }
+
+  //Build updateValues object from request body
   const updateValues = {};
+
   if (req.body.newName) {
     updateValues.name = req.body.newName;
   }
   if (req.body.newIngredients) {
     updateValues.ingredients = req.body.newIngredients;
   }
-  //The purposeful deletion of directions is also accounted for
+  //User-deleted directions can read as ""
   if (req.body.newDirections || req.body.newDirections=="") {
     updateValues.directions = req.body.newDirections;
   }
 
-  Cocktail.findOneAndUpdate({_id: req.body.targetId}, updateValues, {new:true})
+  //Update the Cocktail Recipe
+  Cocktail.findOneAndUpdate({_id: req.body.targetId}, updateValues, {new:true}) //Returns updated recipe
   .then((cocktailRecipe)=> {
     if (!cocktailRecipe) {
+      //If the cocktail target doesn't exist
       return res.status(404).json();
     }
-    return res.status(200).json(cocktailRecipe.serialize());
+    return res.status(200).json( cocktailRecipe.serialize() );
   })
-  .catch( (err)=> {
-    console.error(`✖ ${err}`);
+  .catch(()=> {
     return res.status(500).send();
   });
 });
 
 router.delete("/delete", authorize, (req, res)=> {
-  //#region Request Validation
-    //Request body contains 'targetId'
-    if (!req.body.targetId) {
-      console.error(`No cocktail 'targetId' field in the request body.`);
-      return res.status(422).json({
-        errorType: "MissingField"
-      });
-    }
+  //Request Validation
 
-    //'targetId' is a valid ObjectId
-    if(!ObjectId.isValid(req.body.targetId)) {
-      console.error(`'targetId' is not a valid ObjectId`);
-      return res.status(422).json({
-        errorType: "InvalidObjectId"
-      });
-    }
-  //#endregion
+  //Request body contains 'targetId'
+  if (!req.body.targetId) {
+    return res.status(422).json({
+      errorType: "MissingField"
+    });
+  }
 
+  //'targetId' is a valid ObjectId
+  if(!ObjectId.isValid(req.body.targetId)) {
+    return res.status(422).json({
+      errorType: "InvalidObjectId"
+    });
+  }
+
+  //Find the cocktail recipe with the specified ID that was also created by the current session user
   let sessionUser = jwt.decode(req.cookies.session).sub;
   Cocktail.findOneAndDelete({_id: req.body.targetId, creator: sessionUser})
   .then( (deletedCocktail)=> {
     if(!deletedCocktail) {
-      console.error("No cocktail recipe exists with both the provided 'targetId' and the current session user as its 'creator'.");
+      //If the target cocktail doesn't exist
       return res.status(404).json({
         errorType: "NoSuchCocktail"
       });
     }
     return res.status(200).json(deletedCocktail);
   })
-  .catch( (err)=> {
-    console.error(`✖ ${err}`);
+  .catch(()=> {
     return res.status(500).send();
   });
 });
 
 router.get("/:targetId", (req,res)=> {
-  //#region Request Validation
-    //':targetId' is a valid ObjectId
-    if(!ObjectId.isValid(req.params.targetId)) {
-      console.error(`The ':targetId' route parameter ${req.params.targetId} is an invalid ObjectId.`);
-      return res.status(422).json({
-        errorType: "InvalidObjectId"
-      });
-    }
-  //#endregion
+  //Request Validation
 
+  //':targetId' is a valid ObjectId
+  if(!ObjectId.isValid(req.params.targetId)) {
+    return res.status(422).json({
+      errorType: "InvalidObjectId"
+    });
+  }
+
+  //Get the targeted cocktail recipe
   Cocktail.findOne({_id: req.params.targetId})
   .then((requestedCocktail)=> {
     if(!requestedCocktail) {
-      console.error("No cocktail recipe found with the requested ':targetId'.");
+      //The targeted cocktail recipe doesn't exist
       return res.status(404).json({
         errorType: "NoSuchCocktail"
       });
     }
     return res.status(200).json(requestedCocktail.serialize());
   })
-  .catch( (err)=> {
-    console.error(`✖ ${err}`);
+  .catch(()=> {
     return res.status(500).send();
   });
 });
+
+
 
 
 

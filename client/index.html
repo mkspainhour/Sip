@@ -1,5 +1,6 @@
-<!--#region Setup-->
 <!DOCTYPE HTML>
+
+<!--SECTION: Setup-->
 <html lang="en-US">
 <head>
 	<meta charset="UTF-8">
@@ -32,13 +33,14 @@
 	<meta name="msapplication-config" content="/resources/icons/browserconfig.xml">
 	<meta name="theme-color" content="#ff9865">
 </head>
-<!--#endregion-->
 
 
+
+
+
+<!--SECTION: Markup-->
 <body>
 	<main role="main">
-
-
 
 		<!--Logo & Header Buttons-->
 		<header role="banner">
@@ -77,16 +79,12 @@
 			</div>
 		</header>
 
-
-
 		<!--Landing View-->
 		<section id="js-view-landing" class="view" role="region" style="display: none;">
 			<h1 id="landing-usp" class="typo-heading-large typo-color-orange typo-center">Use Sip to save your favorite cocktail recipes.</h1>
 			<p id="landing-direction" class="typo-body typo-center">Sign in above, or quickly register below to get started.</p>
 			<button id="js-landing-button-register" type="button" class="button-filled typo-color-gray" ontouchstart="">Register</button>
 		</section>
-
-
 
 		<!--Sign In View-->
 		<section id="js-view-signIn" class="view" role="region" style="display: none;">
@@ -111,8 +109,6 @@
 				<button id="js-signIn-button-submit" type="submit" class="button-filled typo-color-gray" disabled ontouchstart="">Sign In</button>
 			</form>
 		</section>
-
-
 
 		<!--Register View-->
 		<section id="js-view-register" class="view" role="region" style="display: none;">
@@ -150,8 +146,6 @@
 			</form>
 		</section>
 
-
-
 		<!--User Home View-->
 		<section id="js-view-userHome" class="view" role="region" style="display: none;">
 
@@ -168,8 +162,6 @@
 			</div>
 
 		</section>
-
-
 
 		<!--Recipe Edit View-->
 		<section id="js-view-recipeEdit" class="view" role="region" style="display: none;">
@@ -229,8 +221,6 @@
 			</form>
 		</section>
 
-
-
 		<!--Recipe View-->
 		<section id="js-view-recipe" class="view" role="region" style="display: none;">
 
@@ -248,11 +238,9 @@
 
 		</section>
 
-
-
 	</main>
 
-	<!--#region SCRIPTS-->
+	<!--SECTION: Scripts-->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"
 		integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
 		crossorigin="anonymous"></script>
@@ -264,7 +252,6 @@
 	<script src="js/view/recipe.js"></script>
 	<script src="js/ui.js"></script>
 	<script src="js/client.js"></script>
-   <!--#endregion-->
 
 </body>
 </html>

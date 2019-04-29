@@ -1,4 +1,4 @@
-//#region SETUP
+//SECTION: Setup
 "use strict";
 
 const router = require("express").Router();
@@ -9,40 +9,39 @@ const bcrypt = require("bcryptjs");
 const { COOKIE_EXPIRY } = require("../../config");
 const { User } = require("./models");
 const { Cocktail } = require("../cocktail")
-//#endregion
 
 
 
+
+
+//SECTION: Routes
 router.post("/create", (req, res)=> {
-  //#region Request Validation
-    //Required fields must be present and not empty
-    for(let requiredField of ["username", "password"]) {
-      if (!req.body[requiredField]) {
-        console.error(`Request body is missing the '${requiredField}' field.`)
-        return res.status(422).json({
-          errorType: "MissingField"
-        });
-      }
-    }
+  //Request Validation
 
-    //Fields are their expected types
-    for(let stringField of ["username", "password", "email"]) {
-      if(req.body.hasOwnProperty(stringField) && typeof req.body[stringField] != "string") {
-        console.error(`The '${stringField}' field in the request body must be a String.`);
-        return res.status(422).json({
-          errorType: "UnexpectedDataType"
-        });
-      }
-    }
-
-    //If 'email' field is present, it is not an empty String
-    if (req.body.hasOwnProperty("email") && req.body.email == "") {
-      console.error(`The 'email' field in the request body is optional, but it must not be empty if present.`);
+  //Required fields must be present and not empty
+  for(let requiredField of ["username", "password"]) {
+    if (!req.body[requiredField]) {
       return res.status(422).json({
         errorType: "MissingField"
       });
     }
-  //#endregion
+  }
+
+  //Fields are their expected types
+  for(let stringField of ["username", "password", "email"]) {
+    if(req.body.hasOwnProperty(stringField) && typeof req.body[stringField] != "string") {
+      return res.status(422).json({
+        errorType: "UnexpectedDataType"
+      });
+    }
+  }
+
+  //If 'email' field is present, it is not an empty String
+  if (req.body.hasOwnProperty("email") && req.body.email == "") {
+    return res.status(422).json({
+      errorType: "MissingField"
+    });
+  }
 
   //Unique fields are verified to be so
   const usernameIsUnique = new Promise( (resolve, reject)=> {
@@ -50,7 +49,6 @@ router.post("/create", (req, res)=> {
     .then( (user)=> {
       if (user) {
         reject({
-          code: 422,
           errorType: "UsernameNotUnique",
         });
       }
@@ -65,7 +63,6 @@ router.post("/create", (req, res)=> {
       .then( (user)=> {
         if (user) {
           return reject({
-            code: 422,
             errorType: "EmailNotUnique",
           });
         }
@@ -78,36 +75,39 @@ router.post("/create", (req, res)=> {
     }
   });
 
+  //If the username and email are determined to be unique...
   Promise.all([usernameIsUnique, emailIsUnique])
   .then( ()=> {
+    //Create the new user data
     let newUserData = {
       username: req.body.username,
       hashedPassword: bcrypt.hashSync(req.body.password, 12),
     }
+
+    //If the user chose to include their email during registration
     if (req.body.email) {
       newUserData.email = req.body.email;
     }
 
-    return User.create(newUserData);
+    //Create the user account
+    return User.create( newUserData );
   })
   .then( (newUser)=> {
+    //Set the session cookies for the new user
     const sessionJwt = User.makeJwtFor(newUser.username);
     res.cookie("session", sessionJwt, {maxAge: COOKIE_EXPIRY});
     res.cookie("user", newUser.username, {maxAge: COOKIE_EXPIRY});
 
     return res.status(201).send();
   })
-  .catch ( (err)=> {
+  .catch( (err)=> {
     //Catch errors thrown by the above '...isUnique()' promise functions
     if (err.errorType) {
-      //As of now, err.code will always be 422, but is left dynamic to make future changes less involved
-      console.error("/create catch() err:", err);
-      return res.status(err.code).json({
+      return res.status(422).json({
         errorType: err.errorType
       });
     }
     //Catch server errors
-    console.error("❗Server Error:", err);
     return res.status(500).json({
       errorType: "InternalServerError"
     });
@@ -115,16 +115,14 @@ router.post("/create", (req, res)=> {
 });
 
 router.get("/:username", (req,res)=> {
+  //Request Validation
   const requestedUsername = req.params.username;
-
-  //#region Request Validation
   if(requestedUsername.length != requestedUsername.trim().length) {
-    message: "The 'username' route parameter must not begin or end with whitespace characters."
     return res.status(404).json({
+      //No username should contain whitespace
       errorType: "NoSuchUser",
     });
   }
-  //#endregion
 
   //Acts as a container for building the return data
   let returnUser = {};
@@ -132,31 +130,38 @@ router.get("/:username", (req,res)=> {
   return User.findOne({username: requestedUsername})
   .then((locatedUser)=> {
     if(!locatedUser) {
-      console.error("No user found with the requested 'username'.");
+      //The target username is not attached to an account
       return res.status(404).json({
         errorType: "NoSuchUser"
       });
     }
+
+    //Serialize the raw user account information for public viewing
     returnUser = locatedUser.serialize();
 
+    //Look for any cocktail recipes created by that account
     Cocktail.find({creator: locatedUser.username})
     .then((cocktails)=> {
       if(cocktails.length > 0) {
+        //If that username is a creator of any number of cocktails
         returnUser.createdCocktails = cocktails.map((cocktail)=> cocktail.serialize());
       }
       else {
         returnUser.createdCocktails = [];
       }
-      return res.status(200).json(returnUser);
+
+      //Return the user account information with any existing cocktail recipes
+      return res.status(200).json( returnUser );
     })
   })
-  .catch((err)=> {
-    console.error("❗Server Error:", err);
+  .catch(()=> {
     return res.status(500).json({
       errorType: "InternalServerError"
     });
   });
 });
+
+
 
 
 

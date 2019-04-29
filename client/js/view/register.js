@@ -35,7 +35,7 @@ const registerView = {
    //#endregion
 
    configureEventListeners: function() {
-      registerView.$headerButtons.$signInInstead.on("click", async function(e) {
+      registerView.$headerButtons.$signInInstead.on("click", async function() {
          await ui.hideCurrentView("fadeOutLeft");
          signInView.show("fadeInRight");
       });
@@ -46,27 +46,27 @@ const registerView = {
          e.preventDefault();
       });
 
-      registerView.$usernameInput.on("input", function(e) {
+      registerView.$usernameInput.on("input", function() {
          registerView.validateUsernameInput();
          registerView.validateForm();
       });
 
-      registerView.$emailInput.on("input", function(e) {
+      registerView.$emailInput.on("input", function() {
          registerView.validateEmailInput();
          registerView.validateForm();
       });
 
-      registerView.$passwordInput.on("input", function(e) {
+      registerView.$passwordInput.on("input", function() {
          registerView.validatePasswordInput();
          registerView.validateForm();
       });
 
-      registerView.$confirmPasswordInput.on("input", function(e) {
+      registerView.$confirmPasswordInput.on("input", function() {
          registerView.validateConfirmPasswordInput();
          registerView.validateForm();
       });
 
-      registerView.$submitButton.on("click", async function(e) {
+      registerView.$submitButton.on("click", async function() {
          ui.scrollToTop();
          registerView.setFormFeedback("Registering...");
          await registerView.createUser(
@@ -77,7 +77,7 @@ const registerView = {
       });
    },
    beforeShow: function() {
-      return new Promise((resolve, reject)=> {
+      return new Promise((resolve)=> {
          registerView.reset();
          resolve();
       });
@@ -247,7 +247,7 @@ const registerView = {
 
    //API
    createUser: async function(username, password, email) {
-      return new Promise((resolve, reject)=> {
+      return new Promise((resolve)=> {
          let requestData = {};
          requestData.username = username;
          requestData.password = password;
@@ -272,7 +272,6 @@ const registerView = {
          .catch((returnedData)=> {
             const response = returnedData.responseJSON;
             const errorType = response.errorType;
-            console.error("ERROR:", response);
 
             switch(errorType) {
                case "UsernameNotUnique":

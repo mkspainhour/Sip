@@ -1,13 +1,14 @@
-//#region SETUP
+//SECTION: Setup
 "use strict";
 
 const mongoose = require("mongoose");
   mongoose.Promise = global.Promise;
-//#endregion
 
 
 
-//Model Description
+
+
+//SECTION: Model Description
 const cocktailSchema = mongoose.Schema({
   name: {type: String, required: true, trim: true},
   creator: {type: String, required: true, trim: true},
@@ -21,13 +22,15 @@ const cocktailSchema = mongoose.Schema({
     required: true
   },
   directions: {type: String, trim: true},
-  //createdAt
-  //updatedAt
+  //createdAt timestamp
+  //updatedAt timestamp
 }, {timestamps: true});
 
 
 
-//Static Model Methods
+
+
+//SECTION: Static Model Methods
 cocktailSchema.methods.serialize = function() {
   return {
     id: this._id,
@@ -40,11 +43,15 @@ cocktailSchema.methods.serialize = function() {
 
 
 
-//Model Finalization
+
+
+//SECTION: Model Compilation
 const Cocktail = mongoose.model("Cocktail", cocktailSchema);
 
 
 
+
+
 module.exports = {
-  Cocktail
+  Cocktail //Model
 };

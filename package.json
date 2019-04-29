@@ -1,18 +1,32 @@
 {
   "name": "sip",
-  "version": "1.0.0",
   "description": "Quickly save and recall cocktail recipes.",
-  "keywords": ["cocktail", "web app", "recipe"],
-  "main": "server.js",
-  "scripts": {
-    "start": "node server.js",
-    "test": "mocha --exit"
+  "version": "1.0.0",
+  "author": {
+    "name": "Marshall Spainhour",
+    "url": "https://github.com/mkspainhour"
   },
+  "license": "AGPL-3.0-only",
+  "main": "server.js",
+  "homepage": "https://github.com/mkspainhour/Sip",
+  "keywords": [
+    "cocktail",
+    "cocktails",
+    "alcohol",
+    "drink",
+    "drinks",
+    "recipe"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/mkspainhour/sip.git"
   },
-  "author": "Marshall Spainhour",
+  "bugs": {
+    "url": "https://github.com/mkspainhour/Sip/issues"
+  },
+  "engines": {
+    "node": ">=6.0.0"
+  },
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.3",
@@ -24,8 +38,13 @@
   "devDependencies": {
     "chai": "^4.2.0",
     "chai-http": "^4.2.1",
+    "eslint": "^5.16.0",
     "faker": "^4.1.0",
     "mocha": "^5.2.0",
     "nodemon": "^1.18.9"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "test": "mocha --exit"
   }
 }

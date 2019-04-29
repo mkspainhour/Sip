@@ -8,18 +8,18 @@ const landingView = {
    //#endregion
 
    configureEventListeners: function() {
-      landingView.$headerButtons.$signIn.on("click", async function(e) {
+      landingView.$headerButtons.$signIn.on("click", async function() {
          await ui.hideCurrentView("fadeOutLeft");
          signInView.show("fadeInRight");
       });
 
-      landingView.$registerButton.on("click", async function(e) {
+      landingView.$registerButton.on("click", async function() {
          await ui.hideCurrentView("fadeOutLeft");
          registerView.show("fadeInRight");
       });
    },
    beforeShow: function() {
-      return new Promise((resolve, reject)=> {
+      return new Promise((resolve)=> {
          //No functionality required yet
          resolve();
       });

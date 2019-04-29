@@ -1,13 +1,11 @@
 :root {
   --font-sans: "Work Sans", sans-serif;
   --font-serif: "Eczar", serif;
-  /*Set rem size for UI scaling*/
-  font-size: 15px;
+  font-size: 15px; /*1rem*/
 
   --color-orange: hsl(20, 100%, 80%);
-  --color-orange-dark: #ff9865;
+  --color-orange-dark: hsl(20, 100%, 70%);
   --color-orange-light: hsl(20, 100%, 90%);
-
   --color-red: hsl(0, 100%, 72.5%);
   --color-red-light: hsl(0, 100%, 80%);
 
@@ -42,22 +40,22 @@ body {
 
 
 
+/*SECTION: Header*/
 header {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: 1;
-
-  /*Hollow button text line height, hollow button interior padding, hollow button border width, and header vertical padding */
+  /*Hollow button text line height
+    hollow button interior padding,
+    hollow button border width,
+    header vertical padding */
   min-height: calc(0.8em + 0.8em + 2px + 2rem);
-
   display: flex;
   flex-flow: row nowrap;
   justify-content: space-between;
-
   padding: 1rem;
-
   background-color: var(--color-gray-dark);
   box-shadow: var(--box-shadow-3dp);
 }
@@ -89,6 +87,7 @@ header {
 
 
 
+/*SECTION: Views*/
 .view {
   --header-height: 56px;
 
@@ -109,6 +108,7 @@ header {
 
 
 
+/*SECTION: Typography*/
 .typo-heading-large {
   font-family: var(--font-serif);
   font-size: 1.953em;
@@ -187,6 +187,7 @@ header {
 
 
 
+/*SECTION: Forms*/
 form {
   display: flex;
   flex-flow: column nowrap;
@@ -206,13 +207,9 @@ label {
   margin-top: 0.267em;
 }
 
-label.invalid {
+.invalid {
   color: var(--color-red-light);
 }
-
-
-
-
 
 input {
   -webkit-appearance: none;
@@ -261,32 +258,8 @@ input::placeholder {
 
 
 
-/* Convert .recipe-card styles to support it now being a <button> */
-.recipe-card {
-  border: none;
-  max-width: 25em;
-  width: 100%;
-  justify-content: left;
-  position: relative;
-  border-radius: 6px;
-  background-color: var(--color-gray-light);
-  box-shadow: var(--box-shadow-1dp);
-  padding: 1em;
-  padding-right: calc(2rem + 11px);
-  /* Accounting for chevron .svg width, and its horizontal padding */
 
-  cursor: pointer;
-}
-
-.recipe-card:not(:last-of-type) {
-  margin-bottom: 16px;
-}
-
-
-
-
-
-
+/*SECTION: Hollow Buttons*/
 .button-hollow {
   border: 1px solid var(--color-orange-dark);
   background-color: var(--color-gray);
@@ -319,6 +292,7 @@ header .button-hollow {
 
 
 
+/*SECTION: Icon Buttons*/
 .button-icon {
   display: flex;
   flex-flow: row nowrap;
@@ -351,6 +325,7 @@ header .button-hollow {
 
 
 
+/*SECTION: Filled Buttons*/
 .button-filled {
   background: var(--color-orange-dark);
   box-shadow: var(--box-shadow-2dp);
@@ -392,6 +367,7 @@ header .button-hollow {
 
 
 
+/*SECTION: Landing View*/
 #js-view-landing {
   max-width: 22rem;
 }
@@ -409,6 +385,7 @@ header .button-hollow {
 
 
 
+/*SECTION: Sign In View*/
 #js-view-signIn {
   max-width: 22rem;
 }
@@ -417,6 +394,7 @@ header .button-hollow {
 
 
 
+/*SECTION: Register View*/
 #js-view-register {
   max-width: 22rem;
 }
@@ -425,8 +403,7 @@ header .button-hollow {
 
 
 
-/* #js-view-userHome {} */
-
+/*SECTION: User Home View*/
 #js-headerButton-addRecipe {
   min-width: 1.9rem;
   padding-right: 0.6em;
@@ -450,6 +427,26 @@ header .button-hollow {
   max-width: 22rem;
 }
 
+.recipe-card {
+  border: none;
+  max-width: 25em;
+  width: 100%;
+  justify-content: left;
+  position: relative;
+  border-radius: 6px;
+  background-color: var(--color-gray-light);
+  box-shadow: var(--box-shadow-1dp);
+  padding: 1em;
+  padding-right: calc(2rem + 11px); /*Accounting for chevron .svg width, and its horizontal padding*/
+
+
+  cursor: pointer;
+}
+
+.recipe-card:not(:last-of-type) {
+  margin-bottom: 16px;
+}
+
 .recipe-name {
   text-overflow: ellipsis;
 
@@ -466,6 +463,7 @@ header .button-hollow {
 
 
 
+/*SECTION: Recipe Edit View*/
 #js-view-recipeEdit {
   max-width: 45ch;
 }
@@ -492,8 +490,6 @@ header .button-hollow {
   width: 20px;
   height: 20px;
 }
-
-/* #js-wrapper-recipeEdit-ingredientBlocks {} */
 
 #js-button-recipeEdit-addIngredientBlock {
   align-self: center;
@@ -538,6 +534,7 @@ header .button-hollow {
 
 
 
+/*SECTION: Recipe View*/
 #js-view-recipe {
   display: flex;
   flex-flow: column nowrap;
@@ -576,6 +573,7 @@ header .button-hollow {
 
 
 
+/*SECTION: Media Queries*/
 @media (hover: none) {
 
   .button-hollow:active,
@@ -616,8 +614,6 @@ header .button-hollow {
     font-size: 1.953em;
   }
 }
-
-@media screen and (min-width:1280px) {}
 
 @media screen and (min-width:1920px) {
   :root {

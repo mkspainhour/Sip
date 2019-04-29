@@ -1,6 +1,6 @@
 <br>
 
-# [Sip](https://pacific-castle-68250.herokuapp.com/) helps you manage  cocktail recipes.
+# [Sip](https://pacific-castle-68250.herokuapp.com/) helps you manage cocktail recipes.
 - Save the cocktail recipe you told your friend you would try sometime.
 - Pull up that cocktail recipe when you're finally in the mood for something experimental.
 - Edit that recipe when you learn your friend is not great at making cocktails.
@@ -19,7 +19,7 @@ Designed & Developed by Marshall Spainhour
 <br>
 
 ## API Structure
-The 🔒icon indicates that the endpoint requires a valid 'session' cookie.
+The 🔒icon indicates that the endpoint requires authentication.
 
 ### User Authorization
 - POST /api/auth/sign-in

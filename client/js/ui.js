@@ -11,7 +11,7 @@ const ui = {
 	},
 	configureEventListeners: function() {
 		//If the user is navigating with the mouse, hide unecessary accessibility styles
-		$(window).on("mousedown", function(e) {
+		$(window).on("mousedown", function() {
 			if($("html").hasClass("user-navigating-with-keyboard")) {
 				console.log("Mouse navigation detected.");
 				$("html").removeClass("user-navigating-with-keyboard");
@@ -92,10 +92,6 @@ const ui = {
 				await ui.hideWithAnimation(ui.currentView.$view, hideAnimation);
 				ui.currentView = null;
 			}
-			else {
-				console.error(`ui.hideCurrentView() called while ui.currentView is null with animation '${showAnimation}'.`);
-				console.trace();
-			}
 			resolve();
 		});
 	},
@@ -118,10 +114,6 @@ const ui = {
 		//Set the currentView UI variable to the new view
 		if (ui.currentView == null) {
 			ui.currentView = targetView;
-		}
-		else {
-			console.error(`ui.showView() called on already-shown view '${$targetView.$view}' with animation '${showAnimation}'.`);
-			console.trace();
 		}
 
 		//Show the new view's header buttons
@@ -157,8 +149,6 @@ const ui = {
 			}
 			else {
 				//Not entirely an error, but it should not occur under normal circumstances, so it is logged as an error.
-				console.error(`hideWithAnimation() called on already-hidden element '${$targetElement}' with animation '${hideAnimation}'.`);
-				console.trace();
 				resolve();
 			}
 
@@ -185,8 +175,6 @@ const ui = {
 			}
 			else {
 				//Not entirely an error, but it should not occur under normal circumstances, so it is logged as an error.
-				console.error(`showWithAnimation() called on already-shown element '${$targetElement}' with animation '${showAnimation}'.`);
-				console.trace();
 				resolve();
 			}
 

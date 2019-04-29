@@ -1,4 +1,4 @@
-//#region SETUP
+//SECTION: Setup
 "use strict";
 
 const mongoose = require("mongoose");
@@ -6,22 +6,25 @@ const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 
 const { JWT_SECRET, JWT_EXPIRY } = require("../../config");
-//#endregion
 
 
 
-//Model Description
+
+
+//SECTION: Model Description
 const userSchema = mongoose.Schema({
   username: {type: String, required: true, unique: true, trim: true},
   hashedPassword: {type: String, required: true},
   email: {type: String, unique: true, sparse: true, trim: true},
-  //createdAt
-  //updatedAt
+  //createdAt timestamp
+  //updatedAt timestamp
 }, {timestamps: true});
 
 
 
-//Static Model Methods
+
+
+//SECTION: Static Model Methods
 userSchema.statics.makeJwtFor = function(username) {
   if (typeof username != "string") {
     throw Error("The username argument for User.makeJwtFor() must be a String.");
@@ -31,7 +34,9 @@ userSchema.statics.makeJwtFor = function(username) {
 
 
 
-//Model Instance Methods
+
+
+//SECTION: Model Instance Methods
 userSchema.methods.serialize = function() {
   return {
     username: this.username
@@ -40,11 +45,15 @@ userSchema.methods.serialize = function() {
 
 
 
-//Model Finalization
+
+
+//SECTION: Model Compilation
 const User = mongoose.model("User", userSchema);
 
 
 
+
+
 module.exports = {
-  User
+  User //Model
 };

@@ -30,7 +30,7 @@ $(function entryPoint() {
 
 
 
-//Utility Functions
+//SECTION: Utility Functions
 function getCookieValue(cookieName) {
    let locatedSegment = document.cookie.match('(^|;)\\s*' + cookieName + '\\s*=\\s*([^;]+)');
    return locatedSegment ? locatedSegment.pop() : null;
