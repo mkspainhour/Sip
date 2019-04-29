@@ -27,7 +27,7 @@ const signInView = {
    //#endregion
 
    configureEventListeners: function() {
-      signInView.$headerButtons.$registerInstead.on("click", async function(e) {
+      signInView.$headerButtons.$registerInstead.on("click", async function() {
          await ui.hideCurrentView("fadeOutRight");
          registerView.show("fadeInLeft");
       });
@@ -38,17 +38,17 @@ const signInView = {
          e.preventDefault();
       });
 
-      signInView.$usernameInput.on("input", function(e) {
+      signInView.$usernameInput.on("input", function() {
          signInView.validateUsernameInput();
          signInView.validateForm();
       });
 
-      signInView.$passwordInput.on("input", function(e) {
+      signInView.$passwordInput.on("input", function() {
          signInView.validatePasswordInput();
          signInView.validateForm();
       });
 
-      signInView.$submitButton.on("click", function(e) {
+      signInView.$submitButton.on("click", function() {
          ui.scrollToTop();
          signInView.setFormFeedback("Signing in...");
          signInView.signIn(
@@ -58,7 +58,7 @@ const signInView = {
       });
    },
    beforeShow: function() {
-      return new Promise((resolve, reject)=> {
+      return new Promise((resolve)=> {
          signInView.reset();
          resolve();
       });
@@ -149,7 +149,7 @@ const signInView = {
 
    //API
    signIn: async function(username, password) {
-      return new Promise((resolve, reject)=> {
+      return new Promise((resolve)=> {
          $.ajax({
             method: "POST",
             url: "/api/auth/sign-in",
@@ -173,7 +173,6 @@ const signInView = {
          .catch((returnedData)=> {
             const response = returnedData.responseJSON;
             const errorType = response.errorType;
-            console.error("ERROR:", response);
 
             switch(errorType) {
                case "SessionAlreadyActive":
@@ -184,9 +183,6 @@ const signInView = {
                   break;
                case "UnexpectedDataType":
                   alert("ERROR: UnexpectedDataType");
-                  break;
-               case "MissingField":
-                  alert("ERROR: MissingField");
                   break;
                case "UntrimmedString":
                   alert("ERROR: UntrimmedString");

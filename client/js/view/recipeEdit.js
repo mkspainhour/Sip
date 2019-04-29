@@ -48,7 +48,7 @@ const recipeEditView = {
       let validationDelayTimer;
       const validationDelay = 200; //ms
 
-      recipeEditView.$headerButtons.$cancel.on("click", async function(e) {
+      recipeEditView.$headerButtons.$cancel.on("click", async function() {
          //The 'mode' view variable is reset in the view's reset() method, so its current value is cached here to be used in the conditional below
          const mode = recipeEditView.mode;
 
@@ -97,7 +97,7 @@ const recipeEditView = {
          }, validationDelay);
       });
 
-      recipeEditView.$addIngredientBlockButton.on("click", function(e) {
+      recipeEditView.$addIngredientBlockButton.on("click", function() {
          recipeEditView.addIngredientBlock();
       });
 
@@ -114,17 +114,17 @@ const recipeEditView = {
          recipeEditView.ingredientBlockValidityFlags[targetedIngredientBlockIndex] = null;
       });
 
-      recipeEditView.$createModeSubmitButton.on("click", function(e) {
+      recipeEditView.$createModeSubmitButton.on("click", function() {
          const cocktailData = recipeEditView.getDataFromForm();
          recipeEditView.createCocktail( cocktailData );
       });
 
-      recipeEditView.$editModeSubmitButton.on("click", function(e) {
+      recipeEditView.$editModeSubmitButton.on("click", function() {
          const updateData = recipeEditView.getDataFromForm();
          recipeEditView.updateCocktail(appSession.activeCocktail.id, updateData);
       });
 
-      recipeEditView.$deleteButton.on("click", function(e) {
+      recipeEditView.$deleteButton.on("click", function() {
          const deleteConfirmMessage = "Sip Says:\n\nAre you sure you want to delete this cocktail recipe?\nThis action cannot be undone.";
 
          if( window.confirm(deleteConfirmMessage) ) {
@@ -133,7 +133,7 @@ const recipeEditView = {
       });
    },
    beforeShow: function(mode) {
-      return new Promise((resolve, reject)=> {
+      return new Promise((resolve)=> {
          //Reset the view
          recipeEditView.reset();
 
@@ -166,7 +166,6 @@ const recipeEditView = {
          //Invalid Mode
          else {
             recipeEditView.mode = null;
-            console.trace();
             throw Error(`What? Invalid mode '${mode}' attempted.`);
          }
 
@@ -198,7 +197,7 @@ const recipeEditView = {
       recipeEditView.validateCocktailNameField();
 
       //Populate the recipe ingredients
-      recipe.ingredients.forEach((ingredient, index, array)=> {
+      recipe.ingredients.forEach((ingredient)=> {
          recipeEditView.addIngredientBlock(false);
          const $ingredientName = $(".recipeEdit-ingredientBlock").last().find(".js-input-ingredientBlock-name");
          const $ingredientAmount = $(".recipeEdit-ingredientBlock").last().find(".js-input-ingredientBlock-amount");
@@ -432,32 +431,18 @@ const recipeEditView = {
       const flagsArray = recipeEditView.ingredientBlockValidityFlags;
       let ingredientsAreValid = false;
 
-      //No ingredientBlock's
-      if(!flagsArray.length) {
-         console.warn("validateForm() flagsArray is empty.");
-         formIsValid = false;
-      }
-
-      //No non-null values
-      else if(flagsArray.length==1 && flagsArray[0]==null) {
-         console.warn("validateForm() flagsArray only contains one 'null' value.");
-         formIsValid = false;
-      }
-
-      //Otherwise, test the flagsArray for validity
-      else {
-         ingredientsAreValid = flagsArray.every((currentFlag)=> {
-            if(currentFlag===null) {
-               //If the current flag is the remnant of a now-deleted ingredientBlock, it is also valid. This is tested for here, because the second test in the return statement below will throw an error when looking for validity properties on 'null'.
-               return true;
-            }
-            return(
-               currentFlag.nameIsValid===true
-               && currentFlag.amountIsValid===true
-               && currentFlag.measurementUnitIsValid===true
-            );
-         })
-      }
+      //Test the flagsArray for validity
+      ingredientsAreValid = flagsArray.every((currentFlag)=> {
+         if(currentFlag===null) {
+            //If the current flag is the remnant of a now-deleted ingredientBlock, it is also valid. This is tested for here, because the second test in the return statement below will throw an error when looking for validity properties on 'null'.
+            return true;
+         }
+         return(
+            currentFlag.nameIsValid===true
+            && currentFlag.amountIsValid===true
+            && currentFlag.measurementUnitIsValid===true
+         );
+      });
 
       (recipeEditView.cocktailNameInputIsValid && ingredientsAreValid) ?
          recipeEditView.enableActiveSubmitButton()
@@ -516,7 +501,7 @@ const recipeEditView = {
 
    //API
    createCocktail: function(cocktailData) {
-      return new Promise((resolve, reject)=> {
+      return new Promise((resolve)=> {
          $.ajax({
             method: "POST",
             url: "/api/cocktail/create",
@@ -531,7 +516,6 @@ const recipeEditView = {
          .catch((returnedData)=> {
             const response = returnedData.responseJSON;
             const errorType = response.errorType;
-            console.error("ERROR:", response);
 
             switch(errorType) {
                case "NoActiveSession":
@@ -560,7 +544,7 @@ const recipeEditView = {
       });
    },
    updateCocktail: function(targetId, updateData) {
-      return new Promise((resolve, reject)=> {
+      return new Promise((resolve)=> {
          const formattedUpdateData = {};
          formattedUpdateData.newName = updateData.name;
          formattedUpdateData.newIngredients = updateData.ingredients;
@@ -584,7 +568,6 @@ const recipeEditView = {
          .catch((returnedData)=> {
             const response = returnedData.responseJSON;
             const errorType = response.errorType;
-            console.error("ERROR:", response);
 
             switch(errorType) {
                case "NoActiveSession":
@@ -619,7 +602,7 @@ const recipeEditView = {
       });
    },
    deleteCocktail: function(targetId) {
-      return new Promise((resolve, reject)=> {
+      return new Promise((resolve)=> {
          $.ajax({
             method: "DELETE",
             url: "/api/cocktail/delete",
@@ -634,7 +617,6 @@ const recipeEditView = {
          .catch((returnedData)=> {
             const response = returnedData.responseJSON;
             const errorType = response.errorType;
-            console.error("ERROR:", response);
 
             switch(errorType) {
                case "NoActiveSession":

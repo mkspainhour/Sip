@@ -19,19 +19,19 @@ const recipeView = {
    //#endregion
 
    configureEventListeners: function() {
-      recipeView.$headerButtons.$back.on("click", async function(e) {
+      recipeView.$headerButtons.$back.on("click", async function() {
          await ui.hideCurrentView("fadeOutRight");
          userHomeView.show("fadeInLeft");
          appSession.activeCocktail = null;
       });
 
-      recipeView.$headerButtons.$edit.on("click", async function(e) {
+      recipeView.$headerButtons.$edit.on("click", async function() {
          await ui.hideCurrentView("fadeOutLeft");
          recipeEditView.show("EDIT", "fadeInRight");
       });
    },
    beforeShow: function() {
-      return new Promise((resolve, reject)=> {
+      return new Promise((resolve)=> {
          recipeView.reset();
          recipeView.renderActiveCocktailRecipe();
          resolve();
@@ -55,7 +55,7 @@ const recipeView = {
       recipeView.$cocktailName.text( activeCocktail.name );
 
       //Build and add each ingredient
-      activeCocktail.ingredients.forEach((ingredient, index, array)=> {
+      activeCocktail.ingredients.forEach((ingredient)=> {
          const composedListItem = recipeView.buildIngredientListItem(ingredient.amount, ingredient.measurementUnit, ingredient.name);
          recipeView.$ingredientsList.append( composedListItem );
       });
